@@ -3,11 +3,6 @@ import environ
 import os, sys
 
 
-
-
-
-
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-nrn6d!_#byk=_e5u8(vwkghwn=#=i-2d1m98+###t!=se3u8y5'
@@ -16,8 +11,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-# PROJECT_ROOT = os.path.dirname(__file__)
-# sys.path.insert(0, os.path.join(PROJECT_ROOT, 'src'))
 sys.path.insert(0, os.path.join(BASE_DIR, 'src'))
 
 
@@ -30,16 +23,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'django.contrib.sites',
 
     # third part apps
     'rest_framework',
     'rest_framework.authtoken',
-    # 'allauth',
-    # 'allauth.account',
-    # 'allauth.socialaccount',
-    # 'rest_auth',
-    # 'rest_auth.registration',
+    'rest_framework_simplejwt',
     'drf_spectacular',
 
     # project apps
@@ -123,19 +111,6 @@ AUTH_USER_MODEL = "users.User"
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-# ACCOUNT_EMAIL_REQUIRED = True
-# ACCOUNT_USERNAME_REQUIRED = False
-# ACCOUNT_AUTHENTICATION_METHOD = 'email'
- 
-
-# ACCOUNT_USERNAME_REQUIRED = False
-# AUTHENTICATION_BACKENDS = (
-#  "django.contrib.auth.backends.ModelBackend",
-#  "allauth.account.auth_backends.AuthenticationBackend",
-# )
-
-# SITE_ID = 1
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
@@ -161,36 +136,24 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-# from src.houses.views import TokenBearerAuthentication
-
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 
     'DEFAULT_AUTHENTICATION_CLASSESS': [
-        'src.houses.views.TokenBearerAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 
     'DEFAULT_PERMISSION_CLASSES': [
                             'rest_framework.permissions.IsAuthenticated',
     ]
-
 }
+
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Swipe API',
     'DESCRIPTION': 'Swipe API backend.',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
-    # OTHER SETTINGS
     'POSTPROCESSING_HOOKS': [],
     'COMPONENT_SPLIT_REQUEST': True,
-    # 'SERVE_AUTHENTICATION': ['houses.views.TokenBearerAuthentication',],
-    'AUTHENTICATION_WHITELIST': ['houses.views.TokenBearerAuthentication',],
-    # "SWAGGER_UI_SETTINGS": {
-    #     "deepLinking": True,
-    #     "persistAuthorization": True,
-    #     "displayOperationId": True,
-      
-    # },
 }
