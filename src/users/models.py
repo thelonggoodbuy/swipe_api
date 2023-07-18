@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
-
 from .managers import CustomUserManager
 
 from ads.models import Ads, Accomodation
@@ -20,6 +19,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField()
     is_simple_user = models.BooleanField()
     is_builder = models.BooleanField()
+    is_staff = models.BooleanField()
     first_name = models.CharField(max_length=200, blank=True, null=True)
     second_name = models.CharField(max_length=200, blank=True, null=True)
     photo = models.ImageField(null=True, blank=True, upload_to="galery/")
@@ -29,8 +29,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     change_call_to_agent = models.BooleanField(default=False)
     is_in_blacklist = models.BooleanField(default=False)
     subscription = models.OneToOneField('Subscription', on_delete=models.SET_NULL, null=True, blank=True)
-    favourite_adds = models.ManyToManyField(Ads)
-    favourite_accomodations = models.ManyToManyField(Accomodation)
+    favourite_adds = models.ManyToManyField(Ads, blank=True)
+    favourite_accomodations = models.ManyToManyField(Accomodation, blank=True)
 
     # username = None
     USERNAME_FIELD = "email"

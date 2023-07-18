@@ -1,3 +1,10 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import House
+
+
+
+@admin.register(House)
+class UserAdmin(admin.ModelAdmin):
+    list_display = ("id", "address")
+    list_filter = ("id", "address")

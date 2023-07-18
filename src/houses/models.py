@@ -9,74 +9,75 @@ from django.db import models
 
 class House(models.Model):
     HOUSE_STATUS_CORT = (
-        ("квартири", "appartments"),
-        ("квартири з терассами", "appartments_with_terrace"),
-        ("пентхауз", "penthouse"),
+        ("appartments", "квартири"),
+        ("appartments_with_terrace", "квартири з терассами"),
+        ("penthouse", "пентхауз"),
+        ("individual_house", "індивідуальний будинок"),
     )
     HOUSE_TYPE_CORT = (
-        ("багатоквартирним", "flats"),
-        ("таунхауз", "townhouse"),
-        ("коттедж", "cottage"),
+        ("flats", "багатоквартирним"),
+        ("townhouse", "таунхауз"),
+        ("cottage", "коттедж"),
     )
     HOUSE_CLASS_CORT = (
-        ("елітний", "elite"),
-        ("мейнстрім", "mainstreem"),
-        ("економ+", "econom+"),
+        ("elite", "елітний"),
+        ("mainstreem", "мейнстрім"),
+        ("econom+", "економ+"),
     )
     BUILDING_TECHNOLOGY_CORT = (
-        ("моноблок", "monoblock"),
-        ("цегла та плити", "brick_and_slab"),
-        ("цегла та деревина", "brick_and_wood"),
+        ("monoblock", "моноблок"),
+        ("brick_and_slab", "цегла та плити"),
+        ("brick_and_wood", "цегла та деревина"),
     )
     SQUARE_TYPE_CORT = (
-        ("закрита з охороною", "closed_with_guard"),
-        ("закрита з вахтером", "closed_with_watchman"),
-        ("відкрита з вахтером", "open_with_watchman"),
+        ("closed_with_guard", "закрита з охороною"),
+        ("closed_with_watchman", "закрита з вахтером"),
+        ("open_with_watchman", "відкрита з вахтером"),
     )
     SERVICES_PAYMENT_CORT = (
-        ("Платежи", "payments"),
-        ("керуюча компанія", "management_company"),
+        ("payments", "Платежи"),
+        ("management_company", "керуюча компанія"),
     )
     HOUSEHOLD_GAS_CORT = (
-        ("є", "yes"),
-        ("ні", "no"),
-        ("тільки опалення", "only_heating"),
+        ("yes", "є"),
+        ("no", "ні"),
+        ("only_heating", "тільки опалення"),
     )
     HEATING_CORT = (
-        ("центральне", "central"),
-        ("індивідуальне", "individual"),
+        ("central", "центральне"),
+        ("individual", "індивідуальне"),
     )
     SEWAGE_CORT = (
-        ("центральне", "central"),
-        ("індивідуальна", "individual"),
+        ("central", "центральне"),
+        ("individual", "індивідуальна", ),
     )
     PLUMBING_CORT = (
-        ("центральне", "central"),
-        ("індивідуальна", "individual"),
+        ("central", "центральне"),
+        ("individual", "індивідуальна"),
     )
     REGISTRARION_CORT = (
-        ("юстиція", "judiciary"),
-        ("міжнарода", "international"),
+        ("judiciary", "юстиція"),
+        ("international", "міжнарода"),
     )
     ACCOUNT_CORT = (
-        ("іпотека", "mortrage"),
+        ("mortrage", "іпотека"),
         ("credit", "кредит"),
         ("full_account", "полная"),
         ("prepfyment_with_discount", "предоплата со скидкой"),
     )
     PURPOSE_CORT = (
-        ("житлова", "dwelling"),
-        ("торгівельна", "commercial"),
+        ("dwelling", "житлова"),
+        ("commercial", "торгівельна"),
     )
     SUMM_OF_THREADY_CORT = (
-        ("не повна", "not_a_complete"),
-        ("повна", "full"),
+        ("not_a_complete", "не повна"),
+        ("full", "повна"),
     )
     description = models.TextField()
     address = models.CharField(max_length=200)
     disctrict = models.CharField(max_length=200, null=True, blank=True)
     microdisctrict = models.CharField(max_length=200, null=True, blank=True)
-    house_status = models.CharField(max_length=200, choices=HOUSE_STATUS_CORT)
+    house_status = models.CharField(max_length=200, choices=HOUSE_STATUS_CORT, blank=True, null=True)
     house_type = models.CharField(max_length=200, choices=HOUSE_TYPE_CORT)
     house_class = models.CharField(max_length=200, choices=HOUSE_CLASS_CORT)
     building_technology = models.CharField(max_length=200, choices=BUILDING_TECHNOLOGY_CORT)

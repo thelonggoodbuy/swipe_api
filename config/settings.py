@@ -30,9 +30,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 'django.contrib.sites',
 
     # third part apps
     'rest_framework',
+    'rest_framework.authtoken',
+    # 'allauth',
+    # 'allauth.account',
+    # 'allauth.socialaccount',
+    # 'rest_auth',
+    # 'rest_auth.registration',
     'drf_spectacular',
 
     # project apps
@@ -114,6 +121,22 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = "users.User"
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+# ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_USERNAME_REQUIRED = False
+# ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ 
+
+# ACCOUNT_USERNAME_REQUIRED = False
+# AUTHENTICATION_BACKENDS = (
+#  "django.contrib.auth.backends.ModelBackend",
+#  "allauth.account.auth_backends.AuthenticationBackend",
+# )
+
+# SITE_ID = 1
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
@@ -138,8 +161,20 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
+# from src.houses.views import TokenBearerAuthentication
+
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+
+    'DEFAULT_AUTHENTICATION_CLASSESS': [
+        'src.houses.views.TokenBearerAuthentication',
+    ],
+
+    'DEFAULT_PERMISSION_CLASSES': [
+                            'rest_framework.permissions.IsAuthenticated',
+    ]
+
 }
 
 SPECTACULAR_SETTINGS = {
@@ -148,4 +183,14 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     # OTHER SETTINGS
+    'POSTPROCESSING_HOOKS': [],
+    'COMPONENT_SPLIT_REQUEST': True,
+    # 'SERVE_AUTHENTICATION': ['houses.views.TokenBearerAuthentication',],
+    'AUTHENTICATION_WHITELIST': ['houses.views.TokenBearerAuthentication',],
+    # "SWAGGER_UI_SETTINGS": {
+    #     "deepLinking": True,
+    #     "persistAuthorization": True,
+    #     "displayOperationId": True,
+      
+    # },
 }
