@@ -1,6 +1,7 @@
 from pathlib import Path
 import environ
 import os, sys
+from datetime import timedelta
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,6 +29,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'drf_spectacular',
 
     # project apps
@@ -107,7 +109,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = "users.User"
+AUTH_USER_MODEL = "users.CustomUser"
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
@@ -139,13 +141,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 
-    'DEFAULT_AUTHENTICATION_CLASSESS': [
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 
-    'DEFAULT_PERMISSION_CLASSES': [
-                            'rest_framework.permissions.IsAuthenticated',
-    ]
 }
 
 
@@ -156,4 +159,12 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
     'POSTPROCESSING_HOOKS': [],
     'COMPONENT_SPLIT_REQUEST': True,
+    'AUTHENTICATION_WHITELIST': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+
+
+    # 'SERVE_AUTHENTICATION': [
+    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
+    # ],
 }

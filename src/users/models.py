@@ -6,7 +6,7 @@ from .managers import CustomUserManager
 from ads.models import Ads, Accomodation
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class CustomUser(AbstractBaseUser, PermissionsMixin):
     NONTIFICATION_STATUS = (
         ("оповещения пользователю", "for_user"),
         ("оповещения пользователю и агенту", "for_user_and_agent"),
@@ -15,11 +15,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     username = None
     email = models.EmailField(unique=True)
-    password = models.CharField(max_length=200, blank=True)
-    is_superuser = models.BooleanField()
-    is_simple_user = models.BooleanField()
-    is_builder = models.BooleanField()
-    is_staff = models.BooleanField()
+    # password = models.CharField(max_length=200, blank=True)
+    is_superuser = models.BooleanField(default=False)
+    is_simple_user = models.BooleanField(default=False)
+    is_builder = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
+    is_activated = models.BooleanField(default=False)
     first_name = models.CharField(max_length=200, blank=True, null=True)
     second_name = models.CharField(max_length=200, blank=True, null=True)
     photo = models.ImageField(null=True, blank=True, upload_to="galery/")
@@ -53,8 +54,8 @@ class Agent(models.Model):
     
 
 class Message(models.Model):
-    from_user = models.ForeignKey("User", on_delete=models.SET_NULL, blank=True, null=True, related_name="user_message_sender")
-    to_user = models.ForeignKey("User", on_delete=models.SET_NULL, blank=True, null=True, related_name="user_message_reseiver")
+    from_user = models.ForeignKey("CustomUser", on_delete=models.SET_NULL, blank=True, null=True, related_name="user_message_sender")
+    to_user = models.ForeignKey("CustomUser", on_delete=models.SET_NULL, blank=True, null=True, related_name="user_message_reseiver")
     date_and_time = models.DateTimeField()
     reading_status = models.BooleanField(default=False)
     

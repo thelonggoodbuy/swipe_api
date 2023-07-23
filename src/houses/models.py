@@ -89,7 +89,7 @@ class House(models.Model):
     heating = models.CharField(max_length=200, choices=HEATING_CORT)
     sewage = models.CharField(max_length=200, choices=SEWAGE_CORT)
     plumbing = models.CharField(max_length=200, choices=PLUMBING_CORT)
-    sales_department = models.ForeignKey("users.User", on_delete=models.SET_NULL, blank=True, null=True)
+    sales_department = models.ForeignKey("users.CustomUser", on_delete=models.SET_NULL, blank=True, null=True)
     registration = models.CharField(max_length=200, choices=REGISTRARION_CORT)
     type_of_account = models.CharField(max_length=200, choices=ACCOUNT_CORT)
     purpose = models.CharField(max_length=200, choices=PURPOSE_CORT)

@@ -42,7 +42,7 @@ class Accomodation(models.Model):
     heat_type = models.CharField(max_length=200, choices=HEAT_TYPE_CORT)
     image_field = models.ManyToManyField('ImageGalery')
     schema = models.ImageField(null=True, blank=True, upload_to="galery/appartment_schemas/")
-    booked_by = models.ForeignKey("users.User", on_delete=models.SET_NULL, blank=True, null=True)
+    booked_by = models.ForeignKey("users.CustomUser", on_delete=models.SET_NULL, blank=True, null=True)
     document = models.ManyToManyField(Document)
 
 

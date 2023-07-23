@@ -7,16 +7,18 @@ from .serializers import HouseSerializer
 from .models import House
 
 
+from users.services import AdminOnlyPermission
+
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
 
-class TokenBearerAuthentication(TokenAuthentication):
-    keyword = 'Bearer'
+# class TokenBearerAuthentication(TokenAuthentication):
+#     keyword = 'Bearer'
 
 
 class HouseViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated,]
+    permission_classes = [IsAuthenticated, AdminOnlyPermission]
     authentication_classes = [JWTAuthentication]
     serializer_class = HouseSerializer
     queryset = House.objects.all()
