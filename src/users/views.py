@@ -17,6 +17,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from .serializers import UserLoginSerializer, UserRegistrationSerializer, SimpleUserSerializer
 from .tokens import user_activation_token
 from .models import CustomUser
+from .services import SimpleOnlyOwnerPermission
 
 
 
@@ -117,8 +118,10 @@ class UserDetailAndUpdateAPIView(RetrieveUpdateAPIView):
     """
     View for update or see data of simple user
     """
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (SimpleOnlyOwnerPermission,)
     serializer_class = SimpleUserSerializer
 
     def get_object(self):
+        request_user = CustomUser.objects.filter(id=self.kwargs["pk"]).first()
+        self.check_object_permissions(request=self.request, obj=request_user)
         return self.request.user

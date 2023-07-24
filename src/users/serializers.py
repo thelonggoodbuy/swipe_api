@@ -18,10 +18,24 @@ class UserLoginSerializer(serializers.Serializer):
 
     def validate(self, data):
         user = authenticate(**data)
-        if user and not user.is_in_blacklist:
-            return user
-        raise serializers.ValidationError("Incorrect Credential")
-    
+        # if user and not user.is_in_blacklist and user.is_activated:
+        #     return user
+        # elif user and not user.is_in_blacklist and user.is_activated == False:
+        #     raise serializers.ValidationError("Профіль не активовано через електронну пошту")
+        # elif user and user.is_in_blacklist:
+        #     raise serializers.ValidationError("Профіль в чорному списку")
+        # else:
+        #     raise serializers.ValidationError("Помилка в емейлі або в паролі")
+        match user:
+            case CustomUser(is_in_blacklist=False, is_activated=True):
+                return user
+            case CustomUser(is_in_blacklist=False, is_activate=False):
+                raise serializers.ValidationError("Профіль не активовано через електронну пошту")
+            case CustomUser(is_in_blacklist=True):
+                raise serializers.ValidationError("Профіль в чорному списку")
+            case _:
+                raise serializers.ValidationError("Помилка в емейлі або в паролі")
+            
 
 class UserRegistrationSerializer(serializers.Serializer):
     """
@@ -41,9 +55,11 @@ class UserRegistrationSerializer(serializers.Serializer):
         )
         return user
 
+
 class SimpleUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
         fields = ("id", "first_name", "second_name",
                   "phone", "email", "nontifications_status")
+        
