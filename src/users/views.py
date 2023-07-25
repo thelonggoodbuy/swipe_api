@@ -14,7 +14,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
-from .serializers import UserLoginSerializer, UserRegistrationSerializer, SimpleUserSerializer
+from .serializers import UserLoginSerializer, UserRegistrationSerializer,\
+                    SimpleUserSerializer, UserChangePasswordRequestSerializer,\
+                    SimpleUserChangePasswordSerializer
 from .tokens import user_activation_token
 from .models import CustomUser
 from .services import SimpleOnlyOwnerPermission
@@ -93,6 +95,8 @@ class ActivateUser(GenericAPIView):
     User activation.
     """
     permission_classes = (AllowAny,)
+    serializer_class = None
+
     def get(self, request, uidb64, token, *args, **kwargs):
         try:
             uid = force_text(urlsafe_base64_decode(uidb64))
@@ -125,3 +129,73 @@ class UserDetailAndUpdateAPIView(RetrieveUpdateAPIView):
         request_user = CustomUser.objects.filter(id=self.kwargs["pk"]).first()
         self.check_object_permissions(request=self.request, obj=request_user)
         return self.request.user
+    
+
+
+class UserChangePasswordRequestView(GenericAPIView, UpdateModelMixin):
+    """
+    Endpoint for change user password
+    """
+    permission_classes = (SimpleOnlyOwnerPermission,)
+    serializer_class = UserChangePasswordRequestSerializer
+
+    def get(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.data
+        # print('=================')
+        # print(serializer)
+        # print('=================')
+        user = CustomUser.objects.get(id=self.kwargs["pk"])
+        current_site = get_current_site(request)
+        subject = 'Ви зробили запит на зміну паролю.'
+        message = render_to_string('users/email_templates/user_activation_email.html', {
+            'user': user,
+            'domain': current_site.domain,
+            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+            'token': user_activation_token.make_token(user),
+        })
+        # print('=================')
+        # print(user)
+        # print(subject)
+        # print(message)
+        # print('=================')
+        user.email_user(subject, message)
+        if settings.DEBUG == True:
+            data['token'] = user_activation_token.make_token(user)
+            data['uid'] = urlsafe_base64_encode(force_bytes(user.pk))
+            data['comment'] = 'token and uid data is only for DEBUG regime.'
+        return Response(data, status=status.HTTP_201_CREATED)
+    
+
+class SimpleUserChangePasswordView(GenericAPIView):
+    """
+    Change user password.
+    """
+    permission_classes = (AllowAny,)
+    serializer_class = SimpleUserChangePasswordSerializer
+
+    # def get(self, request, uidb64, token, *args, **kwargs):
+    #     try:
+    #         uid = force_text(urlsafe_base64_decode(uidb64))
+    #         user = CustomUser.objects.get(pk=uid)
+    #         if user == request.user and user_activation_token.check_token(user, token): 
+    #             data = {'message': f'Pass word of user {user.email} have been changed!'}
+    #             return Response(data)
+    #     except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+    #         user = None
+
+    def post(self, request, uidb64, token, *args, **kwargs):
+        try:
+            uid = force_text(urlsafe_base64_decode(uidb64))
+            user = CustomUser.objects.get(pk=uid)
+            if user == request.user and user_activation_token.check_token(user, token): 
+                serializer = self.get_serializer(data=request.data)
+                serializer.is_valid(raise_exception=True)
+                user.set_password(serializer.data['password'])
+                user.save()
+                data = {'message': f'Пароль користувача {user.email} було змінено!'}
+                return Response(data)
+        except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+            data = {'message': f'Не вдалося змінита пароль'}
+            return Response(data)

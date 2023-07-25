@@ -9,10 +9,10 @@ from ads.models import Ads, Accomodation
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     NONTIFICATION_STATUS = (
-        ("оповещения пользователю", "for_user"),
-        ("оповещения пользователю и агенту", "for_user_and_agent"),
-        ("оповещению агенту", "for_agent"),
-        ("отключить оповещения", "disabled"),
+        ("for_user", "оповещения пользователю"),
+        ("for_user_and_agent", "оповещения пользователю и агенту"),
+        ("for_agent", "оповещению агенту"),
+        ("disabled", "отключить оповещения"),
     )
     username = None
     email = models.EmailField(unique=True)
@@ -27,7 +27,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     photo = models.ImageField(null=True, blank=True, upload_to="galery/")
     phone = models.CharField(max_length=200, blank=True, null=True)
     agent = models.ForeignKey("Agent", on_delete=models.SET_NULL, blank=True, null=True)
-    nontifications_status = models.CharField(max_length=200, choices=NONTIFICATION_STATUS, default=NONTIFICATION_STATUS[1][1])
+    nontifications_status = models.CharField(max_length=200, choices=NONTIFICATION_STATUS, default="for_user_and_agent")
     change_call_to_agent = models.BooleanField(default=False)
     is_in_blacklist = models.BooleanField(default=False)
     subscription = models.OneToOneField('Subscription', on_delete=models.SET_NULL, null=True, blank=True)

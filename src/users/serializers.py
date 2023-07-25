@@ -1,12 +1,23 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
+
 
 from .models import CustomUser
 
+# ========================================================================
+# =======================CUSTOM VALIDATORS================================
+# ========================================================================
+
+class UniqueEmailValidator(UniqueValidator):
+    message = 'Email має бути унікальним.'
 
 
 
 
+# ========================================================================
+# =============AUTHENTICATION AND AUHORZATION SERIALIZERS=================
+# ========================================================================
 
 class UserLoginSerializer(serializers.Serializer):
     """
@@ -37,13 +48,16 @@ class UserLoginSerializer(serializers.Serializer):
                 raise serializers.ValidationError("Помилка в емейлі або в паролі")
             
 
+
+
+
 class UserRegistrationSerializer(serializers.Serializer):
     """
-    Serializer class for serializing registration requests 
+    Serializer class for registration requests 
     and create a new simple user
     """
     
-    email = serializers.CharField()
+    email = serializers.CharField(validators=[UniqueEmailValidator(queryset=CustomUser.objects.all())])
     password = serializers.CharField(write_only=True)
     is_simple_user = serializers.CharField(default=True)
 
@@ -57,9 +71,51 @@ class UserRegistrationSerializer(serializers.Serializer):
 
 
 class SimpleUserSerializer(serializers.ModelSerializer):
+    """
+    Serializator class for retreave, update and partly update simple user
+    """
+
+    email = serializers.CharField(required=False, validators=[UniqueEmailValidator(queryset=CustomUser.objects.all())])
 
     class Meta:
         model = CustomUser
         fields = ("id", "first_name", "second_name",
                   "phone", "email", "nontifications_status")
+
+
+class UserChangePasswordRequestSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CustomUser
+        fields = ("id",)
+
+
+
+class SimpleUserChangePasswordSerializer(serializers.ModelSerializer):
+    confirm_password = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ("password", "confirm_password")
+
+    def validate(self, data):
+        password = data['password']
+        confirm_password = data['confirm_password']
+        # match password:
+        #     case data['confirm_password']:
+        #         return user
+        #     case _:
+        #         raise serializers.ValidationError("Помилка в емейлі або в паролі")
+        if password == confirm_password:
+            # return self.instance
+            data.pop('confirm_password')
+            return data
+        else:
+             raise serializers.ValidationError("Паролі повинні співпадати")
         
+    # def update(self, instance, validated_data):
+
+    #     instance.set_password(validated_data['password'])
+    #     instance.save()
+
+    #     return instance

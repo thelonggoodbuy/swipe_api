@@ -4,7 +4,9 @@
 
 from django.urls import path, include
 
-from .views import UserLoginAPIView, UserRegistrationAPIView, UserDetailAndUpdateAPIView
+from .views import UserLoginAPIView, UserRegistrationAPIView, \
+                    UserDetailAndUpdateAPIView, UserChangePasswordRequestView,\
+                    SimpleUserChangePasswordView
 
 from users.views import ActivateUser
 
@@ -19,4 +21,9 @@ urlpatterns = [
     path("auth/activate_simple_user/<uidb64>/<token>/", ActivateUser.as_view(), name='activate'),
 
     path("simple_user_update_and_detail/<int:pk>/", UserDetailAndUpdateAPIView.as_view(), name="simple-user-update-and-detail"),
+
+    path("user_change_password_request/<int:pk>/", UserChangePasswordRequestView.as_view(), name="user-change-password-request"),
+
+    path("user_change_password/<uidb64>/<token>/", SimpleUserChangePasswordView.as_view(), name='change_password'),
+
 ]
