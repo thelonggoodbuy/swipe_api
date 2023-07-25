@@ -18,7 +18,7 @@ from .serializers import UserLoginSerializer, UserRegistrationSerializer,\
                     SimpleUserSerializer, UserChangePasswordRequestSerializer,\
                     SimpleUserChangePasswordSerializer
 from .tokens import user_activation_token
-from .models import CustomUser
+from .models import CustomUser, Subscription
 from .services import SimpleOnlyOwnerPermission
 
 
@@ -92,7 +92,7 @@ class UserRegistrationAPIView(GenericAPIView, UpdateModelMixin):
 
 class ActivateUser(GenericAPIView):
     """
-    User activation.
+    User activation and create empty subscription.
     """
     permission_classes = (AllowAny,)
     serializer_class = None
@@ -107,8 +107,10 @@ class ActivateUser(GenericAPIView):
         if user is not None and \
             user_activation_token.check_token(user, token) and \
             user.is_activated == False:
-
+            
             user.activate_user()
+            current_subscription = Subscription.objects.create()
+            user.subscription = current_subscription
             user.save()
             data = {'message': f'User {user.email} have been activated!'}
             return Response(data)

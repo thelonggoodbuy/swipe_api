@@ -26,7 +26,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     second_name = models.CharField(max_length=200, blank=True, null=True)
     photo = models.ImageField(null=True, blank=True, upload_to="galery/")
     phone = models.CharField(max_length=200, blank=True, null=True)
-    agent = models.ForeignKey("Agent", on_delete=models.SET_NULL, blank=True, null=True)
+    # agent = models.ForeignKey("Agent", on_delete=models.SET_NULL, blank=True, null=True)
+    agent_email = models.EmailField(max_length=200, blank=True, null=True)
+    agent_phone = models.CharField(max_length=200, blank=True, null=True)
+    agent_first_name = models.CharField(max_length=200, blank=True, null=True)
+    agent_second_name = models.CharField(max_length=200, blank=True, null=True)
     nontifications_status = models.CharField(max_length=200, choices=NONTIFICATION_STATUS, default="for_user_and_agent")
     change_call_to_agent = models.BooleanField(default=False)
     is_in_blacklist = models.BooleanField(default=False)
@@ -53,7 +57,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
 
 class Subscription(models.Model):
-    Subscription_last_date = models.DateField()
+    Subscription_last_date = models.DateField(null=True, blank=True, default=None)
     
     
 class Agent(models.Model):

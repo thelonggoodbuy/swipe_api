@@ -80,11 +80,25 @@ class SimpleUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ("id", "first_name", "second_name",
-                  "phone", "email", "nontifications_status")
+                  "phone", "email", "nontifications_status",
+                  "agent_email", "agent_phone", "agent_first_name",
+                  "agent_second_name")
+        
+    def validate(self, data):
+        if not data['agent_email'] and (
+            data['agent_phone'] or 
+            data['agent_first_name'] or
+            data['agent_second_name']
+        ):
+            raise serializers.ValidationError("Вкажіть адрессу електронной пошти агента")
+        return data
+
 
 
 class UserChangePasswordRequestSerializer(serializers.ModelSerializer):
-
+    """
+    Serializer for request to change password.
+    """
     class Meta:
         model = CustomUser
         fields = ("id",)
@@ -92,6 +106,10 @@ class UserChangePasswordRequestSerializer(serializers.ModelSerializer):
 
 
 class SimpleUserChangePasswordSerializer(serializers.ModelSerializer):
+    """
+    request for changing password
+    """
+
     confirm_password = serializers.CharField(write_only=True, required=True)
 
     class Meta:
@@ -101,21 +119,8 @@ class SimpleUserChangePasswordSerializer(serializers.ModelSerializer):
     def validate(self, data):
         password = data['password']
         confirm_password = data['confirm_password']
-        # match password:
-        #     case data['confirm_password']:
-        #         return user
-        #     case _:
-        #         raise serializers.ValidationError("Помилка в емейлі або в паролі")
         if password == confirm_password:
-            # return self.instance
             data.pop('confirm_password')
             return data
         else:
              raise serializers.ValidationError("Паролі повинні співпадати")
-        
-    # def update(self, instance, validated_data):
-
-    #     instance.set_password(validated_data['password'])
-    #     instance.save()
-
-    #     return instance
