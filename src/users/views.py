@@ -95,7 +95,7 @@ class ActivateUser(GenericAPIView):
     User activation and create empty subscription.
     """
     permission_classes = (AllowAny,)
-    serializer_class = None
+    # serializer_class = None
 
     def get(self, request, uidb64, token, *args, **kwargs):
         try:
@@ -131,7 +131,6 @@ class UserDetailAndUpdateAPIView(RetrieveUpdateAPIView):
         request_user = CustomUser.objects.filter(id=self.kwargs["pk"]).first()
         self.check_object_permissions(request=self.request, obj=request_user)
         return self.request.user
-    
 
 
 class UserChangePasswordRequestView(GenericAPIView, UpdateModelMixin):
@@ -145,9 +144,6 @@ class UserChangePasswordRequestView(GenericAPIView, UpdateModelMixin):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.data
-        # print('=================')
-        # print(serializer)
-        # print('=================')
         user = CustomUser.objects.get(id=self.kwargs["pk"])
         current_site = get_current_site(request)
         subject = 'Ви зробили запит на зміну паролю.'
@@ -157,11 +153,6 @@ class UserChangePasswordRequestView(GenericAPIView, UpdateModelMixin):
             'uid': urlsafe_base64_encode(force_bytes(user.pk)),
             'token': user_activation_token.make_token(user),
         })
-        # print('=================')
-        # print(user)
-        # print(subject)
-        # print(message)
-        # print('=================')
         user.email_user(subject, message)
         if settings.DEBUG == True:
             data['token'] = user_activation_token.make_token(user)
@@ -177,21 +168,14 @@ class SimpleUserChangePasswordView(GenericAPIView):
     permission_classes = (AllowAny,)
     serializer_class = SimpleUserChangePasswordSerializer
 
-    # def get(self, request, uidb64, token, *args, **kwargs):
-    #     try:
-    #         uid = force_text(urlsafe_base64_decode(uidb64))
-    #         user = CustomUser.objects.get(pk=uid)
-    #         if user == request.user and user_activation_token.check_token(user, token): 
-    #             data = {'message': f'Pass word of user {user.email} have been changed!'}
-    #             return Response(data)
-    #     except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
-    #         user = None
+
 
     def post(self, request, uidb64, token, *args, **kwargs):
         try:
             uid = force_text(urlsafe_base64_decode(uidb64))
             user = CustomUser.objects.get(pk=uid)
             if user == request.user and user_activation_token.check_token(user, token): 
+
                 serializer = self.get_serializer(data=request.data)
                 serializer.is_valid(raise_exception=True)
                 user.set_password(serializer.data['password'])

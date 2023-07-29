@@ -57,15 +57,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
 
 class Subscription(models.Model):
-    Subscription_last_date = models.DateField(null=True, blank=True, default=None)
-    
-    
-class Agent(models.Model):
-    name = models.CharField(max_length=200, blank=True, null=True)
-    surname = models.CharField(max_length=200, blank=True, null=True)
-    phone = models.CharField(max_length=200, blank=True, null=True)
-    email = models.EmailField()
-    
+    subscription_last_date = models.DateField(null=True, blank=True, default=None)
+    is_auto_renewal = models.BooleanField(default=False)
+
+
 
 class Message(models.Model):
     from_user = models.ForeignKey("CustomUser", on_delete=models.SET_NULL, blank=True, null=True, related_name="user_message_sender")
