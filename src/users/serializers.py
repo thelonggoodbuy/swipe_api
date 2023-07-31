@@ -2,8 +2,14 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from drf_extra_fields.fields import Base64ImageField
+from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
+from django.utils import timezone
+from django.db.models import Q
+from faker import Faker
 
 from .models import CustomUser, Subscription
+
+fake = Faker()
 
 # ========================================================================
 # =======================CUSTOM VALIDATORS================================
@@ -29,14 +35,6 @@ class UserLoginSerializer(serializers.Serializer):
 
     def validate(self, data):
         user = authenticate(**data)
-        # if user and not user.is_in_blacklist and user.is_activated:
-        #     return user
-        # elif user and not user.is_in_blacklist and user.is_activated == False:
-        #     raise serializers.ValidationError("Профіль не активовано через електронну пошту")
-        # elif user and user.is_in_blacklist:
-        #     raise serializers.ValidationError("Профіль в чорному списку")
-        # else:
-        #     raise serializers.ValidationError("Помилка в емейлі або в паролі")
         match user:
             case CustomUser(is_in_blacklist=False, is_activated=True):
                 return user
@@ -47,8 +45,6 @@ class UserLoginSerializer(serializers.Serializer):
             case _:
                 raise serializers.ValidationError("Помилка в емейлі або в паролі")
             
-
-
 
 
 class UserRegistrationSerializer(serializers.Serializer):
@@ -70,7 +66,7 @@ class UserRegistrationSerializer(serializers.Serializer):
         return user
 
 
-from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
+
 
 
 class SimpleUserSubscriptionSerializer(serializers.ModelSerializer):
@@ -130,18 +126,23 @@ class SimpleUserSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
 
-        subscription_data = validated_data.pop('subscription')
+
         custom_user_obj = instance
 
         for (field_name, field_value) in validated_data.items():
             setattr(custom_user_obj, field_name, field_value)
         custom_user_obj.save()
 
-        subscription_obj = custom_user_obj.subscription
 
-        for (field_name, field_value) in subscription_data.items():
-            setattr(subscription_obj, field_name, field_value)
-        subscription_obj.save()
+        try:
+            subscription_data = validated_data.pop('subscription')
+            subscription_obj = custom_user_obj.subscription
+
+            for (field_name, field_value) in subscription_data.items():
+                setattr(subscription_obj, field_name, field_value)
+            subscription_obj.save()
+        except KeyError:
+            pass
 
         return custom_user_obj
 
@@ -156,6 +157,8 @@ class UserChangePasswordRequestSerializer(serializers.ModelSerializer):
         fields = ("id",)
 
 
+
+from .models import Message
 
 class SimpleUserChangePasswordSerializer(serializers.ModelSerializer):
     """
@@ -177,3 +180,31 @@ class SimpleUserChangePasswordSerializer(serializers.ModelSerializer):
         else:
              raise serializers.ValidationError("Паролі повинні співпадати")
         
+
+
+
+
+class SimpleUserMessageCreateAndListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Message
+        fields = ("message_text", )
+
+    def create(self, validated_data):
+        new_message = self.Meta.model(**validated_data)
+        admin = CustomUser.objects.filter(is_superuser=True).first()
+        new_message.to_user = admin
+        request = self.context.get("request")
+        new_message.from_user = request.user
+        new_message.reading_status = False
+        new_message.date_and_time = timezone.now()
+        new_message.save()
+        response_message = self.Meta.model.objects.create(
+                            from_user=admin,
+                            to_user=request.user,
+                            date_and_time = timezone.now(),
+                            message_text=fake.text())
+        response_message.save()
+        return new_message
+
+

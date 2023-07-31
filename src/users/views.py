@@ -3,25 +3,27 @@ from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_text
 from django.conf import settings
+from django.db.models import Q
 from rest_framework import status
-# from rest_framework.views import APIView
-# from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.mixins import UpdateModelMixin
+from rest_framework.mixins import UpdateModelMixin, ListModelMixin, CreateModelMixin
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 from .serializers import UserLoginSerializer, UserRegistrationSerializer,\
                     SimpleUserSerializer, UserChangePasswordRequestSerializer,\
-                    SimpleUserChangePasswordSerializer
+                    SimpleUserChangePasswordSerializer, SimpleUserMessageCreateAndListSerializer
 from .tokens import user_activation_token
-from .models import CustomUser, Subscription
+from .models import CustomUser, Subscription, Message
 from .services import SimpleOnlyOwnerPermission
 
 
+# =============================================================================================
+# ==================AUTHENTICATION====LOGIC====================================================
+# =============================================================================================
 
 class UserLoginAPIView(GenericAPIView):
     """
@@ -168,8 +170,6 @@ class SimpleUserChangePasswordView(GenericAPIView):
     permission_classes = (AllowAny,)
     serializer_class = SimpleUserChangePasswordSerializer
 
-
-
     def post(self, request, uidb64, token, *args, **kwargs):
         try:
             uid = force_text(urlsafe_base64_decode(uidb64))
@@ -185,3 +185,29 @@ class SimpleUserChangePasswordView(GenericAPIView):
         except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
             data = {'message': f'Не вдалося змінита пароль'}
             return Response(data)
+        
+
+# =============================================================================================
+# ==================MESSAGES==========LOGIC====================================================
+# =============================================================================================
+
+
+class MessageCreateAndListForSimpleUser(ListModelMixin, CreateModelMixin, GenericAPIView):
+    serializer_class = SimpleUserMessageCreateAndListSerializer
+    permission_classes = (SimpleOnlyOwnerPermission,)
+
+    def get_queryset(self):
+        user = self.request.user
+        return Message.objects.filter(Q(from_user=user) | Q(to_user=user))
+    
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+    
+
+# =============================================================================================
+# ==================Notary==========LOGIC======================================================
+# =============================================================================================
+

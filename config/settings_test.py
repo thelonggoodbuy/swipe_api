@@ -80,13 +80,16 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        "NAME": env("POSTGRES_DB"),
-        "USER": env("POSTGRES_USER"),
-        "PASSWORD": env("POSTGRES_PASSWORD"),
+        # 'NAME': 'test_swipeapi_db',
+        'NAME': env("POSTGRES_TEST_DB"),
+        # 'USER': 'django',
+        'USER': env("POSTGRES_TEST_USER"),
+        'PASSWORD': env("POSTGRES_TEST_PASSWORD"),
+        # 'PASSWORD': '3zpo321677',
+
         "HOST": env("POSTGRES_HOST"),
         "PORT": env("POSTGRES_PORT"),
     },
@@ -154,7 +157,6 @@ REST_FRAMEWORK = {
     ],
 
 }
-
 EMAIL_BAckend = 'django.core.mail.backends.smtp.EmailBackend'
 
 

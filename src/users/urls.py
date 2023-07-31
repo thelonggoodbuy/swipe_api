@@ -6,7 +6,7 @@ from django.urls import path, include
 
 from .views import UserLoginAPIView, UserRegistrationAPIView, \
                     UserDetailAndUpdateAPIView, UserChangePasswordRequestView,\
-                    SimpleUserChangePasswordView
+                    SimpleUserChangePasswordView, MessageCreateAndListForSimpleUser
 
 from users.views import ActivateUser
 
@@ -26,4 +26,7 @@ urlpatterns = [
 
     path("user_change_password/<uidb64>/<token>/", SimpleUserChangePasswordView.as_view(), name='change_password'),
 
+    path("message_create_or_list/", MessageCreateAndListForSimpleUser.as_view(), name='message-create-or-list'),
+
+    # path("message_create_or_list/<int:pk>/", MessageCreateAndListForSimpleUser.as_view(), name='message-create-or-list'),
 ]

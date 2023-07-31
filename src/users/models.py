@@ -67,6 +67,7 @@ class Message(models.Model):
     to_user = models.ForeignKey("CustomUser", on_delete=models.SET_NULL, blank=True, null=True, related_name="user_message_reseiver")
     date_and_time = models.DateTimeField()
     reading_status = models.BooleanField(default=False)
+    message_text = models.TextField()
     
     
 class Notary(models.Model):
