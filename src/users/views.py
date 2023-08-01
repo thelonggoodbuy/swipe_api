@@ -11,6 +11,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.mixins import UpdateModelMixin, ListModelMixin, CreateModelMixin
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.viewsets import ModelViewSet
 
 
 from .serializers import UserLoginSerializer, UserRegistrationSerializer,\
@@ -211,3 +212,12 @@ class MessageCreateAndListForSimpleUser(ListModelMixin, CreateModelMixin, Generi
 # ==================Notary==========LOGIC======================================================
 # =============================================================================================
 
+from .services import SimpleUserOnlyListAndRetreiveAdminAllPermission
+from .serializers import NotarySerializer
+from .models import Notary
+
+
+class NotaryModelViewSet(ModelViewSet):
+    serializer_class = NotarySerializer
+    permission_classes = (SimpleUserOnlyListAndRetreiveAdminAllPermission,)
+    queryset = Notary.objects.all()

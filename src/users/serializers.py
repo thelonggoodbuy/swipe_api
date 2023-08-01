@@ -7,9 +7,10 @@ from django.utils import timezone
 from django.db.models import Q
 from faker import Faker
 
-from .models import CustomUser, Subscription
+from .models import CustomUser, Subscription, Notary, Message
 
 fake = Faker()
+
 
 # ========================================================================
 # =======================CUSTOM VALIDATORS================================
@@ -158,7 +159,7 @@ class UserChangePasswordRequestSerializer(serializers.ModelSerializer):
 
 
 
-from .models import Message
+
 
 class SimpleUserChangePasswordSerializer(serializers.ModelSerializer):
     """
@@ -208,3 +209,8 @@ class SimpleUserMessageCreateAndListSerializer(serializers.ModelSerializer):
         return new_message
 
 
+
+class NotarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notary
+        fields = ['name', 'surname', 'phone', 'email']

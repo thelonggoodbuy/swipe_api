@@ -7,7 +7,7 @@ from django.utils.encoding import force_bytes
 from faker import Faker
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import CustomUser
+from .models import CustomUser, Message, Notary
 from .tokens import user_activation_token
 
 fake = Faker()
@@ -40,6 +40,21 @@ def create_user_and_login_payload():
     }
     test_user = CustomUser(**payload)
     test_user.set_password("test_loggined_password_123!@")
+    test_user.save()
+    client = APIClient()
+    refresh = RefreshToken.for_user(test_user)
+    client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+    return client
+
+@pytest.fixture
+def create_admin_payload():
+    payload = {
+        "email": "test_admin_user@gmail.com",
+        "is_superuser": True,
+        "is_activated": True,
+    }
+    test_user = CustomUser(**payload)
+    test_user.set_password("test_admin_password_123!@")
     test_user.save()
     client = APIClient()
     refresh = RefreshToken.for_user(test_user)
@@ -181,14 +196,118 @@ def test_list_of_messages(create_user_and_login_payload):
     # Test GET request for receiving all messages
     # which have been sent by and to user.
     url = f'/users/message_create_or_list/'
-    payload = {
+    payload_first_message = {
         'message_text': fake.text(),
     }
-    response = create_user_and_login_payload.post(url, payload, response='json')
+    response = create_user_and_login_payload.post(url, payload_first_message, response='json')
+    payload_senond_message = {
+        'message_text': fake.text(),
+    }
+    response = create_user_and_login_payload.post(url, payload_senond_message, response='json')
 
-    url = f'/users/message_create_or_list/'
     response = create_user_and_login_payload.get(url)
 
+    assert Message.objects.count() == 4
     assert response.status_code == 200
 
+
+@pytest.mark.django_db
+def test_create_notary_by_admin(create_user_and_login_payload):
+    url = f'/users/notary/'
+    payload_notary = {
+        'name': fake.name(),
+        'surname': fake.name(),
+        'phone': fake.phone_number(),
+        'email': fake.email(),
+    }
+    response = create_user_and_login_payload.post(url, payload_notary, response='json')
+    assert response.status_code == 201
+
+
+@pytest.mark.django_db
+def test_update_notary_by_admin(create_admin_payload):
+    url = f'/users/notary/'
+    payload_notary = {
+        'name': fake.name(),
+        'surname': fake.name(),
+        'phone': fake.phone_number(),
+        'email': fake.email(),
+    }
+    create_admin_payload.post(url, payload_notary, response='json')
+    notary = Notary.objects.first()
+    url = f'/users/notary/{notary.id}/'
+    response = create_admin_payload.post(url, payload_notary, response='json')
+    payload_put_notary = {
+        'name': fake.name(),
+        'surname': fake.name(),
+        'phone': fake.phone_number(),
+        'email': fake.email(),
+    }
+    response_put_update = create_admin_payload.put(url, payload_put_notary, response='json')
+    assert response_put_update.status_code == 200
+
+    payload_patch_notary = {
+        'name': fake.name(),
+        'surname': fake.name(),
+        'phone': fake.phone_number(),
+        'email': fake.email(),
+    }
+    response_patch_update = create_admin_payload.patch(url, payload_patch_notary, response='json')
+    assert response_patch_update.status_code == 200
+
+
+
+@pytest.mark.django_db
+def test_delete_notary_by_admin(create_admin_payload):
+    url = f'/users/notary/'
+    payload_notary = {
+        'name': fake.name(),
+        'surname': fake.name(),
+        'phone': fake.phone_number(),
+        'email': fake.email(),
+    }
+    create_admin_payload.post(url, payload_notary, response='json')
+    notary = Notary.objects.first()
+    url = f'/users/notary/{notary.id}/'
+    response_delete = create_admin_payload.delete(url)
+    assert response_delete.status_code == 204
+
+
+@pytest.mark.django_db
+def test_retreave_notary_by_simpe_user(create_user_and_login_payload):
+
+    payload_notary = {
+        'name': fake.name(),
+        'surname': fake.name(),
+        'phone': fake.phone_number(),
+        'email': fake.email(),
+    }
+    notary = Notary.objects.create(name=fake.name(),
+                                    surname=fake.name(),
+                                    phone=fake.phone_number(),
+                                    email=fake.email())
+    url = f'/users/notary/{notary.id}/'
+    response = create_user_and_login_payload.get(url)
+    assert response.status_code == 200
+
+
+
+@pytest.mark.django_db
+def test_retreave_list_notary_by_simple_user(create_user_and_login_payload):
+
+    # payload_notary = {
+    #     'name': fake.name(),
+    #     'surname': fake.name(),
+    #     'phone': fake.phone_number(),
+    #     'email': fake.email(),
+    # }
+    for i in range (1, 3):
+        notary = Notary.objects.create(name=fake.name(),
+                                        surname=fake.name(),
+                                        phone=fake.phone_number(),
+                                        email=fake.email())
+    url = f'/users/notary/'
+    response = create_user_and_login_payload.get(url)
+    assert response.status_code == 200
+    assert Notary.objects.count() == 2
 # ================================END=TESTS====================================

@@ -27,3 +27,22 @@ class SimpleOnlyOwnerPermission(permissions.BasePermission):
             self.message = 'Тільки власник особистого кабінету має доступ до цієї сторінки'
             response = False
         return response
+    
+
+class SimpleUserOnlyListAndRetreiveAdminAllPermission(permissions.BasePermission):
+    message = None
+    def has_permission(self, request, view):
+        if view.action in ['list', 'retrieve', 'create'] and request.user.is_authenticated:
+            response = True
+        elif view.action in ['list', 'retrieve', 'create'] and not request.user.is_authenticated == False:
+            self.message = 'Для отримання відомостей про номатріуса, потрібно увійти в систему'
+            response = False
+        elif view.action in ['update', 'partial_update', 'destroy'] and request.user.is_superuser == True:
+            response = True
+        elif view.action in ['update', 'partial_update', 'destroy'] and request.user.is_superuser == False:
+            self.message = 'Для зміни відомостей про номатріуса, потрібно мати право адміністратора.'
+            response = False
+        else:
+            self.message = 'Технічна проблема з доступ. Зв`яжіться з адміністрацією.'
+            response = False
+        return response
