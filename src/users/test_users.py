@@ -66,7 +66,7 @@ def create_admin_payload():
 # ====================================TESTS====================================
 
 @pytest.mark.django_db
-def test_simple_user_registration(api_client):
+def test_simple_user_registration(api_client, db):
     # Testing creating a simple user entrypoint
     # without email confirmation.
     url = '/users/auth/register_simple_user/'
@@ -295,12 +295,6 @@ def test_retreave_notary_by_simpe_user(create_user_and_login_payload):
 @pytest.mark.django_db
 def test_retreave_list_notary_by_simple_user(create_user_and_login_payload):
 
-    # payload_notary = {
-    #     'name': fake.name(),
-    #     'surname': fake.name(),
-    #     'phone': fake.phone_number(),
-    #     'email': fake.email(),
-    # }
     for i in range (1, 3):
         notary = Notary.objects.create(name=fake.name(),
                                         surname=fake.name(),

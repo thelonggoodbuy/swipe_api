@@ -89,13 +89,18 @@ class House(models.Model):
     heating = models.CharField(max_length=200, choices=HEATING_CORT)
     sewage = models.CharField(max_length=200, choices=SEWAGE_CORT)
     plumbing = models.CharField(max_length=200, choices=PLUMBING_CORT)
-    sales_department = models.ForeignKey("users.CustomUser", on_delete=models.SET_NULL, blank=True, null=True)
+    # sales_department = models.ForeignKey("users.CustomUser", on_delete=models.SET_NULL, blank=True, null=True)
+    sales_department_name = models.CharField(max_length=200, blank=True, null=True)
+    sales_department_surname = models.CharField(max_length=200, blank=True, null=True)
+    sales_department_phone = models.CharField(max_length=200, blank=True, null=True)
+    sales_department_email = models.EmailField(max_length=200, blank=True, null=True)
     registration = models.CharField(max_length=200, choices=REGISTRARION_CORT)
     type_of_account = models.CharField(max_length=200, choices=ACCOUNT_CORT)
     purpose = models.CharField(max_length=200, choices=PURPOSE_CORT)
     summ_of_threaty = models.CharField(max_length=200, choices=SUMM_OF_THREADY_CORT)
     main_image = models.ImageField(null=True, blank=True, upload_to="galery/houses_main_images/")
     location = models.CharField(max_length=2500, null=True, blank=True)
+    builder = models.ForeignKey("users.CustomUser", on_delete=models.SET_NULL, blank=True, null=True)
     
     
 class AdvantagePerHouse(models.Model):

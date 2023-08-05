@@ -173,6 +173,7 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'Swipe API',
     'DESCRIPTION': 'Swipe API backend.',
     'VERSION': '1.0.0',
+    # 'SCHEMA_PATH_PREFIX': r'/api/v[0-9]',
     'SERVE_INCLUDE_SCHEMA': False,
     'POSTPROCESSING_HOOKS': [],
     # 'COMPONENT_SPLIT_REQUEST': True,

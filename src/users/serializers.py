@@ -126,15 +126,10 @@ class SimpleUserSerializer(serializers.ModelSerializer):
                   "agent_second_name", "subscription")
 
     def update(self, instance, validated_data):
-
-
         custom_user_obj = instance
-
         for (field_name, field_value) in validated_data.items():
             setattr(custom_user_obj, field_name, field_value)
         custom_user_obj.save()
-
-
         try:
             subscription_data = validated_data.pop('subscription')
             subscription_obj = custom_user_obj.subscription

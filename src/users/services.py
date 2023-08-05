@@ -10,11 +10,31 @@ class AdminOnlyPermission(permissions.BasePermission):
         if request.user.is_superuser:
             return True
         
+
+class AdminOrBuildeOwnerPermission(permissions.BasePermission):
+    message = None    
+    def has_permission(self, request, view):
+        if request.user.is_superuser or request.user.is_builder:
+            return True
+        return False
+    
+    def has_object_permission(self, request, view, obj):
+        if obj.house.builder == request.user:
+            self.message = 'З правами все добре! Ви забудовник!'
+            return True
+        elif request.user.is_superuser:
+            self.message = 'З правами все добре! Ви админ!'
+            return True
+        else:
+            self.message = 'Недостатньо прав: тільки забудовник\
+                            або адміністратор має доступ.'
+            return False
+
+
         
 class SimpleOnlyOwnerPermission(permissions.BasePermission):
     message = None
     def has_object_permission(self, request, view, obj):
-        # if obj.id == request.user.id:
         if obj == request.user and obj.is_activated == True:
             response = True
         elif obj == request.user and obj.is_activated == False:

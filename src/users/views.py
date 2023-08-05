@@ -12,14 +12,17 @@ from rest_framework.mixins import UpdateModelMixin, ListModelMixin, CreateModelM
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.viewsets import ModelViewSet
+from drf_spectacular.utils import extend_schema
+
 
 
 from .serializers import UserLoginSerializer, UserRegistrationSerializer,\
                     SimpleUserSerializer, UserChangePasswordRequestSerializer,\
-                    SimpleUserChangePasswordSerializer, SimpleUserMessageCreateAndListSerializer
+                    SimpleUserChangePasswordSerializer, SimpleUserMessageCreateAndListSerializer,\
+                    NotarySerializer
 from .tokens import user_activation_token
-from .models import CustomUser, Subscription, Message
-from .services import SimpleOnlyOwnerPermission
+from .models import CustomUser, Subscription, Message, Notary
+from .services import SimpleOnlyOwnerPermission, SimpleUserOnlyListAndRetreiveAdminAllPermission
 
 
 # =============================================================================================
@@ -131,6 +134,7 @@ class UserDetailAndUpdateAPIView(RetrieveUpdateAPIView):
     serializer_class = SimpleUserSerializer
 
     def get_object(self):
+        print('====GET======')
         request_user = CustomUser.objects.filter(id=self.kwargs["pk"]).first()
         self.check_object_permissions(request=self.request, obj=request_user)
         return self.request.user
@@ -193,7 +197,13 @@ class SimpleUserChangePasswordView(GenericAPIView):
 # =============================================================================================
 
 
+
+@extend_schema(tags=['Messages'])
 class MessageCreateAndListForSimpleUser(ListModelMixin, CreateModelMixin, GenericAPIView):
+    '''
+    Write message to tech support and GET list of 
+    messages(per simple user).
+    '''
     serializer_class = SimpleUserMessageCreateAndListSerializer
     permission_classes = (SimpleOnlyOwnerPermission,)
 
@@ -201,9 +211,11 @@ class MessageCreateAndListForSimpleUser(ListModelMixin, CreateModelMixin, Generi
         user = self.request.user
         return Message.objects.filter(Q(from_user=user) | Q(to_user=user))
     
+    @extend_schema(summary='GET dialog (LIST) with technical support by registred user')
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
+    @extend_schema(summary='Send message (POST) to technical support.')
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
     
@@ -212,12 +224,11 @@ class MessageCreateAndListForSimpleUser(ListModelMixin, CreateModelMixin, Generi
 # ==================Notary==========LOGIC======================================================
 # =============================================================================================
 
-from .services import SimpleUserOnlyListAndRetreiveAdminAllPermission
-from .serializers import NotarySerializer
-from .models import Notary
-
-
+@extend_schema(tags=['Notary logic'])
 class NotaryModelViewSet(ModelViewSet):
+    '''
+    Notary CRUD.
+    '''
     serializer_class = NotarySerializer
     permission_classes = (SimpleUserOnlyListAndRetreiveAdminAllPermission,)
     queryset = Notary.objects.all()
