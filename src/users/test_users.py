@@ -14,6 +14,30 @@ fake = Faker()
 
 
 # ========================================FIXTURE==============================
+from django.conf import settings
+import environ
+import os
+env = environ.Env()
+environ.Env.read_env(env_file=os.path.join(settings.BASE_DIR, ".env.dev"))
+
+
+@pytest.fixture(scope='function')
+def django_db_setup():
+    settings.DATABASES['default'] = {
+        # 'ENGINE': 'django.db.backends.postgresql',
+        # 'NAME': env("POSTGRES_TEST_DB"),
+        # 'USER': env("POSTGRES_TEST_USER"),
+        # 'PASSWORD': env("POSTGRES_TEST_PASSWORD"),
+        # "HOST": env("POSTGRES_HOST"),
+        'ENGINE': 'django.db.backends.postgresql',
+        "NAME": env("POSTGRES_DB"),
+        "USER": env("POSTGRES_USER"),
+        "PASSWORD": env("POSTGRES_PASSWORD"),
+        "HOST": env("POSTGRES_HOST"),
+        "PORT": env("POSTGRES_PORT"),
+    }
+
+
 @pytest.fixture
 def api_client():
     client = APIClient()
@@ -67,6 +91,7 @@ def create_admin_payload():
 
 @pytest.mark.django_db
 def test_simple_user_registration(api_client, db):
+    print(db)
     # Testing creating a simple user entrypoint
     # without email confirmation.
     url = '/users/auth/register_simple_user/'
@@ -77,6 +102,7 @@ def test_simple_user_registration(api_client, db):
     }
     response = api_client.post(url, payload, response='json')
     assert response.status_code == status.HTTP_201_CREATED
+    print(CustomUser.objects.all())
     assert CustomUser.objects.count() == 1
 
 

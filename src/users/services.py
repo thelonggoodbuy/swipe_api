@@ -19,11 +19,16 @@ class AdminOrBuildeOwnerPermission(permissions.BasePermission):
         return False
     
     def has_object_permission(self, request, view, obj):
-        if obj.house.builder == request.user:
-            self.message = 'З правами все добре! Ви забудовник!'
-            return True
+
+        if hasattr(obj, 'builder') :
+            if obj.builder == request.user or request.user.is_superuser == True:
+                return True
+            
+        elif hasattr(obj, 'house'): 
+            if obj.house.builder == request.user or request.user.is_superuser == True:
+                return True
+        
         elif request.user.is_superuser:
-            self.message = 'З правами все добре! Ви админ!'
             return True
         else:
             self.message = 'Недостатньо прав: тільки забудовник\

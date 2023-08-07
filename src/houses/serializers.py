@@ -14,6 +14,7 @@ class HouseSerializer(serializers.ModelSerializer):
         ((Q(is_builder=True)) | Q(is_superuser=True)), required=False)
     
 
+
     class Meta:
         model = House
         fields = ['id', 'description', 'address', 'disctrict',
@@ -23,14 +24,22 @@ class HouseSerializer(serializers.ModelSerializer):
                   'household_gas', 'heating', 'sewage', 'plumbing', 
                   'builder', 'registration', 'type_of_account',
                   'purpose', 'summ_of_threaty', 'main_image', 'location']
+        extra_kwargs = {'house_type': {'required': False}}
         
+
+    def validate_builder(self, data):
+        if data == self.context.get("request").user or self.context.get("request").user.is_superuser == True:
+            return data
+        else:
+            raise serializers.ValidationError("Тільки адміністратор має можливість змінювати данні про власнітьс об'єкта нерухомості.")
+
     def validate(self, data):
-        if data['house_type'] == 'коттедж' and data['house_status'] != ('індивідуальний будинок' or None):
-            raise serializers.ValidationError("Коттедж може бути тільки індивідуальним будинком. А індивідуальний будинок не може містити квартири")
+        if 'house_type'in data:
+            if data['house_type'] == 'коттедж' and data['house_status'] != ('індивідуальний будинок' or None):
+                raise serializers.ValidationError("Коттедж може бути тільки індивідуальним будинком. А індивідуальний будинок не може містити квартири")
 
         return data
     
-
 
 class HouseBuildingSerializer(serializers.ModelSerializer):
     house = serializers.PrimaryKeyRelatedField(required=True, queryset = House.objects.all())

@@ -10,5 +10,5 @@ makemigrations-migrate-dev:
 
 # run all test with ignoring of deprecated warning
 general-test-dev:
-	export DJANGO_SETTINGS_MODULE=config.settings_test
+	export DJANGO_SETTINGS_MODULE=config.settings
 	pytest -W ignore::DeprecationWarning --verbose
