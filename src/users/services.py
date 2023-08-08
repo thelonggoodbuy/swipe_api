@@ -19,15 +19,23 @@ class AdminOrBuildeOwnerPermission(permissions.BasePermission):
         return False
     
     def has_object_permission(self, request, view, obj):
-
+        # check house
         if hasattr(obj, 'builder') :
             if obj.builder == request.user or request.user.is_superuser == True:
                 return True
             
+        # check for house building, entrance, floor
+        # and riser
         elif hasattr(obj, 'house'): 
             if obj.house.builder == request.user or request.user.is_superuser == True:
                 return True
         
+        # check for ads
+        elif hasattr(obj, 'accomodation'):
+            if obj.accomodation.house.builder == request.user or\
+            request.user.is_superuser == True:
+                return True
+
         elif request.user.is_superuser:
             return True
         else:

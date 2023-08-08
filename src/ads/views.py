@@ -1,5 +1,5 @@
 from django.db.models import Q
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
@@ -11,8 +11,8 @@ from rest_framework import serializers
 
 
 from .serializers import AccomodationSerializer, PhotoToAccomodationSerializer,\
-                            AdsSerializer
-from .models import Accomodation, ImageGalery, Ads
+                            AdsSerializer, DeniedCauseSerializer
+from .models import Accomodation, ImageGalery, Ads, DeniedCause
 
 
 from users.services import AdminOrBuildeOwnerPermission
@@ -97,7 +97,7 @@ class AccomodationViewSet(ModelViewSet):
 
 
 # =============================================================================================
-# ==================ACCOMODATION====LOGIC======================================================
+# ===========================ADS====LOGIC======================================================
 # =============================================================================================
 
 
@@ -105,10 +105,36 @@ class AccomodationViewSet(ModelViewSet):
 @extend_schema(tags=['Ads: Ads'])
 class AdsViewSet(ModelViewSet):
     '''
-    Ads CRUD and logic for working with nested images.
+    Ads CRUD and logic for working with ADS.
     '''
-    # permission_classes = [IsAuthenticated, AdminOrBuildeOwnerPermission]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, AdminOrBuildeOwnerPermission]
+    # permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
     serializer_class = AdsSerializer
     queryset = Ads.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        if self.request.user.is_superuser == True:
+            queryset = Ads.objects.all()
+        else:
+            queryset = Ads.objects.filter(accomodation__house__builder=self.request.user)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+
+
+@extend_schema(tags=['Ads: DeniedCause'])
+class DeniedCauseViewSet(ModelViewSet):
+    '''
+    DeniedCause CRUD.
+    '''
+    permission_classes = [IsAdminUser]
+    authentication_classes = [JWTAuthentication]
+    serializer_class = DeniedCauseSerializer
+    queryset = DeniedCause.objects.all()

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 
-from .models import Accomodation, ImageGalery, Ads
+from .models import Accomodation, ImageGalery, Ads, DeniedCause
 
 
 from houses.models import House, HouseBuilding, HouseEntrance,\
@@ -28,6 +28,7 @@ class AccomodationSerializer(serializers.ModelSerializer):
     riser = serializers.PrimaryKeyRelatedField(required=False, queryset = Riser.objects.all())
     image_field = PhotoToAccomodationSerializer(many=True, required=False)
     booked_by = serializers.PrimaryKeyRelatedField(required=False, queryset = CustomUser.objects.all())
+
     class Meta:
         model = Accomodation
         fields = ['id', 'type_status', 'number',\
@@ -97,3 +98,18 @@ class AdsSerializer(serializers.ModelSerializer):
         model = Ads
         fields = ['accomodation', 'agent_commission', 'cost',
                   'cost_per_metter', 'version_of_calculation']
+        
+    def validate(self, data):
+        request = self.context.get("request")
+        if (data['accomodation'] not in Accomodation.objects.filter(house__builder=request.user))\
+            and request.user.is_superuser == False:
+            raise serializers.ValidationError("Змінювати такий тип данних може тільки забудовник, або адмін.")
+
+        return data
+    
+
+
+class DeniedCauseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeniedCause
+        fields = ['text',]
