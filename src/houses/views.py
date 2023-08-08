@@ -20,7 +20,7 @@ from drf_spectacular.utils import extend_schema
 
 from rest_framework.response import Response
 
-@extend_schema(tags=['House'])
+@extend_schema(tags=['Houses: House'])
 class HouseViewSet(ModelViewSet):
     '''
     House CRUD.
@@ -69,7 +69,7 @@ class HouseViewSet(ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
 
-@extend_schema(tags=['HouseBuilding'])
+@extend_schema(tags=['Houses: HouseBuilding'])
 class HouseBuildingViewSet(ModelViewSet):
     '''
     House building CRUD
@@ -118,7 +118,7 @@ class HouseBuildingViewSet(ModelViewSet):
         return super().destroy(request, *args, **kwargs)
     
 
-@extend_schema(tags=['HouseEntrance'])
+@extend_schema(tags=['Houses: HouseEntrance'])
 class HouseEntancesViewSet(ModelViewSet):
     '''
     House building CRUD
@@ -166,7 +166,7 @@ class HouseEntancesViewSet(ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
 
-@extend_schema(tags=['Floors'])
+@extend_schema(tags=['Houses: Floors'])
 class FloorViewSet(ModelViewSet):
     '''
     House building CRUD
@@ -214,7 +214,7 @@ class FloorViewSet(ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
 
-@extend_schema(tags=['Risers'])
+@extend_schema(tags=['Houses: Risers'])
 class RiserViewSet(ModelViewSet):
     '''
     House building CRUD

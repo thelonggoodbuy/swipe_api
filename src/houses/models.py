@@ -109,23 +109,23 @@ class AdvantagePerHouse(models.Model):
     
     
 class HouseBuilding(models.Model):
-    house = models.ForeignKey(House, on_delete=models.SET_NULL, blank=True, null=True)
+    house = models.ForeignKey(House, on_delete=models.SET_NULL, blank=True, null=True, related_name='house_building')
     title = models.CharField(max_length=200)
 
     
 class HouseEntrance(models.Model):
-    house = models.ForeignKey(House, on_delete=models.SET_NULL, blank=True, null=True)
+    house = models.ForeignKey(House, on_delete=models.SET_NULL, blank=True, null=True, related_name='house_entrance')
     title = models.CharField(max_length=200)
 
     
 class Floor(models.Model):
-    house = models.ForeignKey(House, on_delete=models.SET_NULL, blank=True, null=True)
+    house = models.ForeignKey(House, on_delete=models.SET_NULL, blank=True, null=True, related_name='floor')
     title = models.CharField(max_length=200)
     floor_schema = models.ImageField(null=True, blank=True, upload_to="galery/floor_schemas/")
 
 
 class Riser(models.Model):
-    house = models.ForeignKey(House, on_delete=models.SET_NULL, blank=True, null=True)
+    house = models.ForeignKey(House, on_delete=models.SET_NULL, blank=True, null=True, related_name='riser')
     title = models.CharField(max_length=200)
     
 

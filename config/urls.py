@@ -28,8 +28,8 @@ urlpatterns = [
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
     path("users/", include("users.urls")),
-    
     path("houses/", include("houses.urls")),
+    path("ads/", include("ads.urls")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
