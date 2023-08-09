@@ -45,6 +45,7 @@ class Accomodation(models.Model):
     schema = models.ImageField(null=True, blank=True, upload_to="galery/appartment_schemas/")
     booked_by = models.ForeignKey("users.CustomUser", on_delete=models.SET_NULL, blank=True, null=True)
     document = models.ManyToManyField(Document)
+    date_added = models.DateField(auto_now_add=True)
 
 
 
@@ -77,6 +78,7 @@ class Ads(models.Model):
     ads_status = models.CharField(max_length=200, choices=CHOICES_CORT, default=CHOICES_CORT[0][0])
     denied_cause = models.ForeignKey('DeniedCause', on_delete=models.SET_NULL, null=True, blank=True)
     version_of_calculation = models.CharField(max_length=200, choices=VERSION_OF_CALCULATION_CORT, default=VERSION_OF_CALCULATION_CORT[2][0])
+    date_added = models.DateTimeField(auto_now_add=True)
 
 
 class DeniedCause(models.Model):

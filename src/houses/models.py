@@ -101,6 +101,7 @@ class House(models.Model):
     main_image = models.ImageField(null=True, blank=True, upload_to="galery/houses_main_images/")
     location = models.CharField(max_length=2500, null=True, blank=True)
     builder = models.ForeignKey("users.CustomUser", on_delete=models.SET_NULL, blank=True, null=True, related_name='house')
+    # date_added = models.DateField(auto_now_add=True)
     
     
 class AdvantagePerHouse(models.Model):

@@ -1,4 +1,4 @@
-from .views import AccomodationViewSet, AdsViewSet, DeniedCauseViewSet
+from .views import AccomodationViewSet, AdsViewSet, DeniedCauseViewSet, ModerationAdsView
 
 from rest_framework.routers import DefaultRouter
 
@@ -15,5 +15,7 @@ router.register(r'denied_cause', DeniedCauseViewSet, basename='denied_cause')
 
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("moderation-ads/", ModerationAdsView.as_view(), name='moderation_ads'),
+    path("", include(router.urls))
+    
 ]

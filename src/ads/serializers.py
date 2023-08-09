@@ -109,6 +109,46 @@ class AdsSerializer(serializers.ModelSerializer):
     
 
 
+class AdsAccomodationDataSerializer(serializers.ModelSerializer):
+    floor_quantity = serializers.SerializerMethodField()
+    floor_title = serializers.SerializerMethodField()
+    house_address = serializers.SerializerMethodField()
+    house_disctrict = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Accomodation
+        fields = ['planing', 'area', 'floor_title', 'floor_quantity', 'house_address', 'house_disctrict']
+
+    def get_floor_quantity(self, obj):
+        floor_quantity = obj.house.floor.all().count()
+        return floor_quantity
+    
+    def get_floor_title(self, obj):
+        floor_title = obj.floor.title
+        return floor_title
+    
+    def get_house_address(self, obj):
+        house_address=obj.house.address
+        return house_address
+    
+    def get_house_disctrict(self, obj):
+        house_district=obj.house.disctrict
+        return house_district
+
+
+class AdsListModerationSerializer(serializers.ModelSerializer):
+    accomodation = AdsAccomodationDataSerializer(many=False, required=False)
+
+    class Meta:
+        model = Ads
+        fields = ['cost', 'accomodation', 'version_of_calculation', 'date_added']
+        # depth = 1
+
+
+
+
+
+
 class DeniedCauseSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeniedCause

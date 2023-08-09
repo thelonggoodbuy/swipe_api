@@ -1,5 +1,5 @@
 from django.db.models import Q
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
@@ -8,10 +8,13 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import action
 from rest_framework.settings import api_settings
 from rest_framework import serializers
+from rest_framework.generics import GenericAPIView
+from rest_framework.mixins import ListModelMixin, UpdateModelMixin, RetrieveModelMixin
+
 
 
 from .serializers import AccomodationSerializer, PhotoToAccomodationSerializer,\
-                            AdsSerializer, DeniedCauseSerializer
+                            AdsSerializer, DeniedCauseSerializer, AdsListModerationSerializer
 from .models import Accomodation, ImageGalery, Ads, DeniedCause
 
 
@@ -108,7 +111,6 @@ class AdsViewSet(ModelViewSet):
     Ads CRUD and logic for working with ADS.
     '''
     permission_classes = [IsAuthenticated, AdminOrBuildeOwnerPermission]
-    # permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
     serializer_class = AdsSerializer
     queryset = Ads.objects.all()
@@ -127,6 +129,37 @@ class AdsViewSet(ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
     
+
+
+
+
+
+
+
+# class ModerationAdsView(GenericAPIView, ListModelMixin, UpdateModelMixin, RetrieveModelMixin):
+@extend_schema(tags=['Ads: Ads moderation'])
+class ModerationAdsView(GenericAPIView, ListModelMixin):
+    permission_classes = [AllowAny]
+    authentication_classes = [JWTAuthentication]
+    # serializer_class = AdsListModerationSerializer
+    # list_serializer = AdsListModerationSerializer
+
+    queryset = Ads.objects.all()
+    
+
+    def get(self, *args, **kwargs):
+        # self.serializer_class = self.list_serializer
+        ads_list = Ads.objects.all()
+        serializer = AdsListModerationSerializer(ads_list, many=True)
+        return Response(serializer.data)
+    
+
+        # return super().get(self, *args, **kwargs)
+
+# users = User.objects.all()
+#         serializer = UserSerializerWithToken(users, many=True)
+#         return Response(serializer.data)
+
 
 
 @extend_schema(tags=['Ads: DeniedCause'])
