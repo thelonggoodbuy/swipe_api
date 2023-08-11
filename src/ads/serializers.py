@@ -109,15 +109,23 @@ class AdsSerializer(serializers.ModelSerializer):
     
 
 
-class AdsAccomodationDataSerializer(serializers.ModelSerializer):
+class AdsAccomodationRetreaveSerializer(serializers.ModelSerializer):
     floor_quantity = serializers.SerializerMethodField()
     floor_title = serializers.SerializerMethodField()
     house_address = serializers.SerializerMethodField()
     house_disctrict = serializers.SerializerMethodField()
+    house_type = serializers.SerializerMethodField()
+    type_of_account = serializers.SerializerMethodField()
+    builder_data = serializers.SerializerMethodField()
 
     class Meta:
         model = Accomodation
-        fields = ['planing', 'area', 'floor_title', 'floor_quantity', 'house_address', 'house_disctrict']
+        fields = ['planing', 'area', 'floor_title', 'floor_quantity',\
+                'house_address', 'house_disctrict', 'image_field',
+                'type_status', 'house_type', 'planing',\
+                'area_kitchen', 'heat_type', 'have_balcony',\
+                'type_of_account', 'builder_data']
+        depth = 1
 
     def get_floor_quantity(self, obj):
         floor_quantity = obj.house.floor.all().count()
@@ -134,22 +142,75 @@ class AdsAccomodationDataSerializer(serializers.ModelSerializer):
     def get_house_disctrict(self, obj):
         house_district=obj.house.disctrict
         return house_district
+    
+    def get_house_type(self, obj):
+        house_type=obj.house.house_type
+        return house_type
+
+    def get_type_of_account(self, obj):
+        type_of_account=obj.house.type_of_account
+        return type_of_account
+    
+    def get_builder_data(self, obj):
+
+        # try:
+        #     builder_data={'email': obj.house.builder.email,
+        #                 'image': obj.house.builder.photo}
+        # except ValueError:
+        #     builder_data={'email': obj.house.builder.email}
+        
+        builder_data={'email': obj.house.builder.email}
+        return builder_data
+    
+    
+class AdsAccomodationDataListSerializer(AdsAccomodationRetreaveSerializer):
+    class Meta:
+        model = Accomodation
+        fields = ['planing', 'area', 'floor_title', 'floor_quantity',\
+                'house_address', 'house_disctrict', 'image_field',\
+                'ads_status']
+        depth = 1    
 
 
 class AdsListModerationSerializer(serializers.ModelSerializer):
-    accomodation = AdsAccomodationDataSerializer(many=False, required=False)
+    accomodation = AdsAccomodationDataListSerializer(many=False, required=False)
 
     class Meta:
         model = Ads
-        fields = ['cost', 'accomodation', 'version_of_calculation', 'date_added']
-        # depth = 1
+        fields = ['id', 'cost', 'accomodation', 'version_of_calculation',\
+                  'date_added', 'ads_status']
 
 
 
 
+class AdsRetreaveModerationSerializer(serializers.ModelSerializer):
+    accomodation = AdsAccomodationRetreaveSerializer(many=False, required=False)
+
+    class Meta:
+        model = Ads
+        fields = ['id', 'accomodation']
 
 
 class DeniedCauseSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeniedCause
         fields = ['text',]
+
+
+
+class AdsupdateModerationSerializer(serializers.ModelSerializer):
+    denied_cause=serializers.PrimaryKeyRelatedField(required=True, queryset = DeniedCause.objects.all())
+
+    class Meta:
+        model = Ads
+        fields = ['id', 'denied_cause', 'ads_status']
+
+    def validate(self, data):
+            request = self.context.get("request")
+            try:
+                if data['denied_cause'] and data['ads_status'] == 'non_moderated' or data['ads_status'] == 'approved':
+                    raise serializers.ValidationError("Причину відмови можно позначити, якщо оголошенню відмовіленно.")
+            except KeyError:
+                pass
+
+            return data

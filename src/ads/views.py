@@ -1,6 +1,6 @@
 from django.db.models import Q
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from drf_spectacular.utils import extend_schema
@@ -14,7 +14,9 @@ from rest_framework.mixins import ListModelMixin, UpdateModelMixin, RetrieveMode
 
 
 from .serializers import AccomodationSerializer, PhotoToAccomodationSerializer,\
-                            AdsSerializer, DeniedCauseSerializer, AdsListModerationSerializer
+                            AdsSerializer, DeniedCauseSerializer, \
+                            AdsListModerationSerializer, AdsRetreaveModerationSerializer,\
+                            AdsupdateModerationSerializer
 from .models import Accomodation, ImageGalery, Ads, DeniedCause
 
 
@@ -34,6 +36,8 @@ class AccomodationViewSet(ModelViewSet):
     authentication_classes = [JWTAuthentication]
     serializer_class = AccomodationSerializer
     queryset = Accomodation.objects.all()
+
+    
 
     
     @action(detail=True, methods=['get'])
@@ -132,33 +136,36 @@ class AdsViewSet(ModelViewSet):
 
 
 
+from rest_framework.views import APIView
 
 
 
-
-# class ModerationAdsView(GenericAPIView, ListModelMixin, UpdateModelMixin, RetrieveModelMixin):
 @extend_schema(tags=['Ads: Ads moderation'])
-class ModerationAdsView(GenericAPIView, ListModelMixin):
+class ModerationAdsViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin, UpdateModelMixin,):
     permission_classes = [AllowAny]
     authentication_classes = [JWTAuthentication]
-    # serializer_class = AdsListModerationSerializer
-    # list_serializer = AdsListModerationSerializer
-
     queryset = Ads.objects.all()
+    serializer_class = AdsupdateModerationSerializer
     
 
-    def get(self, *args, **kwargs):
-        # self.serializer_class = self.list_serializer
+    def list(self, *args, **kwargs):
         ads_list = Ads.objects.all()
         serializer = AdsListModerationSerializer(ads_list, many=True)
         return Response(serializer.data)
     
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = AdsRetreaveModerationSerializer(instance)
+        return Response(serializer.data)
+    
+    # def update(self, request, *args, **kwargs):
+    #     instance = self.get_object()
+    #     print('=========UPDATE==============')
+    #     print(instance)
+    #     print('=========UPDATE==============')
+    #     serializer = AdsupdateModerationSerializer(instance)
+    #     return Response(serializer.data)
 
-        # return super().get(self, *args, **kwargs)
-
-# users = User.objects.all()
-#         serializer = UserSerializerWithToken(users, many=True)
-#         return Response(serializer.data)
 
 
 

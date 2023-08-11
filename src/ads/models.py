@@ -69,7 +69,7 @@ class Ads(models.Model):
         ('only_cash', "тільки готівка"),
         ('mortgage', "іпотека"),
     )
-    accomodation = models.OneToOneField(Accomodation, on_delete=models.SET_NULL, null=True, blank=True)
+    accomodation = models.OneToOneField(Accomodation, on_delete=models.SET_NULL, null=True, blank=True, related_name='ads')
     agent_commission = models.DecimalField(max_digits=10, decimal_places=2)
     cost = models.DecimalField(max_digits=10, decimal_places=2)
     cost_per_metter = models.DecimalField(max_digits=10, decimal_places=2)

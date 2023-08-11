@@ -130,7 +130,8 @@ class UserDetailAndUpdateAPIView(RetrieveUpdateAPIView):
     """
     View for update or see data of simple user
     """
-    permission_classes = (SimpleOnlyOwnerPermission,)
+    # permission_classes = (SimpleOnlyOwnerPermission,)
+    permission_classes = (AllowAny,)
     serializer_class = SimpleUserSerializer
 
     def get_object(self):

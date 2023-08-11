@@ -21,21 +21,29 @@ env = environ.Env()
 environ.Env.read_env(env_file=os.path.join(settings.BASE_DIR, ".env.dev"))
 
 
-@pytest.fixture(scope='function')
-def django_db_setup():
-    settings.DATABASES['default'] = {
-        # 'ENGINE': 'django.db.backends.postgresql',
-        # 'NAME': env("POSTGRES_TEST_DB"),
-        # 'USER': env("POSTGRES_TEST_USER"),
-        # 'PASSWORD': env("POSTGRES_TEST_PASSWORD"),
-        # "HOST": env("POSTGRES_HOST"),
-        'ENGINE': 'django.db.backends.postgresql',
-        "NAME": env("POSTGRES_DB"),
-        "USER": env("POSTGRES_USER"),
-        "PASSWORD": env("POSTGRES_PASSWORD"),
-        "HOST": env("POSTGRES_HOST"),
-        "PORT": env("POSTGRES_PORT"),
-    }
+# @pytest.fixture(scope='function')
+# def django_db_setup():
+#     settings.DATABASES['default'] = {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': env("POSTGRES_TEST_DB"),
+#         'USER': env("POSTGRES_TEST_USER"),
+#         'PASSWORD': env("POSTGRES_TEST_PASSWORD"),
+#         "HOST": env("POSTGRES_HOST"),
+#         "PORT": env("POSTGRES_PORT"),
+#     }
+
+
+# @pytest.fixture(scope='function')
+# def django_db_setup():
+#     settings.DATABASES['default'] = {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': env("POSTGRES_DB"),
+#         'USER': env("POSTGRES_USER"),
+#         'PASSWORD': env("POSTGRES_PASSWORD"),
+#         "HOST": env("POSTGRES_HOST"),
+#         "PORT": env("POSTGRES_PORT"),
+#     }
+
 
 
 @pytest.fixture
@@ -85,13 +93,64 @@ def create_admin_payload():
     client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
     return client
 
+# *****************************************************************************
+# *****************************************************************************
+# *****************************************************************************
+
+@pytest.fixture
+def create_user_new_fixture(db):
+    new_user = CustomUser.objects.create(
+        password='test_email@mail.com',
+        email='test123_email@mail.com'
+        )
+    
+    client = APIClient()
+    refresh = RefreshToken.for_user(new_user)
+    client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+    return client
+#    return make_user_new_fixture
+
+# *****************************************************************************
+# *****************************************************************************
+# *****************************************************************************
 # ====================================END=FIXTURE==============================
 
 # ====================================TESTS====================================
+# *****************************************************************************
+# *****************************************************************************
+# *****************************************************************************
+@pytest.mark.django_db
+def test_user_detail(api_client, create_user_new_fixture):
+
+    # user = create_user_new_fixture
+    
+    print('============1==================')
+    print(CustomUser.objects.all())
+    print('===============================')
+    user = CustomUser.objects.get(email="test123_email@mail.com")
+    url = f'/users/simple_user_update_and_detail/{user.id}/'
+    response = create_user_new_fixture.get(url, format='json')
+    print('============2==================')
+    print(CustomUser.objects.all())
+    print('===============================')
+    # response = api_client.get(url, format='json')
+    # assert response.status_code == 301
+
+
+    assert response.status_code == 200
+#    assert 'someone' in response.content
+
+# *****************************************************************************
+# *****************************************************************************
+# *****************************************************************************
 
 @pytest.mark.django_db
 def test_simple_user_registration(api_client, db):
+
+    print('================')
     print(db)
+    print('================')
+
     # Testing creating a simple user entrypoint
     # without email confirmation.
     url = '/users/auth/register_simple_user/'
