@@ -5,30 +5,39 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .serializers import HouseSerializer, HouseBuildingSerializer, \
                         HouseEntancesSerializer, FloorSerializer, \
-                        RiserSerializer
+                        RiserSerializer, HouseListSerializer
 from .models import House, HouseBuilding, HouseEntrance, Floor, Riser
 
 
 from users.services import AdminOnlyPermission, AdminOrBuildeOwnerPermission
 
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from drf_spectacular.utils import extend_schema
 
 
 
 from rest_framework.response import Response
+from rest_framework.parsers import JSONParser, MultiPartParser, FileUploadParser
+
+
 
 @extend_schema(tags=['Houses: House'])
 class HouseViewSet(ModelViewSet):
     '''
     House CRUD.
     '''
-    permission_classes = [IsAuthenticated, AdminOrBuildeOwnerPermission]
     authentication_classes = [JWTAuthentication]
+    parser_classes = [JSONParser, MultiPartParser]
     serializer_class = HouseSerializer
     queryset = House.objects.all()
+
+    # def get_serializer_class(self):
+    #     if self.action == 'list' or 'retreave':
+    #         return HouseListSerializer
+        
+    #     return HouseSerializer
 
     @extend_schema(summary='Get list (LIST) of all buidings. Needfull permission - admin(return all houses) or builder(return houses, builded by user)')
     def list(self, request, *args, **kwargs):
@@ -46,10 +55,26 @@ class HouseViewSet(ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+    
+
 
     @extend_schema(summary='Create house (CREATE). Needfull permission - admin or builder')
     def create(self, request, *args, **kwargs):
+        # house = super().create(request, *args, **kwargs)
+        # print('=========================')
+        # print('smt additional!!!!')
+        # print('=========================')
+        # return house
         return super().create(request, *args, **kwargs)
+
+    # def create(self, request, *args, **kwargs):
+        # username = request.data['username']
+        # file = request.data['main_image']
+        # user = MyModel.objects.get(username=username)
+
+        # user.image = file
+        # user.save()
+        # return Response("Image updated!", status=status.HTTP_200_OK)
 
 
     @extend_schema(summary='Retreave house (RETREAVE). Needfull permission - admin or builder(return house, builded by user).')
@@ -69,11 +94,13 @@ class HouseViewSet(ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
 
+
 @extend_schema(tags=['Houses: HouseBuilding'])
 class HouseBuildingViewSet(ModelViewSet):
     '''
     House building CRUD
     '''
+
     permission_classes = [IsAuthenticated, AdminOrBuildeOwnerPermission]
     authentication_classes = [JWTAuthentication]
     serializer_class = HouseBuildingSerializer
@@ -214,6 +241,7 @@ class FloorViewSet(ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
 
+
 @extend_schema(tags=['Houses: Risers'])
 class RiserViewSet(ModelViewSet):
     '''
@@ -221,6 +249,7 @@ class RiserViewSet(ModelViewSet):
     '''
     permission_classes = [IsAuthenticated, AdminOrBuildeOwnerPermission]
     authentication_classes = [JWTAuthentication]
+    
     serializer_class = RiserSerializer
     queryset = Riser.objects.all()
     

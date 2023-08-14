@@ -6,14 +6,40 @@ from drf_extra_fields.fields import Base64ImageField
 
 from .models import House, HouseBuilding, HouseEntrance, Floor, Riser
 from users.models import CustomUser
+from ads.models import ImageGalery
 
+
+
+
+
+class PhotoToHouseSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(required=False)
+
+    class Meta:
+        model = ImageGalery
+        fields = ['id', 'image']
+
+
+
+class ModelListField(serializers.ListField):
+
+    def to_representation(self, data):
+        list_data = list(data.all())
+        for obj in list_data: 
+            obj.name = {"id": obj.id, "image": obj.image.url}
+        return super().to_representation(list_data)
+    
+    # def to_internal_value(self, data):
+    #     print('====INTERNAL=VALUE=========')
+    #     print(data)
+    #     print('============================')
+    #     return super().to_internal_value(data)
 
 class HouseSerializer(serializers.ModelSerializer):
     builder = serializers.PrimaryKeyRelatedField\
         (queryset=CustomUser.objects.filter\
         ((Q(is_builder=True)) | Q(is_superuser=True)), required=False)
-    
-
+    image_field = ModelListField(child=serializers.ImageField(max_length=100000, allow_empty_file=False, use_url=False))
 
     class Meta:
         model = House
@@ -23,23 +49,70 @@ class HouseSerializer(serializers.ModelSerializer):
                   'distance_to_sea', 'services_payment', 'ceiling_height',
                   'household_gas', 'heating', 'sewage', 'plumbing', 
                   'builder', 'registration', 'type_of_account',
-                  'purpose', 'summ_of_threaty', 'main_image', 'location']
+                  'purpose', 'summ_of_threaty', 'main_image', 'image_field', 'location']
         extra_kwargs = {'house_type': {'required': False}}
-        
 
-    def validate_builder(self, data):
-        if data == self.context.get("request").user or self.context.get("request").user.is_superuser == True:
-            return data
+    def create(self, validated_data):
+        images_data = validated_data.pop('image_field')
+        house = House.objects.create(**validated_data)
+        image_obj_list = []
+        for image_data in images_data:
+            new_image = ImageGalery.objects.create(image=image_data)
+            image_obj_list.append(new_image)
+        house.image_field.set(image_obj_list)
+        return house
+
+    def update(self, instance, validated_data):
+        print(validated_data)
+        if 'image_field' in validated_data:
+            photo_data = validated_data.pop('image_field')
+            ImageGalery.objects.filter(house=instance).delete()
+
+        for item in validated_data:
+            if House._meta.get_field(item):
+                setattr(instance, item, validated_data[item])
+
+        try:
+            photo_data
+        except NameError:
+            return instance
         else:
-            raise serializers.ValidationError("Тільки адміністратор має можливість змінювати данні про власнітьс об'єкта нерухомості.")
+            image_obj_list = []
+            for photo_obj in photo_data:
+                image = ImageGalery.objects.create(image = photo_obj)                
+                image.save()
+                image_obj_list.append(image)
+            instance.image_field.set(image_obj_list)
+        instance.save()
+        return instance
+
+
+    # def validate_builder(self, data):
+    #     if data == self.context.get("request").user or self.context.get("request").user.is_superuser == True:
+    #         return data
+    #     else:
+    #         raise serializers.ValidationError("Тільки адміністратор має можливість змінювати данні про власнітьс об'єкта нерухомості.")
 
     def validate(self, data):
+        print(data)
         if 'house_type'in data:
             if data['house_type'] == 'коттедж' and data['house_status'] != ('індивідуальний будинок' or None):
                 raise serializers.ValidationError("Коттедж може бути тільки індивідуальним будинком. А індивідуальний будинок не може містити квартири")
 
         return data
     
+
+class HouseListSerializer(HouseSerializer):
+    image_field = PhotoToHouseSerializer(many=True, read_only=True)
+
+
+
+
+
+
+
+
+
 
 class HouseBuildingSerializer(serializers.ModelSerializer):
     house = serializers.PrimaryKeyRelatedField(required=True, queryset = House.objects.all())

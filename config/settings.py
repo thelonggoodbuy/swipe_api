@@ -176,7 +176,8 @@ SPECTACULAR_SETTINGS = {
     # 'SCHEMA_PATH_PREFIX': r'/api/v[0-9]',
     'SERVE_INCLUDE_SCHEMA': False,
     'POSTPROCESSING_HOOKS': [],
-    # 'COMPONENT_SPLIT_REQUEST': True,
+    
+    'COMPONENT_SPLIT_REQUEST': True,
     'AUTHENTICATION_WHITELIST': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],

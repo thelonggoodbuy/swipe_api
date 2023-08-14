@@ -122,23 +122,11 @@ def create_user_new_fixture(db):
 @pytest.mark.django_db
 def test_user_detail(api_client, create_user_new_fixture):
 
-    # user = create_user_new_fixture
-    
-    print('============1==================')
-    print(CustomUser.objects.all())
-    print('===============================')
     user = CustomUser.objects.get(email="test123_email@mail.com")
     url = f'/users/simple_user_update_and_detail/{user.id}/'
     response = create_user_new_fixture.get(url, format='json')
-    print('============2==================')
-    print(CustomUser.objects.all())
-    print('===============================')
-    # response = api_client.get(url, format='json')
-    # assert response.status_code == 301
-
-
     assert response.status_code == 200
-#    assert 'someone' in response.content
+
 
 # *****************************************************************************
 # *****************************************************************************
