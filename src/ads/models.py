@@ -51,6 +51,7 @@ class Accomodation(models.Model):
 
 class ImageGalery(models.Model):
     image = models.ImageField(null=True, blank=True, upload_to="galery/image_galery/")
+    obj_order = models.SmallIntegerField(blank=True, null=True)
 
     # def __str__(self):
     #     return self.image.url

@@ -40,67 +40,67 @@ class AccomodationViewSet(ModelViewSet):
     
 
     
-    @action(detail=True, methods=['get'])
-    def list_of_nested_images(self, request, pk=None):
-        current_accomodation = self.get_object()
-        queryset = current_accomodation.image_field.all()
-        serializer = PhotoToAccomodationSerializer(queryset, many=True)
-        return Response(serializer.data)
+    # @action(detail=True, methods=['get'])
+    # def list_of_nested_images(self, request, pk=None):
+    #     current_accomodation = self.get_object()
+    #     queryset = current_accomodation.image_field.all()
+    #     serializer = PhotoToAccomodationSerializer(queryset, many=True)
+    #     return Response(serializer.data)
         
 
-    @action(detail=True, methods=['post'])
-    def get_nested_image(self, request, pk=None, image_pk=None):
-        image_list = ImageGalery.objects.filter(
-            Q(id=request.data['id']) & Q(accomodation__id=pk))
-        if image_list.exists():
-            instance = image_list[0]
-            serializer = PhotoToAccomodationSerializer(instance=instance)
-            response = Response(serializer.data)
-        else:
-            raise serializers.ValidationError("Ця фотографія не прив'язана до цього обєкту нерухомості.")
-        return response
+    # @action(detail=True, methods=['post'])
+    # def get_nested_image(self, request, pk=None, image_pk=None):
+    #     image_list = ImageGalery.objects.filter(
+    #         Q(id=request.data['id']) & Q(accomodation__id=pk))
+    #     if image_list.exists():
+    #         instance = image_list[0]
+    #         serializer = PhotoToAccomodationSerializer(instance=instance)
+    #         response = Response(serializer.data)
+    #     else:
+    #         raise serializers.ValidationError("Ця фотографія не прив'язана до цього обєкту нерухомості.")
+    #     return response
     
 
-    @action(detail=True, methods=['patch'])
-    def update_nested_image(self, request, pk=None, *args, **kwargs):
-        image_list = ImageGalery.objects.filter(
-            Q(id=request.data['id']) & Q(accomodation__id=pk))
-        if image_list.exists():
-            instance = image_list[0]
-            serializer = PhotoToAccomodationSerializer(instance=instance, data=request.data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
+    # @action(detail=True, methods=['patch'])
+    # def update_nested_image(self, request, pk=None, *args, **kwargs):
+    #     image_list = ImageGalery.objects.filter(
+    #         Q(id=request.data['id']) & Q(accomodation__id=pk))
+    #     if image_list.exists():
+    #         instance = image_list[0]
+    #         serializer = PhotoToAccomodationSerializer(instance=instance, data=request.data, partial=True)
+    #         serializer.is_valid(raise_exception=True)
+    #         self.perform_update(serializer)
 
-            if getattr(instance, '_prefetched_objects_cache', None):
-                instance._prefetched_objects_cache = {}
-            response = Response(serializer.data)
+    #         if getattr(instance, '_prefetched_objects_cache', None):
+    #             instance._prefetched_objects_cache = {}
+    #         response = Response(serializer.data)
 
-        else:
-            raise serializers.ValidationError("Ця фотографія не прив'язана до цього обєкту нерухомості.")
-        return response
+    #     else:
+    #         raise serializers.ValidationError("Ця фотографія не прив'язана до цього обєкту нерухомості.")
+    #     return response
     
 
-    @action(detail=True, methods=['post'])
-    def create_nested_image(self, request, pk=None, *args, **kwargs):
-        serializer = PhotoToAccomodationSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        new_image = serializer.save()
-        current_accomodation = self.get_object()
-        current_accomodation.image_field.add(new_image)
+    # @action(detail=True, methods=['post'])
+    # def create_nested_image(self, request, pk=None, *args, **kwargs):
+    #     serializer = PhotoToAccomodationSerializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     new_image = serializer.save()
+    #     current_accomodation = self.get_object()
+    #     current_accomodation.image_field.add(new_image)
 
-        try:
-            headers = {'Location': str(serializer.data[api_settings.URL_FIELD_NAME])}
-        except (TypeError, KeyError):
-            headers = {}
+    #     try:
+    #         headers = {'Location': str(serializer.data[api_settings.URL_FIELD_NAME])}
+    #     except (TypeError, KeyError):
+    #         headers = {}
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         
 
-    @action(detail=True, methods=['post'])
-    def delete_nested_image(self, request, *args, **kwargs):
-        image_instance = ImageGalery.objects.get(id=request.data['id'])
-        image_instance.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    # @action(detail=True, methods=['post'])
+    # def delete_nested_image(self, request, *args, **kwargs):
+    #     image_instance = ImageGalery.objects.get(id=request.data['id'])
+    #     image_instance.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # =============================================================================================

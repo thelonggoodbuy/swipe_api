@@ -13,11 +13,32 @@ from drf_extra_fields.fields import Base64ImageField
 
 
 class PhotoToAccomodationSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
     image = Base64ImageField(required=False)
+    obj_order = serializers.IntegerField(required=False)
+
 
     class Meta:
         model = ImageGalery
-        fields = ['id', 'image']
+        fields = ['id', 'image', 'obj_order']
+
+    # def to_representation(self, data):
+
+    #     representation = super().to_representation(data)
+    #     representation['addition_id'] = data.id
+
+    #     return representation
+    
+
+    # def to_internal_value(self, data):
+    #     print('======internal=value===')
+        
+    #     data['addition_id'] = data['id']
+    #     print(data)
+    #     print('=======================')
+    #     # resource_data = data['resource']
+
+    #     return super().to_internal_value(data)
 
 
 class AccomodationSerializer(serializers.ModelSerializer):
@@ -53,32 +74,93 @@ class AccomodationSerializer(serializers.ModelSerializer):
         accomodation_obj.save()
         return accomodation_obj
     
+
+
     def update(self, instance, validated_data):
+
         if 'image_field' in validated_data:
-            photo_data = validated_data.pop('image_field')
-            ImageGalery.objects.filter(accomodation=instance).delete()
+            deleted_list = []
+            updated_list = []
+            list_of_images_id = []
 
-        for item in validated_data:
-            if Accomodation._meta.get_field(item):
-                setattr(instance, item, validated_data[item])
+            list_of_dict_images_id = instance.image_field.all().values('id')
+            # print('============================')
+            # print(list_of_images_id.values())
+            for dict_of_image_id in list_of_dict_images_id: list_of_images_id.append(dict_of_image_id['id'])
 
-        try:
-            photo_data
-        except NameError:
-            return instance
-        else:
-            for photo_obj in photo_data:
-                photo_fields = dict(photo_obj)
-                image = ImageGalery.objects.create(**photo_fields)
-                image.save()
-                instance.image_field.add(image)
+            # print(validated_data['image_field'])
+            # print('===================================')
+
+            
+            for image_obj in validated_data['image_field']:
+                # print(image_obj)
+                
+                if 'obj_order' not in image_obj:
+                    # print(f'Delete:{image_obj}')
+                    delete_obj = image_obj['id']
+                    # deleted_list.append(delete_obj)
+                    image_obj = ImageGalery.objects.get(id=image_obj['id'])
+                    instance.image_field.remove(image_obj)
+                    del image_obj
+
+                elif 'id' in image_obj and image_obj['id'] in list_of_images_id:
+                    ImageGalery.objects.filter(id=image_obj['id']).update(**image_obj)
+
+                else:
+
+                    new_image = ImageGalery.objects.create(**image_obj)
+                    instance.image_field.add(new_image)
+
+
+
+
+                # ==========================================================================================
+
+
+                # else:
+                #     pass
+                    # print(image_obj['id'])
+                    # updated_obj = image_obj['id']
+                    # updated_list.
+                #     for photo_obj in photo_data:
+                #         photo_fields = dict(photo_obj)
+                #         image = ImageGalery.objects.create(**photo_fields)
+                #         image.save()
+                #         instance.image_field.add(image)
+                    # MyModel.objects.filter(pk=some_value).update(field1='some value')
+            # print('===========================')
+            # print(deleted_list)
+            # print(updated_list)
+            # print('===========================')
+
+
+        # if 'image_field' in validated_data:
+        #     photo_data = validated_data.pop('image_field')
+        #     ImageGalery.objects.filter(accomodation=instance).delete()
+
+        # for item in validated_data:
+        #     if Accomodation._meta.get_field(item):
+        #         setattr(instance, item, validated_data[item])
+
+        # try:
+        #     photo_data
+        # except NameError:
+        #     return instance
+        # else:
+        #     for photo_obj in photo_data:
+        #         photo_fields = dict(photo_obj)
+        #         image = ImageGalery.objects.create(**photo_fields)
+        #         image.save()
+        #         instance.image_field.add(image)
         instance.save()
+
         return instance
     
 
     def validate(self, data):
         current_house = data['house']
-        if current_house.accomodation.filter(number=data['number']).exists():
+        if current_house.accomodation.filter(number=data['number']).exists() and\
+                current_house.accomodation.filter(number=data['number'])[0].id != self.instance.id:
             raise serializers.ValidationError("Номер квартири має бути унікальним для цього будинку. Квартира з таким номером вже зареєстрована")
         if data['house_building'] not in current_house.house_building.all():
             raise serializers.ValidationError("Ви повинні обрати корпус, який знаходиться в цьому будинку.")
