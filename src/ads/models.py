@@ -7,26 +7,26 @@ from houses.models import HouseBuilding, HouseEntrance, Floor, Riser, Document, 
 # Create your models here.
 class Accomodation(models.Model):
     TYPE_CORT = (
-        ("новобудова", "new_building"),
-        ("вторинне житло", "resale_property"),
-        ("коттедж", "cottage"),
+        ("new_building", "новобудова"),
+        ("resale_property", "вторинне житло"),
+        ("cottage", "коттедж"),
     )
     PLANNING_CORT = (
-        ("студія з санвузлом", "studio_appartment_with_barhroom"),
-        ("студія з санвузлом і однією спальнею", "studio_appartment_with_barhroom_and_one bedroom"),
-        ("двокімнатна", "two_bedroom"),
-        ("двокімнатна зі своєю кришею", "two_bedroom_and_roof"),
-        ("трьокімнатна", "three_vedroom"),
-        ("трьокімнатна зі своєю кришею", "three_vedroom_and_roof"),
+        ("studio_appartment_with_barhroom", "студія з санвузлом"),
+        ("studio_appartment_with_barhroom_and_one bedroom", "студія з санвузлом і однією спальнею"),
+        ("two_bedroom", "двокімнатна"),
+        ("two_bedroom_and_roof", "двокімнатна зі своєю кришею"),
+        ("three_vedroom", "трьокімнатна"),
+        ("three_vedroom_and_roof", "трьокімнатна зі своєю кришею"),
     )
     LIVING_CONDITION_CORT = (
-        ('вимагає ремонту', 'need_repair'),
-        ('готова для заселення', 'reary_for_settlement'),
+        ('need_repair', 'вимагає ремонту'),
+        ('reary_for_settlement', 'готова для заселення'),
     )
     HEAT_TYPE_CORT = (
-        ('газове', 'gas'),
-        ('електричний', 'electric'),
-        ("дров'яне опалення", 'wood_heating'),
+        ('gas', 'газове'),
+        ('electric', 'електричний'),
+        ('wood_heating', "дров'яне опалення"),
     )
     type_status = models.CharField(max_length=200, choices=TYPE_CORT)
     number = models.PositiveSmallIntegerField()
@@ -91,3 +91,47 @@ class DeniedCause(models.Model):
 
 class PromoAdditionalPhrase(models.Model):
     text = models.CharField(max_length=400)
+
+
+class Filter(models.Model):
+    TYPE_CORT = (
+        ("new_building", "новобудова"),
+        ("resale_property", "вторинне житло"),
+        ("cottage", "коттедж"),
+    )
+    HOUSE_STATUS_CORT = (
+        ("appartments", "квартири"),
+        ("appartments_with_terrace", "квартири з терассами"),
+        ("penthouse", "пентхауз"),
+        ("individual_house", "індивідуальний будинок"),
+    )
+    LIVING_CONDITION_CORT = (
+        ('need_repair', 'вимагає ремонту'),
+        ('reary_for_settlement', 'готова для заселення'),
+    )
+    FILTER_TYPE_CORT = (
+        ('all', 'всі'),
+        ('resale_property', 'вторинне житло'),
+        ('new_buiding', 'новобудова'),
+        ('cottage', 'коттедж')
+    )
+    user = models.OneToOneField("users.CustomUser", on_delete=models.CASCADE)
+    filter_type_status = models.CharField(max_length=200, choices=TYPE_CORT, blank=True, null=True)
+    filter_disctrict = models.CharField(max_length=200, blank=True, null=True)
+    filter_microdisctrict = models.CharField(max_length=200, blank=True, null=True)
+    filter_from_cost = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    filter_to_cost = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    filter_from_area = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    filter_to_area = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    filter_house_status = models.CharField(max_length=200, choices=HOUSE_STATUS_CORT, blank=True, null=True)
+    filter_living_condition = models.CharField(max_length=200, choices=LIVING_CONDITION_CORT, blank=True, null=True)
+    filter_type = models.CharField(max_length=200, choices=FILTER_TYPE_CORT)
+
+    def return_filter_dict(self):
+        fields = Filter._meta.get_fields()
+        print('====FILEDS====')
+        # print(fields)
+        # print(self.__dict__.values('filter_type_status'))
+        print('==============')
+        # dictionary = {}
+        # return print

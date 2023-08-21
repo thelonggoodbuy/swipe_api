@@ -49,7 +49,7 @@ class HouseSerializer(serializers.ModelSerializer):
                   'distance_to_sea', 'services_payment', 'ceiling_height',
                   'household_gas', 'heating', 'sewage', 'plumbing', 
                   'builder', 'registration', 'type_of_account',
-                  'purpose', 'summ_of_threaty', 'main_image', 'image_field', 'location']
+                  'purpose', 'summ_of_threaty', 'main_image', 'image_field']
         extra_kwargs = {'house_type': {'required': False}}
 
     def create(self, validated_data):
@@ -104,14 +104,6 @@ class HouseSerializer(serializers.ModelSerializer):
 
 class HouseListSerializer(HouseSerializer):
     image_field = PhotoToHouseSerializer(many=True, read_only=True)
-
-
-
-
-
-
-
-
 
 
 class HouseBuildingSerializer(serializers.ModelSerializer):

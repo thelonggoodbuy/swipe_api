@@ -34,6 +34,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'drf_spectacular',
+    "debug_toolbar",
+    # 'django_filters',
 
     # project apps
     'users.apps.UsersConfig',
@@ -42,6 +44,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -147,6 +150,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    # 'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -158,7 +162,7 @@ REST_FRAMEWORK = {
 
 }
 
-EMAIL_BAckend = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_Backend = 'django.core.mail.backends.smtp.EmailBackend'
 
 
 EMAIL_USE_TLS = True
@@ -186,4 +190,9 @@ SPECTACULAR_SETTINGS = {
     # 'SERVE_AUTHENTICATION': [
     #     'rest_framework_simplejwt.authentication.JWTAuthentication',
     # ],
+}
+
+
+DEBUG_TOOLBAR_CONFIG = {
+    "SHOW_TOOLBAR_CALLBACK": lambda request: True,
 }

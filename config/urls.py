@@ -30,6 +30,8 @@ urlpatterns = [
     path("users/", include("users.urls")),
     path("houses/", include("houses.urls")),
     path("ads/", include("ads.urls")),
+
+    path("__debug__/", include("debug_toolbar.urls")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -101,11 +101,11 @@ class House(models.Model):
     summ_of_threaty = models.CharField(max_length=200, choices=SUMM_OF_THREADY_CORT)
     main_image = models.ImageField(null=True, blank=True, upload_to="galery/houses_main_images/")
     image_field = models.ManyToManyField('ads.ImageGalery', related_name='house')
-    location = models.CharField(max_length=2500, null=True, blank=True)
+    location_x = models.DecimalField(max_digits=18, decimal_places=15, blank=True, null=True)
+    location_y = models.DecimalField(max_digits=18, decimal_places=15, blank=True, null=True)
     builder = models.ForeignKey("users.CustomUser", on_delete=models.SET_NULL, blank=True, null=True, related_name='house')
-    # date_added = models.DateField(auto_now_add=True)
-    
-    
+
+
 class AdvantagePerHouse(models.Model):
     house = models.ManyToManyField(House)
     title = models.CharField(max_length=200)

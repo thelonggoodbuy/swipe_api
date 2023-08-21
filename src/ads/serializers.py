@@ -1,8 +1,9 @@
 from rest_framework import serializers
 
 
-from .models import Accomodation, ImageGalery, Ads, DeniedCause
+from .models import Accomodation, ImageGalery, Ads, DeniedCause, Filter
 
+from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
 
 from houses.models import House, HouseBuilding, HouseEntrance,\
                     Floor, Riser
@@ -21,24 +22,6 @@ class PhotoToAccomodationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImageGalery
         fields = ['id', 'image', 'obj_order']
-
-    # def to_representation(self, data):
-
-    #     representation = super().to_representation(data)
-    #     representation['addition_id'] = data.id
-
-    #     return representation
-    
-
-    # def to_internal_value(self, data):
-    #     print('======internal=value===')
-        
-    #     data['addition_id'] = data['id']
-    #     print(data)
-    #     print('=======================')
-    #     # resource_data = data['resource']
-
-    #     return super().to_internal_value(data)
 
 
 class AccomodationSerializer(serializers.ModelSerializer):
@@ -84,94 +67,47 @@ class AccomodationSerializer(serializers.ModelSerializer):
             list_of_images_id = []
 
             list_of_dict_images_id = instance.image_field.all().values('id')
-            # print('============================')
-            # print(list_of_images_id.values())
+
             for dict_of_image_id in list_of_dict_images_id: list_of_images_id.append(dict_of_image_id['id'])
 
-            # print(validated_data['image_field'])
-            # print('===================================')
-
-            
             for image_obj in validated_data['image_field']:
-                # print(image_obj)
                 
+                # delete if order None
                 if 'obj_order' not in image_obj:
-                    # print(f'Delete:{image_obj}')
                     delete_obj = image_obj['id']
                     # deleted_list.append(delete_obj)
                     image_obj = ImageGalery.objects.get(id=image_obj['id'])
                     instance.image_field.remove(image_obj)
                     del image_obj
-
+                # update image
                 elif 'id' in image_obj and image_obj['id'] in list_of_images_id:
                     ImageGalery.objects.filter(id=image_obj['id']).update(**image_obj)
-
+                # create image
                 else:
 
                     new_image = ImageGalery.objects.create(**image_obj)
                     instance.image_field.add(new_image)
 
-
-
-
-                # ==========================================================================================
-
-
-                # else:
-                #     pass
-                    # print(image_obj['id'])
-                    # updated_obj = image_obj['id']
-                    # updated_list.
-                #     for photo_obj in photo_data:
-                #         photo_fields = dict(photo_obj)
-                #         image = ImageGalery.objects.create(**photo_fields)
-                #         image.save()
-                #         instance.image_field.add(image)
-                    # MyModel.objects.filter(pk=some_value).update(field1='some value')
-            # print('===========================')
-            # print(deleted_list)
-            # print(updated_list)
-            # print('===========================')
-
-
-        # if 'image_field' in validated_data:
-        #     photo_data = validated_data.pop('image_field')
-        #     ImageGalery.objects.filter(accomodation=instance).delete()
-
-        # for item in validated_data:
-        #     if Accomodation._meta.get_field(item):
-        #         setattr(instance, item, validated_data[item])
-
-        # try:
-        #     photo_data
-        # except NameError:
-        #     return instance
-        # else:
-        #     for photo_obj in photo_data:
-        #         photo_fields = dict(photo_obj)
-        #         image = ImageGalery.objects.create(**photo_fields)
-        #         image.save()
-        #         instance.image_field.add(image)
         instance.save()
 
         return instance
     
 
-    def validate(self, data):
-        current_house = data['house']
-        if current_house.accomodation.filter(number=data['number']).exists() and\
-                current_house.accomodation.filter(number=data['number'])[0].id != self.instance.id:
-            raise serializers.ValidationError("Номер квартири має бути унікальним для цього будинку. Квартира з таким номером вже зареєстрована")
-        if data['house_building'] not in current_house.house_building.all():
-            raise serializers.ValidationError("Ви повинні обрати корпус, який знаходиться в цьому будинку.")
-        if data['house_entrance'] not in current_house.house_entrance.all():
-            raise serializers.ValidationError("Ви повинні обрати підїзд, який знаходиться в цьому будинку.")
-        if data['floor'] not in current_house.floor.all():
-            raise serializers.ValidationError("Ви повинні обрати поверх, який знаходиться в цьому будинку.")
-        if data['riser'] not in current_house.riser.all():
-            raise serializers.ValidationError("Ви повинні обрати стояк, який знаходиться в цьому будинку.")
+    # def validate(self, data):
+    #     current_house = data['house']
+    #     if current_house.accomodation.filter(number=data['number']).exists() and\
+    #             current_house.accomodation.filter(number=data['number'])[0].id != self.instance.id:
+    #         raise serializers.ValidationError("Номер квартири має бути унікальним для цього будинку. Квартира з таким номером вже зареєстрована")
+    #     if data['house_building'] not in current_house.house_building.all():
+    #         raise serializers.ValidationError("Ви повинні обрати корпус, який знаходиться в цьому будинку.")
+    #     if data['house_entrance'] not in current_house.house_entrance.all():
+    #         raise serializers.ValidationError("Ви повинні обрати підїзд, який знаходиться в цьому будинку.")
+    #     if data['floor'] not in current_house.floor.all():
+    #         raise serializers.ValidationError("Ви повинні обрати поверх, який знаходиться в цьому будинку.")
+    #     if data['riser'] not in current_house.riser.all():
+    #         raise serializers.ValidationError("Ви повинні обрати стояк, який знаходиться в цьому будинку.")
 
-        return data
+    #     return data
     
 
 
@@ -234,12 +170,6 @@ class AdsAccomodationRetreaveSerializer(serializers.ModelSerializer):
         return type_of_account
     
     def get_builder_data(self, obj):
-
-        # try:
-        #     builder_data={'email': obj.house.builder.email,
-        #                 'image': obj.house.builder.photo}
-        # except ValueError:
-        #     builder_data={'email': obj.house.builder.email}
         
         builder_data={'email': obj.house.builder.email}
         return builder_data
@@ -296,3 +226,214 @@ class AdsupdateModerationSerializer(serializers.ModelSerializer):
                 pass
 
             return data
+    
+
+# =======================================================================================
+# ==========CUSTOM===FILTERS=====SERIALIZERS=============================================
+# =======================================================================================
+
+@extend_schema_serializer(exclude_fields=('cost',),
+                          examples = [
+                                OpenApiExample(
+                                    'Title. Title.',
+                                    summary='Filter values',
+                                    description='Simple values.',
+                                    value={
+                                        'filter_from_cost': '',
+                                        'filter_to_cost': '',
+                                        'filter_type_status': '',
+                                        'filter_disctrict': ''
+                                    },
+                                    request_only=True,
+                                ),
+                                    ])
+class AdsFeedListSerializer(serializers.ModelSerializer):
+    TYPE_CORT = (
+        ("new_building", "новобудова"),
+        ("resale_property", "вторинне житло"),
+        ("cottage", "коттедж"),
+    )
+    HOUSE_STATUS_CORT = (
+        ("appartments", "квартири"),
+        ("appartments_with_terrace", "квартири з терассами"),
+        ("penthouse", "пентхауз"),
+        ("individual_house", "індивідуальний будинок"),
+    )
+    LIVING_CONDITION_CORT = (
+        ('need_repair', 'вимагає ремонту'),
+        ('reary_for_settlement', 'готова для заселення'),
+    )
+    FILTER_TYPE_CORT = (
+        ('all', 'всі'),
+        ('resale_property', 'вторинне житло'),
+        ('new_building', 'новобудова'),
+        ('cottage', 'коттедж')
+    )
+
+    EXISTING_FILTERS = ([saved_filter.id for  saved_filter in Filter.objects.all()])
+
+    accomodation_data = serializers.SerializerMethodField()
+
+    filter_from_cost = serializers.IntegerField(required=False)
+    filter_to_cost = serializers.IntegerField(required=False)
+    filter_type_status = serializers.ChoiceField(required=False, choices=TYPE_CORT)
+    filter_disctrict = serializers.CharField(required=False)
+    filter_microdisctrict = serializers.CharField(required=False)
+    filter_from_area = serializers.CharField(required=False)
+    filter_to_area = serializers.CharField(required=False)
+    filter_house_status = serializers.ChoiceField(required=False, choices=HOUSE_STATUS_CORT)
+    filter_living_condition = serializers.ChoiceField(required=False, choices=LIVING_CONDITION_CORT)
+    filter_type = serializers.ChoiceField(required=False, choices=FILTER_TYPE_CORT)
+    existing_filter = serializers.ChoiceField(required=False, choices=EXISTING_FILTERS)
+    save_current_filter = serializers.BooleanField(required=False)
+
+    class Meta:
+        model = Ads
+        fields = ['id', 'cost', 'accomodation_data', 'date_added', 'filter_from_cost', 'filter_to_cost',
+                  'filter_type_status', 'filter_disctrict', 'filter_microdisctrict',
+                  'filter_from_area', 'filter_to_area', 'filter_house_status', 'filter_living_condition',
+                  'filter_type', 'existing_filter', 'save_current_filter']
+
+
+    def get_accomodation_data(self, obj):
+        accomodation_data = obj.accomodation
+        data = {'planing': accomodation_data.planing,
+                'area': accomodation_data.area,
+                'floor': accomodation_data.floor.title,
+                'total_floors': accomodation_data.house.floor.all().count(),
+                'district': accomodation_data.house.disctrict,
+                'address': accomodation_data.house.address,
+                'location_x': accomodation_data.house.location_x,
+                'location_y': accomodation_data.house.location_y,}
+        
+        if accomodation_data.image_field.all(): 
+            image = accomodation_data.image_field.all().first()
+            data['main_image'] = image.image.url
+        return data
+    
+
+    def to_representation(self, obj):
+            
+            if self.context['request'].data.get('existing_filter'):
+                choosen_filter_id = self.context['request'].data.get('existing_filter')
+                choosen_filter = Filter.objects.filter(id = choosen_filter_id).values(
+                    'filter_type_status', 'filter_disctrict', 'filter_microdisctrict',
+                    'filter_from_cost', 'filter_to_cost', 'filter_from_area', 'filter_to_area',
+                    'filter_living_condition'
+                )
+                filter_dict = {}
+                for key in choosen_filter[0].keys():
+                    if choosen_filter[0][key] != None and choosen_filter[0][key] != '': filter_dict[key] = choosen_filter[0][key]
+                
+            else:    
+                filter_dict = self.get_filter_from_cost(obj)
+
+            list_of_fields_check = []
+
+            if len(filter_dict) == 0:
+                return super(AdsFeedListSerializer, self).to_representation(obj)
+            
+            if 'filter_type_status' in filter_dict:
+                if filter_dict['filter_type_status'] == obj.accomodation.type_status:
+                    list_of_fields_check.append(True)
+                else:
+                    list_of_fields_check.append(False)
+
+            if 'filter_disctrict' in filter_dict:
+                if filter_dict['filter_disctrict'] == obj.accomodation.house.disctrict:
+                    list_of_fields_check.append(True)
+                else:
+                    list_of_fields_check.append(False)
+
+            if 'filter_microdisctrict' in filter_dict:
+                if filter_dict['filter_microdisctrict'] == obj.accomodation.house.microdisctrict:
+                    list_of_fields_check.append(True)
+                else:
+                    list_of_fields_check.append(False)
+
+            if 'filter_from_cost' in filter_dict:
+                if float(filter_dict['filter_from_cost']) < obj.cost:
+                    list_of_fields_check.append(True)
+                else:
+                    list_of_fields_check.append(False)
+
+            if 'filter_to_cost' in filter_dict:
+                if float(filter_dict['filter_to_cost']) > obj.cost:
+                    list_of_fields_check.append(True)
+                else:
+                    list_of_fields_check.append(False)
+
+            if 'filter_from_area' in filter_dict:
+                if float(filter_dict['filter_from_area']) < obj.accomodation.area:
+                    list_of_fields_check.append(True)
+                else:
+                    list_of_fields_check.append(False)
+
+            if 'filter_to_area' in filter_dict:
+                if float(filter_dict['filter_to_area']) > obj.accomodation.area:
+                    list_of_fields_check.append(True)
+                else:
+                    list_of_fields_check.append(False)
+
+            if 'filter_house_status' in filter_dict:
+                if filter_dict['filter_house_status'] == obj.accomodation.house.house_status:
+                    list_of_fields_check.append(True)
+                else:
+                    list_of_fields_check.append(False)
+
+            if 'filter_living_condition' in filter_dict:
+                if filter_dict['filter_living_condition'] == obj.accomodation.living_condition:
+                    list_of_fields_check.append(True)
+                else:
+                    list_of_fields_check.append(False)
+
+            if 'filter_type' in filter_dict:
+                if filter_dict['filter_type'] == obj.accomodation.type_status or filter_dict['filter_type'] == 'all':
+                    list_of_fields_check.append(True)
+                else:
+                    list_of_fields_check.append(False)
+
+            if all(list_of_fields_check):
+                return super(AdsFeedListSerializer, self).to_representation(obj)
+
+
+
+    def get_filter_from_cost(self, obj):
+
+        filter_dict = {}
+
+        if self.context['request'].data.get('filter_type_status'):
+            filter_dict['filter_type_status'] = self.context['request'].data.get('filter_type_status')
+
+        if self.context['request'].data.get('filter_disctrict'):
+            filter_dict['filter_disctrict'] = self.context['request'].data.get('filter_disctrict')
+
+        if self.context['request'].data.get('filter_microdisctrict'):
+            filter_dict['filter_microdisctrict'] = self.context['request'].data.get('filter_microdisctrict')
+
+        if self.context['request'].data.get('filter_from_cost'):
+            filter_dict['filter_from_cost'] = self.context['request'].data.get('filter_from_cost')
+
+        if self.context['request'].data.get('filter_to_cost'):
+            filter_dict['filter_to_cost'] = self.context['request'].data.get('filter_to_cost')
+
+        if self.context['request'].data.get('filter_from_area'):
+            filter_dict['filter_from_area'] = self.context['request'].data.get('filter_from_area')
+
+        if self.context['request'].data.get('filter_to_area'):
+            filter_dict['filter_to_area'] = self.context['request'].data.get('filter_to_area')
+
+        if self.context['request'].data.get('filter_house_status'):
+            filter_dict['filter_house_status'] = self.context['request'].data.get('filter_house_status')
+
+        if self.context['request'].data.get('filter_living_condition'):
+            filter_dict['filter_living_condition'] = self.context['request'].data.get('filter_living_condition')
+
+        if self.context['request'].data.get('filter_type'):
+            filter_dict['filter_type'] = self.context['request'].data.get('filter_type')
+
+        return filter_dict
+    
+    def save(self, **kwargs):
+        print('======SAVE======')
+        return None

@@ -11,12 +11,19 @@ from rest_framework import serializers
 from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import ListModelMixin, UpdateModelMixin, RetrieveModelMixin
 
+from rest_framework import generics
+from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Q
+
+
+from rest_framework.views import APIView
 
 
 from .serializers import AccomodationSerializer, PhotoToAccomodationSerializer,\
                             AdsSerializer, DeniedCauseSerializer, \
                             AdsListModerationSerializer, AdsRetreaveModerationSerializer,\
-                            AdsupdateModerationSerializer
+                            AdsupdateModerationSerializer, AdsFeedListSerializer
+
 from .models import Accomodation, ImageGalery, Ads, DeniedCause
 
 
@@ -37,70 +44,6 @@ class AccomodationViewSet(ModelViewSet):
     serializer_class = AccomodationSerializer
     queryset = Accomodation.objects.all()
 
-    
-
-    
-    # @action(detail=True, methods=['get'])
-    # def list_of_nested_images(self, request, pk=None):
-    #     current_accomodation = self.get_object()
-    #     queryset = current_accomodation.image_field.all()
-    #     serializer = PhotoToAccomodationSerializer(queryset, many=True)
-    #     return Response(serializer.data)
-        
-
-    # @action(detail=True, methods=['post'])
-    # def get_nested_image(self, request, pk=None, image_pk=None):
-    #     image_list = ImageGalery.objects.filter(
-    #         Q(id=request.data['id']) & Q(accomodation__id=pk))
-    #     if image_list.exists():
-    #         instance = image_list[0]
-    #         serializer = PhotoToAccomodationSerializer(instance=instance)
-    #         response = Response(serializer.data)
-    #     else:
-    #         raise serializers.ValidationError("Ця фотографія не прив'язана до цього обєкту нерухомості.")
-    #     return response
-    
-
-    # @action(detail=True, methods=['patch'])
-    # def update_nested_image(self, request, pk=None, *args, **kwargs):
-    #     image_list = ImageGalery.objects.filter(
-    #         Q(id=request.data['id']) & Q(accomodation__id=pk))
-    #     if image_list.exists():
-    #         instance = image_list[0]
-    #         serializer = PhotoToAccomodationSerializer(instance=instance, data=request.data, partial=True)
-    #         serializer.is_valid(raise_exception=True)
-    #         self.perform_update(serializer)
-
-    #         if getattr(instance, '_prefetched_objects_cache', None):
-    #             instance._prefetched_objects_cache = {}
-    #         response = Response(serializer.data)
-
-    #     else:
-    #         raise serializers.ValidationError("Ця фотографія не прив'язана до цього обєкту нерухомості.")
-    #     return response
-    
-
-    # @action(detail=True, methods=['post'])
-    # def create_nested_image(self, request, pk=None, *args, **kwargs):
-    #     serializer = PhotoToAccomodationSerializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     new_image = serializer.save()
-    #     current_accomodation = self.get_object()
-    #     current_accomodation.image_field.add(new_image)
-
-    #     try:
-    #         headers = {'Location': str(serializer.data[api_settings.URL_FIELD_NAME])}
-    #     except (TypeError, KeyError):
-    #         headers = {}
-
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        
-
-    # @action(detail=True, methods=['post'])
-    # def delete_nested_image(self, request, *args, **kwargs):
-    #     image_instance = ImageGalery.objects.get(id=request.data['id'])
-    #     image_instance.delete()
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # =============================================================================================
@@ -136,9 +79,6 @@ class AdsViewSet(ModelViewSet):
 
 
 
-from rest_framework.views import APIView
-
-
 
 @extend_schema(tags=['Ads: Ads moderation'])
 class ModerationAdsViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin, UpdateModelMixin,):
@@ -158,13 +98,6 @@ class ModerationAdsViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin, U
         serializer = AdsRetreaveModerationSerializer(instance)
         return Response(serializer.data)
     
-    # def update(self, request, *args, **kwargs):
-    #     instance = self.get_object()
-    #     print('=========UPDATE==============')
-    #     print(instance)
-    #     print('=========UPDATE==============')
-    #     serializer = AdsupdateModerationSerializer(instance)
-    #     return Response(serializer.data)
 
 
 
@@ -178,3 +111,43 @@ class DeniedCauseViewSet(ModelViewSet):
     authentication_classes = [JWTAuthentication]
     serializer_class = DeniedCauseSerializer
     queryset = DeniedCause.objects.all()
+
+
+
+
+
+# =============================================================================================
+# ==================ADS====LINE====LOGIC=======================================================
+# =============================================================================================
+
+@extend_schema(tags=['Ads: Ads'])
+class AdsFeedListView(generics.ListAPIView):
+    model = Ads
+    serializer_class = AdsFeedListSerializer
+    permission_classes = [AllowAny]
+
+
+    def get_queryset(self):
+        queryset = Ads.objects\
+            .select_related('accomodation', 'accomodation__floor')\
+            .prefetch_related('accomodation__image_field', 'accomodation__house__floor')\
+            .filter(ads_status='approved')
+        return queryset
+
+    @extend_schema(summary='Get list of approved ads. Needfull permission - all authenticated users.')
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+    
+
+    @extend_schema(summary='Get list of filtered approved ads. Needfull permission - all authenticated users.')
+    def post(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        print('**********************************************************************************')
+        print(serializer.__dict__['_kwargs']['child'])
+        # serializer.__dict__['_kwargs']['child'].is_valid()
+        print('**********************************************************************************')
+        data = []
+        for ads in serializer.data:
+            if ads != None: data.append(ads)
+        return Response(data)
