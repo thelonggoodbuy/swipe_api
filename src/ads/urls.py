@@ -1,6 +1,6 @@
 from .views import AccomodationViewSet, AdsViewSet, DeniedCauseViewSet,\
                     ModerationAdsViewSet, AdsFeedListView, AdsRetreaveUpdateFavouritesView,\
-                    AdsListFavouritesView
+                    AdsListFavouritesView, AdsPromoView
 
 from rest_framework.routers import DefaultRouter
 
@@ -22,4 +22,5 @@ urlpatterns = [
     path("ads-feed/", AdsFeedListView.as_view(), name='ads_feed'),
     path("ads_retreave_or_add_to_favourite/<int:pk>/", AdsRetreaveUpdateFavouritesView.as_view(), name='ads_retreave_or_add_to_favourite'),
     path("ads_list_favourites/", AdsListFavouritesView.as_view(), name='ads_list_favourites'),    
+    path("ads_promo_update/<int:pk>", AdsPromoView.as_view(), name='ads_promo_update'),
 ]

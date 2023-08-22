@@ -23,7 +23,8 @@ from .serializers import AccomodationSerializer, PhotoToAccomodationSerializer,\
                             AdsSerializer, DeniedCauseSerializer, \
                             AdsListModerationSerializer, AdsRetreaveModerationSerializer,\
                             AdsupdateModerationSerializer, AdsFeedListSerializer,\
-                            AdsRetreaveUpdateFavouritesSerializer, AdsListFavouritesSerializer
+                            AdsRetreaveUpdateFavouritesSerializer, AdsListFavouritesSerializer,\
+                            AdsPromoUpdateSerializer
 
 from .models import Accomodation, ImageGalery, Ads, DeniedCause
 
@@ -78,6 +79,31 @@ class AdsViewSet(ModelViewSet):
         return Response(serializer.data)
     
 
+
+@extend_schema(tags=['Ads: Ads'])
+class AdsPromoView(generics.UpdateAPIView):
+    model = Ads
+    serializer_class = AdsPromoUpdateSerializer
+    permission_classes = [IsAuthenticated, AdminOrBuildeOwnerPermission]
+
+
+    def get_queryset(self):
+        queryset = Ads.objects\
+            .select_related('accomodation', 'accomodation__floor')\
+            .prefetch_related('accomodation__image_field', 'accomodation__house__floor', 'favorites_for')\
+            .filter(ads_status='approved')
+        return queryset
+
+
+    @extend_schema(summary='Partly update promo fields for Ads. Needfull permission - admin or builder.')
+    def patch(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            serializer.save(instance, serializer.validated_data)
+
+        return Response({"message": 'all work!'})
 
 
 

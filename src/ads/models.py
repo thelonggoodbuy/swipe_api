@@ -77,12 +77,15 @@ class Ads(models.Model):
     agent_commission = models.DecimalField(max_digits=10, decimal_places=2)
     cost = models.DecimalField(max_digits=10, decimal_places=2)
     cost_per_metter = models.DecimalField(max_digits=10, decimal_places=2)
-    promotion_additional_phrase = models.ForeignKey('PromoAdditionalPhrase', on_delete=models.SET_NULL, null=True, blank=True)
-    promotion_color_boost = models.CharField(max_length=200, choices=PROMOTION_COLOR_BOOST_CORT, default=PROMOTION_COLOR_BOOST_CORT[2][0], null=True, blank=True)
     ads_status = models.CharField(max_length=200, choices=CHOICES_CORT, default=CHOICES_CORT[0][0])
     denied_cause = models.ForeignKey('DeniedCause', on_delete=models.SET_NULL, null=True, blank=True)
     version_of_calculation = models.CharField(max_length=200, choices=VERSION_OF_CALCULATION_CORT, default=VERSION_OF_CALCULATION_CORT[2][0])
     date_added = models.DateTimeField(auto_now_add=True)
+    is_bigger = models.BooleanField(null=True, blank=True)
+    is_lifted_in_feed = models.BooleanField(null=True, blank=True)
+    is_turbo = models.BooleanField(null=True, blank=True)
+    promotion_additional_phrase = models.ForeignKey('PromoAdditionalPhrase', on_delete=models.SET_NULL, null=True, blank=True)
+    promotion_color_boost = models.CharField(max_length=200, choices=PROMOTION_COLOR_BOOST_CORT, default=PROMOTION_COLOR_BOOST_CORT[2][0], null=True, blank=True)
     favorites_for = models.ManyToManyField('users.CustomUser', related_name='favourites_adds')
 
 

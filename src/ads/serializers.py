@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 
-from .models import Accomodation, ImageGalery, Ads, DeniedCause, Filter
+from .models import Accomodation, ImageGalery, Ads, DeniedCause, Filter, PromoAdditionalPhrase
 
 from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
 
@@ -510,3 +510,34 @@ class AdsListFavouritesSerializer(serializers.ModelSerializer):
             image = accomodation_data.image_field.all().first()
             data['main_image'] = image.image.url
         return data
+    
+
+
+# class PromoAdditionalPhrasesSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = PromoAdditionalPhrase
+#         fields = ['id', 'text']
+
+
+
+class AdsPromoUpdateSerializer(serializers.ModelSerializer):
+
+    EXISTING_PROMO_PHRASES = ([(saved_filter.id, saved_filter.text) for saved_filter in PromoAdditionalPhrase.objects.all()])
+
+    promotion_additional_phrase = serializers.ChoiceField(required=False, choices=EXISTING_PROMO_PHRASES)
+
+
+    class Meta:
+        model = Ads
+        fields = ['id', 'promotion_additional_phrase', 'promotion_color_boost',
+                  'is_bigger', 'is_lifted_in_feed', 'is_turbo']
+        
+    
+    def save(self, instance, validated_data):
+        if validated_data.get('promotion_additional_phrase'):
+            promotion_phrase_id = validated_data.pop('promotion_additional_phrase')
+            promo_text = PromoAdditionalPhrase.objects.get(id=promotion_phrase_id)
+            instance.promotion_additional_phrase = promo_text
+
+        return Ads.objects.filter(id=instance.id).update(**validated_data)
+        # return instance
