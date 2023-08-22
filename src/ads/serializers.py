@@ -313,7 +313,7 @@ class AdsFeedListSerializer(serializers.ModelSerializer):
     
 
     def to_representation(self, obj):
-            
+            # check what filter values we use or use saved filter
             if self.context['request'].data.get('existing_filter'):
                 choosen_filter_id = self.context['request'].data.get('existing_filter')
                 choosen_filter = Filter.objects.filter(id = choosen_filter_id).values(
@@ -324,9 +324,16 @@ class AdsFeedListSerializer(serializers.ModelSerializer):
                 filter_dict = {}
                 for key in choosen_filter[0].keys():
                     if choosen_filter[0][key] != None and choosen_filter[0][key] != '': filter_dict[key] = choosen_filter[0][key]
-                
             else:    
                 filter_dict = self.get_filter_from_cost(obj)
+
+            # filters saving
+            if self.context['request'].data.get('save_current_filter') == 'true':
+                try:
+                    Filter.objects.get(user=self.context['user'], **filter_dict)
+                except Filter.DoesNotExist:
+                    Filter.objects.create(user=self.context['user'], **filter_dict)
+                
 
             list_of_fields_check = []
 
@@ -434,6 +441,72 @@ class AdsFeedListSerializer(serializers.ModelSerializer):
 
         return filter_dict
     
-    def save(self, **kwargs):
-        print('======SAVE======')
-        return None
+
+
+
+    
+class AdsRetreaveUpdateFavouritesSerializer(serializers.ModelSerializer):
+
+    accomodation_data = serializers.SerializerMethodField()
+    add_to_favourite = serializers.BooleanField(required=False, default=False)
+
+    class Meta:
+        model = Ads
+        fields = ['id', 'cost', 'cost_per_metter', 'accomodation_data', 'date_added',
+                  'agent_commission', 'cost_per_metter', 'add_to_favourite']
+        read_only_fields = ['id', 'cost', 'cost_per_metter', 'accomodation_data', 'date_added',
+                            'agent_commission', 'cost_per_metter']        
+
+    def get_accomodation_data(self, obj):
+        accomodation_data = obj.accomodation
+        data = {'planing': accomodation_data.planing,
+                'area': accomodation_data.area,
+                'floor': accomodation_data.floor.title,
+                'total_floors': accomodation_data.house.floor.all().count(),
+                'district': accomodation_data.house.disctrict,
+                'address': accomodation_data.house.address,
+                'location_x': accomodation_data.house.location_x,
+                'location_y': accomodation_data.house.location_y,}
+        
+        if accomodation_data.image_field.all(): 
+            image = accomodation_data.image_field.all().first()
+            data['main_image'] = image.image.url
+        return data
+    
+    def save(self, instance, validated_data):
+        if validated_data.get('add_to_favourite') == True:
+            instance.favorites_for.add(self.context['user'])
+            instance.save()
+        elif validated_data.get('add_to_favourite') == False and\
+                instance.favorites_for !=None and\
+                instance.favorites_for.all().filter(id=self.context['user'].id):
+            instance.favorites_for.remove(self.context['user'])
+            instance.save()
+        else:
+            pass
+        return instance
+    
+
+
+class AdsListFavouritesSerializer(serializers.ModelSerializer):
+    accomodation_data = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Ads
+        fields = ['id', 'cost', 'accomodation_data', 'date_added']
+
+    def get_accomodation_data(self, obj):
+        accomodation_data = obj.accomodation
+        data = {'planing': accomodation_data.planing,
+                'area': accomodation_data.area,
+                'floor': accomodation_data.floor.title,
+                'total_floors': accomodation_data.house.floor.all().count(),
+                'district': accomodation_data.house.disctrict,
+                'address': accomodation_data.house.address,
+                'location_x': accomodation_data.house.location_x,
+                'location_y': accomodation_data.house.location_y,}
+        
+        if accomodation_data.image_field.all(): 
+            image = accomodation_data.image_field.all().first()
+            data['main_image'] = image.image.url
+        return data

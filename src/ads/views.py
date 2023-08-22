@@ -22,7 +22,8 @@ from rest_framework.views import APIView
 from .serializers import AccomodationSerializer, PhotoToAccomodationSerializer,\
                             AdsSerializer, DeniedCauseSerializer, \
                             AdsListModerationSerializer, AdsRetreaveModerationSerializer,\
-                            AdsupdateModerationSerializer, AdsFeedListSerializer
+                            AdsupdateModerationSerializer, AdsFeedListSerializer,\
+                            AdsRetreaveUpdateFavouritesSerializer, AdsListFavouritesSerializer
 
 from .models import Accomodation, ImageGalery, Ads, DeniedCause
 
@@ -124,7 +125,7 @@ class DeniedCauseViewSet(ModelViewSet):
 class AdsFeedListView(generics.ListAPIView):
     model = Ads
     serializer_class = AdsFeedListSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
 
     def get_queryset(self):
@@ -142,12 +143,69 @@ class AdsFeedListView(generics.ListAPIView):
     @extend_schema(summary='Get list of filtered approved ads. Needfull permission - all authenticated users.')
     def post(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
+
         serializer = self.get_serializer(queryset, many=True)
-        print('**********************************************************************************')
-        print(serializer.__dict__['_kwargs']['child'])
-        # serializer.__dict__['_kwargs']['child'].is_valid()
-        print('**********************************************************************************')
+        serializer.context['user'] = self.request.user
         data = []
         for ads in serializer.data:
             if ads != None: data.append(ads)
         return Response(data)
+
+
+
+
+@extend_schema(tags=['Ads: Ads'])
+class AdsRetreaveUpdateFavouritesView(generics.RetrieveUpdateAPIView):
+    model = Ads
+    serializer_class = AdsRetreaveUpdateFavouritesSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = Ads.objects\
+            .select_related('accomodation', 'accomodation__floor')\
+            .prefetch_related('accomodation__image_field', 'accomodation__house__floor')\
+            .filter(ads_status='approved')
+        return queryset
+
+    @extend_schema(summary='Retreave aproved ads. Needfull permission - all authenticated users.')
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+    
+    @extend_schema(summary='Partly update for adding to favourite ads. Needfull permission - all authenticated users.')
+    def patch(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.context['user'] = self.request.user
+        
+        if serializer.is_valid():
+            serializer.save(instance, serializer.validated_data)
+            if serializer.validated_data['add_to_favourite'] == True:
+                response_text = f'Ви додали оголошення №{instance.id} до переліку вибранного.'
+            elif serializer.validated_data['add_to_favourite'] == False:
+                response_text = f'Ви видалили оголошення №{instance.id} з переліку вибранного.'
+            else:
+                response_text = f'Ви не здійснили жодних змін в переліку вибранного.'
+            return Response({"message": response_text})
+        else:
+            return Response({"message": "failed", "details": serializer.errors})
+        
+from django.db.models import Q
+
+@extend_schema(tags=['Ads: Ads'])
+class AdsListFavouritesView(generics.ListAPIView):
+    model = Ads
+    serializer_class = AdsListFavouritesSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        Q_list = []
+        Q_list.append(Q(ads_status='approved'))
+        queryset = self.request.user.favourites_adds\
+            .select_related('accomodation', 'accomodation__floor')\
+            .prefetch_related('accomodation__image_field', 'accomodation__house__floor')\
+            .filter(*Q_list)
+        return queryset
+
+    @extend_schema(summary='Get list of USER FAVOURITES ads. Needfull permission - all authenticated users.')
+    def get(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)

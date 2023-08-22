@@ -83,6 +83,7 @@ class Ads(models.Model):
     denied_cause = models.ForeignKey('DeniedCause', on_delete=models.SET_NULL, null=True, blank=True)
     version_of_calculation = models.CharField(max_length=200, choices=VERSION_OF_CALCULATION_CORT, default=VERSION_OF_CALCULATION_CORT[2][0])
     date_added = models.DateTimeField(auto_now_add=True)
+    favorites_for = models.ManyToManyField('users.CustomUser', related_name='favourites_adds')
 
 
 class DeniedCause(models.Model):
@@ -115,7 +116,7 @@ class Filter(models.Model):
         ('new_buiding', 'новобудова'),
         ('cottage', 'коттедж')
     )
-    user = models.OneToOneField("users.CustomUser", on_delete=models.CASCADE)
+    user = models.ForeignKey("users.CustomUser", on_delete=models.CASCADE)
     filter_type_status = models.CharField(max_length=200, choices=TYPE_CORT, blank=True, null=True)
     filter_disctrict = models.CharField(max_length=200, blank=True, null=True)
     filter_microdisctrict = models.CharField(max_length=200, blank=True, null=True)

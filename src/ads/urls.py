@@ -1,4 +1,6 @@
-from .views import AccomodationViewSet, AdsViewSet, DeniedCauseViewSet, ModerationAdsViewSet, AdsFeedListView
+from .views import AccomodationViewSet, AdsViewSet, DeniedCauseViewSet,\
+                    ModerationAdsViewSet, AdsFeedListView, AdsRetreaveUpdateFavouritesView,\
+                    AdsListFavouritesView
 
 from rest_framework.routers import DefaultRouter
 
@@ -16,9 +18,8 @@ router.register(r'moderation_ads', ModerationAdsViewSet, basename='moderation_ad
 
 
 urlpatterns = [
-    # path("moderation-ads/", ModerationAdsView.as_view(), name='moderation_ads'),
-    # path("moderation-ads/<int:pk>/", ModerationAdsView.as_view(), name='moderation_ads'),
     path("", include(router.urls)),
     path("ads-feed/", AdsFeedListView.as_view(), name='ads_feed'),
-    
+    path("ads_retreave_or_add_to_favourite/<int:pk>/", AdsRetreaveUpdateFavouritesView.as_view(), name='ads_retreave_or_add_to_favourite'),
+    path("ads_list_favourites/", AdsListFavouritesView.as_view(), name='ads_list_favourites'),    
 ]
