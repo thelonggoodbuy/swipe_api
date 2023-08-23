@@ -13,7 +13,7 @@ from rest_framework.mixins import ListModelMixin, UpdateModelMixin, RetrieveMode
 
 from rest_framework import generics
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Q
+
 
 
 from rest_framework.views import APIView
@@ -24,10 +24,10 @@ from .serializers import AccomodationSerializer, PhotoToAccomodationSerializer,\
                             AdsListModerationSerializer, AdsRetreaveModerationSerializer,\
                             AdsupdateModerationSerializer, AdsFeedListSerializer,\
                             AdsRetreaveUpdateFavouritesSerializer, AdsListFavouritesSerializer,\
-                            AdsPromoUpdateSerializer
+                            AdsPromoUpdateSerializer, AdsListChessboardSerializer
 
 from .models import Accomodation, ImageGalery, Ads, DeniedCause
-
+from houses.models import House
 
 from users.services import AdminOrBuildeOwnerPermission
 
@@ -215,7 +215,7 @@ class AdsRetreaveUpdateFavouritesView(generics.RetrieveUpdateAPIView):
         else:
             return Response({"message": "failed", "details": serializer.errors})
         
-from django.db.models import Q
+
 
 @extend_schema(tags=['Ads: Ads'])
 class AdsListFavouritesView(generics.ListAPIView):
@@ -235,3 +235,36 @@ class AdsListFavouritesView(generics.ListAPIView):
     @extend_schema(summary='Get list of USER FAVOURITES ads. Needfull permission - all authenticated users.')
     def get(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
+    
+
+
+
+# **********************************************************************
+# ======================WORK==AREA======================================
+# **********************************************************************
+
+@extend_schema(tags=['Ads: Chessboard'])
+class AdsListChessboardView(generics.RetrieveAPIView):
+    model = House
+    serializer_class = AdsListChessboardSerializer
+    permission_classes = [IsAuthenticated]
+
+
+    def get_queryset(self):
+        queryset = House.objects.all()
+        return queryset
+
+    @extend_schema(summary='Get CHESSBOARD of ads. Needfull permission - all authenticated users.')
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    @extend_schema(summary='Get CHESSBOARD WITH FILTERS of ads. Needfull permission - all authenticated users.')
+    def post(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        serializer.filter_chessboard(serializer)
+        return Response(serializer.data)
+
+# **********************************************************************
+# ==============END====WORK==AREA======================================
+# **********************************************************************

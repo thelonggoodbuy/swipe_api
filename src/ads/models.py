@@ -46,6 +46,7 @@ class Accomodation(models.Model):
     booked_by = models.ForeignKey("users.CustomUser", on_delete=models.SET_NULL, blank=True, null=True)
     document = models.ManyToManyField(Document)
     date_added = models.DateField(auto_now_add=True)
+    is_shown_in_chesboard = models.BooleanField()
 
 
 

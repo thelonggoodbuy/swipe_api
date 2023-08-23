@@ -11,6 +11,8 @@ from users.models import CustomUser
 
 from drf_extra_fields.fields import Base64ImageField
 
+from django.db.models import Count
+
 
 
 class PhotoToAccomodationSerializer(serializers.ModelSerializer):
@@ -540,4 +542,85 @@ class AdsPromoUpdateSerializer(serializers.ModelSerializer):
             instance.promotion_additional_phrase = promo_text
 
         return Ads.objects.filter(id=instance.id).update(**validated_data)
-        # return instance
+
+
+class AdsListChessboardSerializer(serializers.ModelSerializer):
+    LIVING_CONDITION_CORT = (
+        ('need_repair', 'вимагає ремонту'),
+        ('reary_for_settlement', 'готова для заселення'),
+    )
+
+    # get data
+    chessboard_data = serializers.SerializerMethodField()
+
+    # filters
+    cost_from = serializers.DecimalField(required=False, max_digits=10, decimal_places=2)
+    cost_to = serializers.DecimalField(required=False, max_digits=10, decimal_places=2)
+    cost_per_metter_from = serializers.DecimalField(required=False, max_digits=10, decimal_places=2)
+    cost_per_metter_to = serializers.DecimalField(required=False, max_digits=10, decimal_places=2)
+    area_from = serializers.DecimalField(required=False, max_digits=10, decimal_places=2)
+    area_to = serializers.DecimalField(required=False, max_digits=10, decimal_places=2)
+    living_condition = serializers.ChoiceField(required=False, choices=LIVING_CONDITION_CORT)
+
+    class Meta:
+        model = House
+        fields = ['id', 'chessboard_data', 'cost_from', 'cost_to',\
+                'cost_per_metter_from', 'cost_per_metter_to', 'area_from',\
+                'area_to', 'living_condition']
+
+    def get_chessboard_data(self, obj):
+        
+        appartments_list = list(obj.accomodation.annotate(floor_quantity=Count('house__floor'))
+                                                                .all().values('id', 'house_building__title', 'house_entrance__title',
+                                                              'ads__cost_per_metter', 'ads__cost', 'number', 'planing', 'area', 'floor',
+                                                              'riser', 'floor_quantity', 'living_condition', 'schema',
+                                                              'floor__floor_schema'))
+
+        accomodation_dictionary = {}
+
+        for appartment in appartments_list:
+            building = appartment.pop('house_building__title')
+            entrance = appartment.pop('house_entrance__title')
+
+            if f'{building}__{entrance}' in accomodation_dictionary.keys():
+                accomodation_dictionary[f'{building}__{entrance}'].append(appartment)
+            else:
+                accomodation_dictionary[f'{building}__{entrance}'] = []
+                accomodation_dictionary[f'{building}__{entrance}'].append(appartment)
+
+        data = accomodation_dictionary
+
+        return data
+    
+    def filter_chessboard(self, obj):
+
+        for building_entrance in self.data['chessboard_data'].values():
+
+            for appartment in building_entrance[:]:
+                if appartment in building_entrance[:] and 'cost_from' in self.context['request'].data:
+                    if appartment['ads__cost'] == None or appartment['ads__cost'] < self.context['request'].data['cost_from']:
+                        building_entrance.remove(appartment)
+
+                if appartment in building_entrance[:] and 'cost_to' in self.context['request'].data:
+                    if appartment['ads__cost'] == None or appartment['ads__cost'] > self.context['request'].data['cost_to']:
+                        building_entrance.remove(appartment)
+
+                if appartment in building_entrance[:] and 'cost_per_metter_from' in self.context['request'].data:
+                    if appartment['ads__cost_per_metter'] == None or appartment['ads__cost_per_metter'] < self.context['request'].data['cost_per_metter_from']:
+                        building_entrance.remove(appartment)
+
+                if appartment in building_entrance[:] and 'cost_per_metter_to' in self.context['request'].data:
+                    if appartment['ads__cost_per_metter'] == None or appartment['ads__cost_per_metter'] > self.context['request'].data['cost_per_metter_to']:
+                        building_entrance.remove(appartment)
+
+                if appartment in building_entrance[:] and 'area_from' in self.context['request'].data:
+                    if appartment['area'] == None or appartment['area'] < self.context['request'].data['area_from']:
+                        building_entrance.remove(appartment)
+
+                if appartment in building_entrance[:] and 'area_to' in self.context['request'].data:
+                    if appartment['area'] == None or appartment['area'] > self.context['request'].data['area_to']:
+                        building_entrance.remove(appartment)
+
+                if appartment in building_entrance[:] and 'living_condition' in self.context['request'].data:
+                    if appartment['living_condition'] == None or appartment['living_condition'] != self.context['request'].data['living_condition']:
+                        building_entrance.remove(appartment)
