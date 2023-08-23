@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.response import Response
 from rest_framework import status
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import action
 from rest_framework.settings import api_settings
@@ -15,7 +15,6 @@ from rest_framework import generics
 from django_filters.rest_framework import DjangoFilterBackend
 
 
-
 from rest_framework.views import APIView
 
 
@@ -24,7 +23,7 @@ from .serializers import AccomodationSerializer, PhotoToAccomodationSerializer,\
                             AdsListModerationSerializer, AdsRetreaveModerationSerializer,\
                             AdsupdateModerationSerializer, AdsFeedListSerializer,\
                             AdsRetreaveUpdateFavouritesSerializer, AdsListFavouritesSerializer,\
-                            AdsPromoUpdateSerializer, AdsListChessboardSerializer
+                            AdsPromoUpdateSerializer, AdsListChessboardSerializer, BookedAccomodationSerializer
 
 from .models import Accomodation, ImageGalery, Ads, DeniedCause
 from houses.models import House
@@ -237,17 +236,11 @@ class AdsListFavouritesView(generics.ListAPIView):
         return super().list(request, *args, **kwargs)
     
 
-
-
-# **********************************************************************
-# ======================WORK==AREA======================================
-# **********************************************************************
-
 @extend_schema(tags=['Ads: Chessboard'])
 class AdsListChessboardView(generics.RetrieveAPIView):
     model = House
     serializer_class = AdsListChessboardSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
 
     def get_queryset(self):
@@ -264,6 +257,36 @@ class AdsListChessboardView(generics.RetrieveAPIView):
         serializer = self.get_serializer(instance)
         serializer.filter_chessboard(serializer)
         return Response(serializer.data)
+
+
+# **********************************************************************
+# ======================WORK==AREA======================================
+# **********************************************************************
+
+@extend_schema(tags=['Ads: Accomodation'])
+@extend_schema_view(put=extend_schema(exclude=True))
+class BookedAccomodationView(generics.UpdateAPIView):
+    model = Accomodation
+    serializer_class = BookedAccomodationSerializer
+    permission_classes = [AllowAny]
+    queryset = Accomodation.objects.all()
+
+
+    @extend_schema(summary='Partly update BOOKING fields for ACCOMODATION. Needfull permission - admin or builder.')
+    def patch(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            serializer.save(instance, serializer.validated_data)
+
+        return Response({"message": 'all work!'})
+    
+    # @swagger_auto_schema(auto_schema=None)
+    # def put(self, request, *args, **kwargs):
+    #     return
+
+
 
 # **********************************************************************
 # ==============END====WORK==AREA======================================

@@ -514,14 +514,6 @@ class AdsListFavouritesSerializer(serializers.ModelSerializer):
         return data
     
 
-
-# class PromoAdditionalPhrasesSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = PromoAdditionalPhrase
-#         fields = ['id', 'text']
-
-
-
 class AdsPromoUpdateSerializer(serializers.ModelSerializer):
 
     EXISTING_PROMO_PHRASES = ([(saved_filter.id, saved_filter.text) for saved_filter in PromoAdditionalPhrase.objects.all()])
@@ -571,10 +563,10 @@ class AdsListChessboardSerializer(serializers.ModelSerializer):
     def get_chessboard_data(self, obj):
         
         appartments_list = list(obj.accomodation.annotate(floor_quantity=Count('house__floor'))
-                                                                .all().values('id', 'house_building__title', 'house_entrance__title',
+                                                                .all().order_by('floor').order_by('riser').values('id', 'house_building__title', 'house_entrance__title',
                                                               'ads__cost_per_metter', 'ads__cost', 'number', 'planing', 'area', 'floor',
                                                               'riser', 'floor_quantity', 'living_condition', 'schema',
-                                                              'floor__floor_schema'))
+                                                              'floor__floor_schema', 'is_shown_in_chesboard'))
 
         accomodation_dictionary = {}
 
@@ -624,3 +616,32 @@ class AdsListChessboardSerializer(serializers.ModelSerializer):
                 if appartment in building_entrance[:] and 'living_condition' in self.context['request'].data:
                     if appartment['living_condition'] == None or appartment['living_condition'] != self.context['request'].data['living_condition']:
                         building_entrance.remove(appartment)
+
+
+# class SimpleUser(serializers.ModelSerializer):
+
+#     class Meta:
+#         models = CustomUser
+#         field = ('id',)
+
+
+class BookedAccomodationSerializer(serializers.ModelSerializer):
+    EXISTING_SIMPLE_USERS = ([(user.id, f'{user.email}') for user in \
+                            CustomUser.objects.filter(is_simple_user=True,\
+                            is_activated=True, is_in_blacklist=False)])
+
+    booked_by = serializers.ChoiceField(required=False, choices=EXISTING_SIMPLE_USERS)
+
+    class Meta:
+        model = Accomodation
+        fields = ('id', 'booked_by')
+
+
+    def save(self, instance, validated_data):
+        if validated_data.get('booked_by'):
+            user_email = validated_data.pop('booked_by')
+            booked_user = CustomUser.objects.get(id=user_email)
+            instance.booked_by = booked_user
+            instance.save()
+
+        return instance
