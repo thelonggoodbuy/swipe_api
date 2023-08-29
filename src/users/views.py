@@ -13,7 +13,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.viewsets import ModelViewSet
 from drf_spectacular.utils import extend_schema
-
+        
+from .serializers import SimpleUserUpdateSubscriptionSerializer
+from drf_spectacular.utils import extend_schema, extend_schema_view
 
 
 from .serializers import UserLoginSerializer, UserRegistrationSerializer,\
@@ -29,6 +31,7 @@ from .services import SimpleOnlyOwnerPermission, SimpleUserOnlyListAndRetreiveAd
 # ==================AUTHENTICATION====LOGIC====================================================
 # =============================================================================================
 
+@extend_schema(tags=['Users: Authentication and registration'])
 class UserLoginAPIView(GenericAPIView):
     """
     An endpoint to authenticate existing users using their
@@ -65,6 +68,8 @@ class UserLogoutAPIView(GenericAPIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+
+@extend_schema(tags=['Users: Authentication and registration'])
 class UserRegistrationAPIView(GenericAPIView, UpdateModelMixin):
     """
     Endpoint for creating simple user
@@ -72,6 +77,7 @@ class UserRegistrationAPIView(GenericAPIView, UpdateModelMixin):
     permission_classes = (AllowAny,)
     serializer_class = UserRegistrationSerializer
     
+    @extend_schema(summary='(T)POST registration user. Needfull permission - All users.')
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -96,6 +102,8 @@ class UserRegistrationAPIView(GenericAPIView, UpdateModelMixin):
         return Response(data, status=status.HTTP_201_CREATED)
     
 
+
+@extend_schema(tags=['Users: Authentication and registration'])
 class ActivateUser(GenericAPIView):
     """
     User activation and create empty subscription.
@@ -103,6 +111,7 @@ class ActivateUser(GenericAPIView):
     permission_classes = (AllowAny,)
     # serializer_class = None
 
+    @extend_schema(summary='(T)GET activate new user. Needfull permission - only User.')
     def get(self, request, uidb64, token, *args, **kwargs):
         try:
             uid = force_text(urlsafe_base64_decode(uidb64))
@@ -126,21 +135,33 @@ class ActivateUser(GenericAPIView):
             return Response(data)
         
 
+@extend_schema(tags=['Users: Authentication and registration'])
 class UserDetailAndUpdateAPIView(RetrieveUpdateAPIView):
     """
     View for update or see data of simple user
     """
     permission_classes = (SimpleOnlyOwnerPermission,)
-    # permission_classes = (AllowAny,)
     serializer_class = SimpleUserSerializer
 
     def get_object(self):
-        print('====GET======')
         request_user = CustomUser.objects.filter(id=self.kwargs["pk"]).first()
         self.check_object_permissions(request=self.request, obj=request_user)
         return self.request.user
+    
+    @extend_schema(summary='(T)GET user data for personal cabinet. Needfull permission - only OWNER of cabinet.')
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+    
+    @extend_schema(summary='(T)PUT user data for personal cabinet. Needfull permission - only OWNER of cabinet.')
+    def put(self, request, *args, **kwargs):
+        return super().put(request, *args, **kwargs)
+
+    @extend_schema(summary='(T)PATCH user data for personal cabinet. Needfull permission - only OWNER of cabinet.')
+    def patch(self, request, *args, **kwargs):
+        return super().patch(request, *args, **kwargs)
 
 
+@extend_schema(tags=['Users: Authentication and registration'])
 class UserChangePasswordRequestView(GenericAPIView, UpdateModelMixin):
     """
     Endpoint for change user password
@@ -148,6 +169,7 @@ class UserChangePasswordRequestView(GenericAPIView, UpdateModelMixin):
     permission_classes = (SimpleOnlyOwnerPermission,)
     serializer_class = UserChangePasswordRequestSerializer
 
+    @extend_schema(summary='(T)GET request for sending user data for marking. Needfull permission - only USER.')
     def get(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -169,6 +191,7 @@ class UserChangePasswordRequestView(GenericAPIView, UpdateModelMixin):
         return Response(data, status=status.HTTP_201_CREATED)
     
 
+@extend_schema(tags=['Users: Authentication and registration'])
 class SimpleUserChangePasswordView(GenericAPIView):
     """
     Change user password.
@@ -176,6 +199,7 @@ class SimpleUserChangePasswordView(GenericAPIView):
     permission_classes = (AllowAny,)
     serializer_class = SimpleUserChangePasswordSerializer
 
+    @extend_schema(summary='(T)POST for changing password. Needfull permission - only USER.')
     def post(self, request, uidb64, token, *args, **kwargs):
         try:
             uid = force_text(urlsafe_base64_decode(uidb64))
@@ -195,25 +219,24 @@ class SimpleUserChangePasswordView(GenericAPIView):
 # =============================================================================================
 # ==================SUBSCRIPTION==========LOGIC================================================
 # =============================================================================================
-        
-from .serializers import SimpleUserUpdateSubscriptionSerializer
-from drf_spectacular.utils import extend_schema, extend_schema_view
 
 
-@extend_schema(tags=['User: Subscription'])
+
+@extend_schema(tags=['Users: Subscription'])
 @extend_schema_view(put=extend_schema(exclude=True))
 class SimpleUserUpdateSubscriptionView(UpdateModelMixin, GenericAPIView):
     '''
     Update subscription
     '''
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
     serializer_class = SimpleUserUpdateSubscriptionSerializer
 
     def get_queryset(self):
         queryset = CustomUser.objects.filter(is_activated=True)
         return queryset
 
-    @extend_schema(summary='Partly update for SUBSCRIPTION. Needfull permission - all authenticated users.')
+    @extend_schema(summary='(T)Partly update for SUBSCRIPTION. Needfull permission - all authenticated users.')
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -233,7 +256,7 @@ class SimpleUserUpdateSubscriptionView(UpdateModelMixin, GenericAPIView):
 
 
 
-@extend_schema(tags=['Messages'])
+@extend_schema(tags=['Users: Messages'])
 class MessageCreateAndListForSimpleUser(ListModelMixin, CreateModelMixin, GenericAPIView):
     '''
     Write message to tech support and GET list of 
@@ -246,11 +269,12 @@ class MessageCreateAndListForSimpleUser(ListModelMixin, CreateModelMixin, Generi
         user = self.request.user
         return Message.objects.filter(Q(from_user=user) | Q(to_user=user))
     
-    @extend_schema(summary='GET dialog (LIST) with technical support by registred user')
+
+    @extend_schema(summary='(T)GET dialog (LIST) with technical support by registred user')
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
-    @extend_schema(summary='Send message (POST) to technical support.')
+    @extend_schema(summary='(T)Send message (POST) to technical support.')
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
     
@@ -259,7 +283,7 @@ class MessageCreateAndListForSimpleUser(ListModelMixin, CreateModelMixin, Generi
 # ==================Notary==========LOGIC======================================================
 # =============================================================================================
 
-@extend_schema(tags=['Notary logic'])
+@extend_schema(tags=['Users: Notary logic'])
 class NotaryModelViewSet(ModelViewSet):
     '''
     Notary CRUD.
@@ -267,3 +291,27 @@ class NotaryModelViewSet(ModelViewSet):
     serializer_class = NotarySerializer
     permission_classes = (SimpleUserOnlyListAndRetreiveAdminAllPermission,)
     queryset = Notary.objects.all()
+
+    @extend_schema(summary='(T)GET NOTARY. Needfull permission - SIMPLE user or ADMIN.')
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @extend_schema(summary='(T)POST data for creating NOTARY obj. Needfull permission - ADMIN.')
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @extend_schema(summary='(T)GET list of NOTARY. Needfull permission - SIMPLE user or ADMIN.')
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @extend_schema(summary='(T)PUT data for updating NOTARY obj. Needfull permission - ADMIN.')
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @extend_schema(summary='(T)PATCH data for partly updating NOTARY obj. Needfull permission - ADMIN.')
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
+    @extend_schema(summary='(T)DESTROY NOTARY obj. Needfull permission - ADMIN.')
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)

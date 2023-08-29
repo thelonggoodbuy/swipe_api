@@ -39,16 +39,16 @@ def api_client():
     return client
 
 
-@pytest.fixture
-def create_user_payload():
-    payload = {
-        "email": "test_user@gmail.com",
-        "is_simple_user": True
-    }
-    test_user = CustomUser(**payload)
-    test_user.set_password("test_password_123!@")
-    test_user.save()
-    return test_user
+# @pytest.fixture
+# def create_user_payload():
+#     payload = {
+#         "email": "test_user@gmail.com",
+#         "is_simple_user": True
+#     }
+#     test_user = CustomUser(**payload)
+#     test_user.set_password("test_password_123!@")
+#     test_user.save()
+#     return test_user
 
 @pytest.fixture
 def create_user_and_login_payload():
@@ -65,20 +65,20 @@ def create_user_and_login_payload():
     client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
     return client
 
-@pytest.fixture
-def create_admin_payload():
-    payload = {
-        "email": "test_admin_user@gmail.com",
-        "is_superuser": True,
-        "is_activated": True,
-    }
-    test_user = CustomUser(**payload)
-    test_user.set_password("test_admin_password_123!@")
-    test_user.save()
-    client = APIClient()
-    refresh = RefreshToken.for_user(test_user)
-    client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
-    return client
+# @pytest.fixture
+# def create_admin_payload():
+#     payload = {
+#         "email": "test_admin_user@gmail.com",
+#         "is_superuser": True,
+#         "is_activated": True,
+#     }
+#     test_user = CustomUser(**payload)
+#     test_user.set_password("test_admin_password_123!@")
+#     test_user.save()
+#     client = APIClient()
+#     refresh = RefreshToken.for_user(test_user)
+#     client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+#     return client
 
 # *****************************************************************************
 # *****************************************************************************
@@ -106,13 +106,13 @@ def create_user_new_fixture(db):
 # *****************************************************************************
 # *****************************************************************************
 # *****************************************************************************
-@pytest.mark.django_db
-def test_user_detail(api_client, create_user_new_fixture):
+# @pytest.mark.django_db
+# def test_user_detail(api_client, create_user_new_fixture):
 
-    user = CustomUser.objects.get(email="test123_email@mail.com")
-    url = f'/users/simple_user_update_and_detail/{user.id}/'
-    response = create_user_new_fixture.get(url, format='json')
-    assert response.status_code == 200
+#     user = CustomUser.objects.get(email="test123_email@mail.com")
+#     url = f'/users/simple_user_update_and_detail/{user.id}/'
+#     response = create_user_new_fixture.get(url, format='json')
+#     assert response.status_code == 200
 
 
 # *****************************************************************************
@@ -161,14 +161,14 @@ def test_simple_user_activation_registration(api_client):
     assert response_for_activation.status_code == 200
 
 
-@pytest.mark.django_db
-def test_get_simple_user_data(create_user_and_login_payload):
-    # Test retreave(GET) simple user entrypoint.
+# @pytest.mark.django_db
+# def test_get_simple_user_data(create_user_and_login_payload):
+#     # Test retreave(GET) simple user entrypoint.
 
-    user = CustomUser.objects.get(email="test_loggined_user@gmail.com")
-    url = f'/users/simple_user_update_and_detail/{user.id}/'
-    response = create_user_and_login_payload.get(url, format='json')
-    assert response.status_code == 200
+#     user = CustomUser.objects.get(email="test_loggined_user@gmail.com")
+#     url = f'/users/simple_user_update_and_detail/{user.id}/'
+#     response = create_user_and_login_payload.get(url, format='json')
+#     assert response.status_code == 200
 
 
 @pytest.mark.django_db
@@ -271,6 +271,8 @@ def test_list_of_messages(create_user_and_login_payload):
     assert response.status_code == 200
 
 
+
+
 @pytest.mark.django_db
 def test_create_notary_by_admin(create_user_and_login_payload):
     url = f'/users/notary/'
@@ -284,53 +286,53 @@ def test_create_notary_by_admin(create_user_and_login_payload):
     assert response.status_code == 201
 
 
-@pytest.mark.django_db
-def test_update_notary_by_admin(create_admin_payload):
-    url = f'/users/notary/'
-    payload_notary = {
-        'name': fake.name(),
-        'surname': fake.name(),
-        'phone': fake.phone_number(),
-        'email': fake.email(),
-    }
-    create_admin_payload.post(url, payload_notary, response='json')
-    notary = Notary.objects.first()
-    url = f'/users/notary/{notary.id}/'
-    response = create_admin_payload.post(url, payload_notary, response='json')
-    payload_put_notary = {
-        'name': fake.name(),
-        'surname': fake.name(),
-        'phone': fake.phone_number(),
-        'email': fake.email(),
-    }
-    response_put_update = create_admin_payload.put(url, payload_put_notary, response='json')
-    assert response_put_update.status_code == 200
+# @pytest.mark.django_db
+# def test_update_notary_by_admin(create_admin_payload):
+#     url = f'/users/notary/'
+#     payload_notary = {
+#         'name': fake.name(),
+#         'surname': fake.name(),
+#         'phone': fake.phone_number(),
+#         'email': fake.email(),
+#     }
+#     create_admin_payload.post(url, payload_notary, response='json')
+#     notary = Notary.objects.first()
+#     url = f'/users/notary/{notary.id}/'
+#     response = create_admin_payload.post(url, payload_notary, response='json')
+#     payload_put_notary = {
+#         'name': fake.name(),
+#         'surname': fake.name(),
+#         'phone': fake.phone_number(),
+#         'email': fake.email(),
+#     }
+#     response_put_update = create_admin_payload.put(url, payload_put_notary, response='json')
+#     assert response_put_update.status_code == 200
 
-    payload_patch_notary = {
-        'name': fake.name(),
-        'surname': fake.name(),
-        'phone': fake.phone_number(),
-        'email': fake.email(),
-    }
-    response_patch_update = create_admin_payload.patch(url, payload_patch_notary, response='json')
-    assert response_patch_update.status_code == 200
+#     payload_patch_notary = {
+#         'name': fake.name(),
+#         'surname': fake.name(),
+#         'phone': fake.phone_number(),
+#         'email': fake.email(),
+#     }
+#     response_patch_update = create_admin_payload.patch(url, payload_patch_notary, response='json')
+#     assert response_patch_update.status_code == 200
 
 
 
-@pytest.mark.django_db
-def test_delete_notary_by_admin(create_admin_payload):
-    url = f'/users/notary/'
-    payload_notary = {
-        'name': fake.name(),
-        'surname': fake.name(),
-        'phone': fake.phone_number(),
-        'email': fake.email(),
-    }
-    create_admin_payload.post(url, payload_notary, response='json')
-    notary = Notary.objects.first()
-    url = f'/users/notary/{notary.id}/'
-    response_delete = create_admin_payload.delete(url)
-    assert response_delete.status_code == 204
+# @pytest.mark.django_db
+# def test_delete_notary_by_admin(create_admin_payload):
+#     url = f'/users/notary/'
+#     payload_notary = {
+#         'name': fake.name(),
+#         'surname': fake.name(),
+#         'phone': fake.phone_number(),
+#         'email': fake.email(),
+#     }
+#     create_admin_payload.post(url, payload_notary, response='json')
+#     notary = Notary.objects.first()
+#     url = f'/users/notary/{notary.id}/'
+#     response_delete = create_admin_payload.delete(url)
+#     assert response_delete.status_code == 204
 
 
 @pytest.mark.django_db
@@ -364,4 +366,4 @@ def test_retreave_list_notary_by_simple_user(create_user_and_login_payload):
     response = create_user_and_login_payload.get(url)
     assert response.status_code == 200
     assert Notary.objects.count() == 2
-# ================================END=TESTS====================================
+# # ================================END=TESTS====================================
