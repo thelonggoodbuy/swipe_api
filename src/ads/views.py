@@ -160,12 +160,12 @@ class AdsFeedListView(generics.ListAPIView):
             .filter(ads_status='approved')
         return queryset
 
-    @extend_schema(summary='Get list of approved ads. Needfull permission - all authenticated users.')
+    @extend_schema(summary='Get list of approved ADS. Needfull permission - all authenticated users.')
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
     
 
-    @extend_schema(summary='Get list of filtered approved ads. Needfull permission - all authenticated users.')
+    @extend_schema(summary='Get list of FILTERED approved ADS. Needfull permission - all authenticated users.')
     def post(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 

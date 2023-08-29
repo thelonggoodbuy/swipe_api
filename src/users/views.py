@@ -192,6 +192,40 @@ class SimpleUserChangePasswordView(GenericAPIView):
             data = {'message': f'Не вдалося змінита пароль'}
             return Response(data)
         
+# =============================================================================================
+# ==================SUBSCRIPTION==========LOGIC================================================
+# =============================================================================================
+        
+from .serializers import SimpleUserUpdateSubscriptionSerializer
+from drf_spectacular.utils import extend_schema, extend_schema_view
+
+
+@extend_schema(tags=['User: Subscription'])
+@extend_schema_view(put=extend_schema(exclude=True))
+class SimpleUserUpdateSubscriptionView(UpdateModelMixin, GenericAPIView):
+    '''
+    Update subscription
+    '''
+    permission_classes = (IsAuthenticated,)
+    serializer_class = SimpleUserUpdateSubscriptionSerializer
+
+    def get_queryset(self):
+        queryset = CustomUser.objects.filter(is_activated=True)
+        return queryset
+
+    @extend_schema(summary='Partly update for SUBSCRIPTION. Needfull permission - all authenticated users.')
+    def patch(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save(instance, serializer.validated_data)
+            response_text = f'Відомості про підписку користувача {instance.email} змінені.'
+            return Response({"message": response_text})
+        else:
+            return Response({"message": "failed", "details": serializer.errors})
+
+
 
 # =============================================================================================
 # ==================MESSAGES==========LOGIC====================================================

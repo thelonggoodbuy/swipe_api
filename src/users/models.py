@@ -59,6 +59,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 class Subscription(models.Model):
     subscription_last_date = models.DateField(null=True, blank=True, default=None)
     is_auto_renewal = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
 
 
 

@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'drf_spectacular',
     "debug_toolbar",
+    "django_celery_results",
     # 'django_filters',
 
     # project apps
@@ -195,4 +196,29 @@ SPECTACULAR_SETTINGS = {
 
 DEBUG_TOOLBAR_CONFIG = {
     "SHOW_TOOLBAR_CALLBACK": lambda request: True,
+}
+
+
+
+from celery.schedules import crontab
+from src.users import tasks
+
+# redis://redis:6379/0
+# Celery settings:
+# CELERY_BROKER_URL = "redis://redis:6379"
+
+CELERY_BROKER_URL = "redis://127.0.0.1:6379"
+
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379"
+
+# CELERY_BROKER_URL = "redis://redis:6379"
+# CELERY_RESULT_BACKEND = "redis://redis:6379"
+
+
+CELERY_BEAT_SCHEDULE = {
+    "sample_task": {
+        "task": "users.tasks.check_subscriptions_task",
+        "schedule": crontab(minute="*/1"),
+        # "schedule": crontab(minute=0, hour=0),
+    }
 }

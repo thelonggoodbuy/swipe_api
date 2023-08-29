@@ -7,6 +7,12 @@ from django.utils import timezone
 from django.db.models import Q
 from faker import Faker
 
+
+
+from django.utils.timezone import now
+from dateutil.relativedelta import relativedelta
+
+
 from .models import CustomUser, Subscription, Notary, Message
 
 fake = Faker()
@@ -205,7 +211,61 @@ class SimpleUserMessageCreateAndListSerializer(serializers.ModelSerializer):
 
 
 
+
 class NotarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Notary
         fields = ['name', 'surname', 'phone', 'email']
+
+
+
+
+class SimpleUserUpdateSubscriptionSerializer(serializers.ModelSerializer):
+    subscription_last_date = serializers.SerializerMethodField()
+    is_auto_renewal = serializers.BooleanField(default=False)
+    is_prolonging = serializers.BooleanField(default=False)
+
+
+    class Meta:
+        model = CustomUser
+        fields = ['subscription_last_date', 'is_auto_renewal', 'is_prolonging']
+        read_only_fields = ['subscription_last_date',]
+
+    
+    def get_subscription_last_date(self, obj):
+        subscription_data = obj.subscription
+        if subscription_data:
+            data = {'last_date': subscription_data.subscription_last_date,
+                    'auto_renewal': subscription_data.is_auto_renewal}
+        else:
+            data = {'last_date': 'Ви не підписані',
+                    'auto_renewal': 'Ви не підписані'}
+        return data
+    
+
+    def save(self, instance, validated_data):
+        if instance.subscription:
+            if validated_data.get('is_auto_renewal'):
+                instance.subscription.is_auto_renewal = validated_data.get('is_auto_renewal')
+
+            if validated_data.get('is_prolonging') and validated_data.get('is_prolonging') == True:
+                instance.subscription.subscription_last_date = instance.subscription.subscription_last_date + relativedelta(months=1)
+                instance.subscription.is_active = True
+            
+            instance.subscription.save()
+            instance.save()
+
+        if instance.subscription == None:
+            new_subscription = Subscription()
+            if validated_data.get('is_auto_renewal'):
+                new_subscription.is_auto_renewal = validated_data.get('is_auto_renewal')
+
+            if validated_data.get('is_prolonging') and validated_data.get('is_prolonging') == True:
+                new_subscription.subscription_last_date = timezone.now() + relativedelta(months=1)
+
+            new_subscription.is_active = True
+            new_subscription.save()
+            instance.subscription = new_subscription
+            instance.save()
+
+        return instance

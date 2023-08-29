@@ -7,7 +7,7 @@ from django.urls import path, include
 from .views import UserLoginAPIView, UserRegistrationAPIView, \
                     UserDetailAndUpdateAPIView, UserChangePasswordRequestView,\
                     SimpleUserChangePasswordView, MessageCreateAndListForSimpleUser,\
-                    NotaryModelViewSet
+                    NotaryModelViewSet, SimpleUserUpdateSubscriptionView
 
 from users.views import ActivateUser
 
@@ -25,6 +25,7 @@ urlpatterns = [
     path("user_change_password_request/<int:pk>/", UserChangePasswordRequestView.as_view(), name="user-change-password-request"),
     path("user_change_password/<uidb64>/<token>/", SimpleUserChangePasswordView.as_view(), name='change_password'),
     path("message_create_or_list/", MessageCreateAndListForSimpleUser.as_view(), name='message-create-or-list'),
+    path("simple_user_update_subscription/<int:pk>/", SimpleUserUpdateSubscriptionView.as_view(), name="SimpleUserUpdateSubscriptionView"),
     path('', include(router.urls)),
 
     # path("message_create_or_list/<int:pk>/", MessageCreateAndListForSimpleUser.as_view(), name='message-create-or-list'),
