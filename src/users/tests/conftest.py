@@ -1,13 +1,13 @@
 import pytest
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
-from users.models import CustomUser
+from users.models import CustomUser, Subscription
 from django.conf import settings
+from django.utils import timezone
 import environ
 import os
 env = environ.Env()
 environ.Env.read_env(env_file=os.path.join(settings.BASE_DIR, ".env.dev"))
-
 
 
 @pytest.fixture(scope='function')
@@ -77,9 +77,6 @@ def create_admin_user_and_authenticate_fixture(db):
 
 # ---------------------------USER-SUBSCRIPTION-FIXTURES----------------------------------
 
-from users.models import Subscription
-from django.utils import timezone
-from dateutil.relativedelta import relativedelta
 
 
 

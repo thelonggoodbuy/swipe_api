@@ -29,23 +29,27 @@ class HouseViewSet(ModelViewSet):
     House CRUD.
     '''
     authentication_classes = [JWTAuthentication]
-    parser_classes = [JSONParser, MultiPartParser]
+    permission_classes = [IsAuthenticated, AdminOrBuildeOwnerPermission]
+    parser_classes = [MultiPartParser]
     serializer_class = HouseSerializer
-    queryset = House.objects.all()
+    # queryset = House.objects.select_related('image_field').filter()
 
-    # def get_serializer_class(self):
-    #     if self.action == 'list' or 'retreave':
-    #         return HouseListSerializer
-        
-    #     return HouseSerializer
-
+    def get_queryset(self):
+        print('------------GET-----QUERYSET--------')
+        queryset = House.objects.prefetch_related('image_field').select_related('builder')
+        return queryset
+    
     @extend_schema(summary='Get list (LIST) of all buidings. Needfull permission - admin(return all houses) or builder(return houses, builded by user)')
     def list(self, request, *args, **kwargs):
 
         if self.request.user.is_superuser == True:
-            queryset = House.objects.all()
+            queryset = House.objects.all().\
+                prefetch_related('image_field')
         else:
-            queryset =  House.objects.filter(builder=self.request.user)
+            queryset =  House.objects.filter(builder=self.request.user)\
+                .prefetch_related('image_field')
+                # .select_related('builder')
+
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -58,38 +62,24 @@ class HouseViewSet(ModelViewSet):
     
 
 
-    @extend_schema(summary='Create house (CREATE). Needfull permission - admin or builder')
+    @extend_schema(summary='(T)Create house (CREATE). Needfull permission - admin or builder')
     def create(self, request, *args, **kwargs):
-        # house = super().create(request, *args, **kwargs)
-        # print('=========================')
-        # print('smt additional!!!!')
-        # print('=========================')
-        # return house
         return super().create(request, *args, **kwargs)
 
-    # def create(self, request, *args, **kwargs):
-        # username = request.data['username']
-        # file = request.data['main_image']
-        # user = MyModel.objects.get(username=username)
-
-        # user.image = file
-        # user.save()
-        # return Response("Image updated!", status=status.HTTP_200_OK)
-
-
-    @extend_schema(summary='Retreave house (RETREAVE). Needfull permission - admin or builder(return house, builded by user).')
+    @extend_schema(summary='(T)Retreave house (RETREAVE). Needfull permission - admin or builder(return house, builded by user).')
     def retrieve(self, request, *args, **kwargs):
+
         return super().retrieve(request, *args, **kwargs)
     
-    @extend_schema(summary='Update house (UPDATE). Needfull permission - admin or builder(change house, builded by user).')
+    @extend_schema(summary='(T)Update house (UPDATE). Needfull permission - admin or builder(change house, builded by user).')
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
     
-    @extend_schema(summary='Partial update house (PATCH). Needfull permission - admin or builder(Partial change house, builded by user).')
+    @extend_schema(summary='(T)Partial update house (PATCH). Needfull permission - admin or builder(Partial change house, builded by user).')
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
 
-    @extend_schema(summary='Delete house (DELETE). Needfull permission - admin or builder(delete house, builded by user).')
+    @extend_schema(summary='(T)Delete house (DELETE). Needfull permission - admin or builder(delete house, builded by user).')
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 

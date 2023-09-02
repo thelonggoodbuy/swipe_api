@@ -22,24 +22,35 @@ class PhotoToHouseSerializer(serializers.ModelSerializer):
 
 
 class ModelListField(serializers.ListField):
+    
 
     def to_representation(self, data):
         list_data = list(data.all())
+        print('-------------------------')
+        print('REPRESENTATION')
+        print('-------------------------')
         for obj in list_data: 
             obj.name = {"id": obj.id, "image": obj.image.url}
-        return super().to_representation(list_data)
+
+        return [self.child.to_representation(item) if item is not None else None for item in list_data]
+        # return super().to_representation(list_data)
     
-    # def to_internal_value(self, data):
-    #     print('====INTERNAL=VALUE=========')
-    #     print(data)
-    #     print('============================')
-    #     return super().to_internal_value(data)
+    def to_internal_value(self, data):
+        print('-------------------------')
+        print('INTERNAL-VALUES')
+        print('-------------------------')
+        if data == ['']: data = []
+        for image in data[:]:
+            if image == 'string': data.remove(image)
+        return super().to_internal_value(data)
+
+
 
 class HouseSerializer(serializers.ModelSerializer):
     builder = serializers.PrimaryKeyRelatedField\
         (queryset=CustomUser.objects.filter\
         ((Q(is_builder=True)) | Q(is_superuser=True)), required=False)
-    image_field = ModelListField(child=serializers.ImageField(max_length=100000, allow_empty_file=False, use_url=False))
+    image_field = ModelListField(required=False, allow_null=True, child=serializers.ImageField(max_length=100000, allow_empty_file=False, use_url=False))
 
     class Meta:
         model = House
@@ -52,46 +63,54 @@ class HouseSerializer(serializers.ModelSerializer):
                   'purpose', 'summ_of_threaty', 'main_image', 'image_field']
         extra_kwargs = {'house_type': {'required': False}}
 
+
     def create(self, validated_data):
-        images_data = validated_data.pop('image_field')
+        images_data = []
+        if 'image_field' in validated_data:
+            images_data = validated_data.pop('image_field')
         house = House.objects.create(**validated_data)
-        image_obj_list = []
-        for image_data in images_data:
-            new_image = ImageGalery.objects.create(image=image_data)
-            image_obj_list.append(new_image)
+        image_new_data = [ImageGalery(image=obj) for obj in images_data]
+        image_obj_list = ImageGalery.objects.bulk_create(image_new_data)
         house.image_field.set(image_obj_list)
         return house
 
+
     def update(self, instance, validated_data):
-        print(validated_data)
-        if 'image_field' in validated_data:
+
+        if 'image_field' in validated_data and validated_data['image_field'] != []:
             photo_data = validated_data.pop('image_field')
-            ImageGalery.objects.filter(house=instance).delete()
 
         for item in validated_data:
-            if House._meta.get_field(item):
+            if House._meta.get_field(item) and validated_data[item] not in ['', None, []]:
                 setattr(instance, item, validated_data[item])
 
         try:
             photo_data
         except NameError:
+            instance.save()
             return instance
         else:
-            image_obj_list = []
-            for photo_obj in photo_data:
-                image = ImageGalery.objects.create(image = photo_obj)                
-                image.save()
-                image_obj_list.append(image)
+            print('8888888888888')
+            print(photo_data)
+            print('8888888888888')
+            if photo_data != []:
+                image_new_data = [ImageGalery(image=obj) for obj in photo_data]
+                image_obj_list = ImageGalery.objects.bulk_create(image_new_data)
+            else:
+                # print('-----!!!--------')
+                ImageGalery.objects.filter(house=instance).delete()
+                image_obj_list = []
+            
             instance.image_field.set(image_obj_list)
         instance.save()
         return instance
 
 
-    # def validate_builder(self, data):
-    #     if data == self.context.get("request").user or self.context.get("request").user.is_superuser == True:
-    #         return data
-    #     else:
-    #         raise serializers.ValidationError("Тільки адміністратор має можливість змінювати данні про власнітьс об'єкта нерухомості.")
+    def validate_builder(self, data):
+        if data == self.context.get("request").user or self.context.get("request").user.is_superuser == True:
+            return data
+        else:
+            raise serializers.ValidationError("Тільки адміністратор має можливість змінювати данні про власнітьс об'єкта нерухомості.")
 
     def validate(self, data):
         print(data)
