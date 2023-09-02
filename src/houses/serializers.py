@@ -26,9 +26,6 @@ class ModelListField(serializers.ListField):
 
     def to_representation(self, data):
         list_data = list(data.all())
-        print('-------------------------')
-        print('REPRESENTATION')
-        print('-------------------------')
         for obj in list_data: 
             obj.name = {"id": obj.id, "image": obj.image.url}
 
@@ -36,9 +33,6 @@ class ModelListField(serializers.ListField):
         # return super().to_representation(list_data)
     
     def to_internal_value(self, data):
-        print('-------------------------')
-        print('INTERNAL-VALUES')
-        print('-------------------------')
         if data == ['']: data = []
         for image in data[:]:
             if image == 'string': data.remove(image)
@@ -90,9 +84,6 @@ class HouseSerializer(serializers.ModelSerializer):
             instance.save()
             return instance
         else:
-            print('8888888888888')
-            print(photo_data)
-            print('8888888888888')
             if photo_data != []:
                 image_new_data = [ImageGalery(image=obj) for obj in photo_data]
                 image_obj_list = ImageGalery.objects.bulk_create(image_new_data)
@@ -160,7 +151,7 @@ class HouseEntancesSerializer(serializers.ModelSerializer):
 
 class FloorSerializer(serializers.ModelSerializer):
     house = serializers.PrimaryKeyRelatedField(required=True, queryset = House.objects.all())
-    floor_schema = Base64ImageField(required=False)
+    # floor_schema = Base64ImageField(required=False)
 
     class Meta:
         model = Floor

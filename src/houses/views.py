@@ -39,7 +39,7 @@ class HouseViewSet(ModelViewSet):
         queryset = House.objects.prefetch_related('image_field').select_related('builder')
         return queryset
     
-    @extend_schema(summary='Get list (LIST) of all buidings. Needfull permission - admin(return all houses) or builder(return houses, builded by user)')
+    @extend_schema(summary='(T)Get list (LIST) of all buidings. Needfull permission - admin(return all houses) or builder(return houses, builded by user)')
     def list(self, request, *args, **kwargs):
 
         if self.request.user.is_superuser == True:
@@ -94,9 +94,11 @@ class HouseBuildingViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated, AdminOrBuildeOwnerPermission]
     authentication_classes = [JWTAuthentication]
     serializer_class = HouseBuildingSerializer
-    queryset = HouseBuilding.objects.all()
+    queryset = HouseBuilding.objects.all().select_related('house__builder')
+    parser_classes = [MultiPartParser]
     
-    @extend_schema(summary='Get list (LIST) of all house buildings. Needfull permission - admin(return all house buildings) or builder(return house buildings, builded by user)')
+
+    @extend_schema(summary='(T)Get list (LIST) of all house buildings. Needfull permission - admin(return all house buildings) or builder(return house buildings, builded by user)')
     def list(self, request, *args, **kwargs):
 
         if self.request.user.is_superuser == True:
@@ -113,24 +115,24 @@ class HouseBuildingViewSet(ModelViewSet):
         return Response(serializer.data)
 
 
-    @extend_schema(summary='Create house building (CREATE). Needfull permission - admin or builder')
+    @extend_schema(summary='(T)Create house building (CREATE). Needfull permission - admin or builder')
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
 
-    @extend_schema(summary='Retreave house building (RETREAVE). Needfull permission - admin or builder(return house building, builded by user).')
+    @extend_schema(summary='(T)Retreave house building (RETREAVE). Needfull permission - admin or builder(return house building, builded by user).')
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
     
-    @extend_schema(summary='Update house building (UPDATE). Needfull permission - admin or builder(change house building, builded by user).')
+    @extend_schema(summary='(T)Update house building (UPDATE). Needfull permission - admin or builder(change house building, builded by user).')
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
     
-    @extend_schema(summary='Partial update house building (PATCH). Needfull permission - admin or builder(Partial change house building, builded by user).')
+    @extend_schema(summary='(T)Partial update house building (PATCH). Needfull permission - admin or builder(Partial change house building, builded by user).')
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
 
-    @extend_schema(summary='Delete house building (DELETE). Needfull permission - admin or builder(delete house building, builded by user).')
+    @extend_schema(summary='(T)Delete house building (DELETE). Needfull permission - admin or builder(delete house building, builded by user).')
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
     
@@ -143,9 +145,11 @@ class HouseEntancesViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated, AdminOrBuildeOwnerPermission]
     authentication_classes = [JWTAuthentication]
     serializer_class = HouseEntancesSerializer
-    queryset = HouseEntrance.objects.all()
+    queryset = HouseEntrance.objects.all().select_related('house__builder')
+
+    parser_classes = [MultiPartParser]
     
-    @extend_schema(summary='Get list (LIST) of all house entrances. Needfull permission - admin(return all house entrances) or builder(return house entrances, builded by user)')
+    @extend_schema(summary='(T)Get list (LIST) of all house entrances. Needfull permission - admin(return all house entrances) or builder(return house entrances, builded by user)')
     def list(self, request, *args, **kwargs):
 
         if self.request.user.is_superuser == True:
@@ -161,24 +165,24 @@ class HouseEntancesViewSet(ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @extend_schema(summary='Create house entrances (CREATE). Needfull permission - admin or builder')
+    @extend_schema(summary='(T)Create house entrances (CREATE). Needfull permission - admin or builder')
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
 
-    @extend_schema(summary='Retreave house entrances (RETREAVE). Needfull permission - admin or builder(return house entrances, builded by user).')
+    @extend_schema(summary='(T)Retreave house entrances (RETREAVE). Needfull permission - admin or builder(return house entrances, builded by user).')
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
     
-    @extend_schema(summary='Update house entrances (UPDATE). Needfull permission - admin or builder(change house entrances, builded by user).')
+    @extend_schema(summary='(T)Update house entrances (UPDATE). Needfull permission - admin or builder(change house entrances, builded by user).')
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
     
-    @extend_schema(summary='Partial update house entrances (PATCH). Needfull permission - admin or builder(Partial change house entrances, builded by user).')
+    @extend_schema(summary='(T)Partial update house entrances (PATCH). Needfull permission - admin or builder(Partial change house entrances, builded by user).')
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
 
-    @extend_schema(summary='Delete house entrances (DELETE). Needfull permission - admin or builder(delete house entrances, builded by user).')
+    @extend_schema(summary='(T)Delete house entrances (DELETE). Needfull permission - admin or builder(delete house entrances, builded by user).')
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 
@@ -191,9 +195,11 @@ class FloorViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated, AdminOrBuildeOwnerPermission]
     authentication_classes = [JWTAuthentication]
     serializer_class = FloorSerializer
-    queryset = Floor.objects.all()
+    queryset = Floor.objects.all().select_related('house__builder')
+
+    parser_classes = [MultiPartParser]
     
-    @extend_schema(summary='Get list (LIST) of all floors. Needfull permission - admin(return all house floors) or builder(return house floors, builded by user)')
+    @extend_schema(summary='(T)Get list (LIST) of all floors. Needfull permission - admin(return all house floors) or builder(return house floors, builded by user)')
     def list(self, request, *args, **kwargs):
 
         if self.request.user.is_superuser == True:
@@ -209,24 +215,24 @@ class FloorViewSet(ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @extend_schema(summary='Create floors entrances (CREATE). Needfull permission - admin or builder')
+    @extend_schema(summary='(T)Create floors entrances (CREATE). Needfull permission - admin or builder')
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
 
-    @extend_schema(summary='Retreave floor (RETREAVE). Needfull permission - admin or builder(return floors, builded by user).')
+    @extend_schema(summary='(T)Retreave floor (RETREAVE). Needfull permission - admin or builder(return floors, builded by user).')
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
     
-    @extend_schema(summary='Update house floors (UPDATE). Needfull permission - admin or builder(change floors, builded by user).')
+    @extend_schema(summary='(T)Update house floors (UPDATE). Needfull permission - admin or builder(change floors, builded by user).')
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
     
-    @extend_schema(summary='Partial update floors (PATCH). Needfull permission - admin or builder(Partial change floors, builded by user).')
+    @extend_schema(summary='(T)Partial update floors (PATCH). Needfull permission - admin or builder(Partial change floors, builded by user).')
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
 
-    @extend_schema(summary='Delete floors (DELETE). Needfull permission - admin or builder(delete floors, builded by user).')
+    @extend_schema(summary='(T)Delete floors (DELETE). Needfull permission - admin or builder(delete floors, builded by user).')
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 
@@ -241,9 +247,9 @@ class RiserViewSet(ModelViewSet):
     authentication_classes = [JWTAuthentication]
     
     serializer_class = RiserSerializer
-    queryset = Riser.objects.all()
+    queryset = Riser.objects.all().select_related('house__builder')
     
-    @extend_schema(summary='Get list (LIST) of all Riser. Needfull permission - admin(return all house Riser) or builder(return Riser, builded by user)')
+    @extend_schema(summary='(T)Get list (LIST) of all Riser. Needfull permission - admin(return all house Riser) or builder(return Riser, builded by user)')
     def list(self, request, *args, **kwargs):
 
         if self.request.user.is_superuser == True:
@@ -259,23 +265,23 @@ class RiserViewSet(ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @extend_schema(summary='Create risers (CREATE). Needfull permission - admin or builder')
+    @extend_schema(summary='(T)Create risers (CREATE). Needfull permission - admin or builder')
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
 
-    @extend_schema(summary='Retreave riser (RETREAVE). Needfull permission - admin or builder(return risers, builded by user).')
+    @extend_schema(summary='(T)Retreave riser (RETREAVE). Needfull permission - admin or builder(return risers, builded by user).')
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
     
-    @extend_schema(summary='Update riser (UPDATE). Needfull permission - admin or builder(change riser, builded by user).')
+    @extend_schema(summary='(T)Update riser (UPDATE). Needfull permission - admin or builder(change riser, builded by user).')
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
     
-    @extend_schema(summary='Partial update riser (PATCH). Needfull permission - admin or builder(Partial change riser, builded by user).')
+    @extend_schema(summary='(T)Partial update riser (PATCH). Needfull permission - admin or builder(Partial change riser, builded by user).')
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
 
-    @extend_schema(summary='Delete riser (DELETE). Needfull permission - admin or builder(delete floors, builded by user).')
+    @extend_schema(summary='(T)Delete riser (DELETE). Needfull permission - admin or builder(delete floors, builded by user).')
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
