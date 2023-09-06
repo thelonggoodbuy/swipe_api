@@ -185,24 +185,28 @@ class AdsPromoView(generics.UpdateAPIView):
 
 
 @extend_schema(tags=['Ads: Ads moderation'])
+@extend_schema_view(update=extend_schema(exclude=True))
 class ModerationAdsViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin, UpdateModelMixin,):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser]
     authentication_classes = [JWTAuthentication]
     queryset = Ads.objects.all()
     serializer_class = AdsupdateModerationSerializer
     
-
+    @extend_schema(summary='(T)List of all Ads - aproved and not approved. Needfull permission - admin.')
     def list(self, *args, **kwargs):
-        ads_list = Ads.objects.all()
+        ads_list = Ads.objects.all().order_by("-id").order_by("-ads_status")
         serializer = AdsListModerationSerializer(ads_list, many=True)
         return Response(serializer.data)
     
+    @extend_schema(summary='(T)Retreve of single Ads. Needfull permission - admin.')
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = AdsRetreaveModerationSerializer(instance)
         return Response(serializer.data)
     
-
+    @extend_schema(summary='(T)Partial update and approve of single Ads. Needfull permission - admin.')
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
 
 
 
@@ -216,7 +220,29 @@ class DeniedCauseViewSet(ModelViewSet):
     serializer_class = DeniedCauseSerializer
     queryset = DeniedCause.objects.all()
 
+    @extend_schema(summary='(T) List denied cause object. Needfull permission - admin')
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @extend_schema(summary='(T) Create denied cause object. Needfull permission - admin')
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
 
+    @extend_schema(summary='(T) Retreave denied cause object. Needfull permission - admin')
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @extend_schema(summary='(T) Update denied cause object. Needfull permission - admin')
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @extend_schema(summary='(T) Partly Update denied cause object. Needfull permission - admin')
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
+    @extend_schema(summary='(T) Delete denied cause object. Needfull permission - admin')
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
 
 
@@ -321,17 +347,18 @@ class AdsListChessboardView(generics.RetrieveAPIView):
     model = House
     serializer_class = AdsListChessboardSerializer
     permission_classes = [AllowAny]
+    parser_classes = [MultiPartParser]
 
 
     def get_queryset(self):
         queryset = House.objects.all()
         return queryset
 
-    @extend_schema(summary='Get CHESSBOARD of ads. Needfull permission - all authenticated users.')
+    @extend_schema(summary='(T)Get CHESSBOARD of ads. Needfull permission - all authenticated users.')
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 
-    @extend_schema(summary='Get CHESSBOARD WITH FILTERS of ads. Needfull permission - all authenticated users.')
+    @extend_schema(summary='(T)Get CHESSBOARD WITH FILTERS of ads. Needfull permission - all authenticated users.')
     def post(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)

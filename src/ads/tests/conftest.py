@@ -16,7 +16,7 @@ from houses.models import HouseEntrance, Floor, HouseBuilding, Riser, House
 from pathlib import Path
 from faker import Faker
 
-from ads.models import PromoAdditionalPhrase
+from ads.models import PromoAdditionalPhrase, DeniedCause
 
 env = environ.Env()
 environ.Env.read_env(env_file=os.path.join(settings.BASE_DIR, ".env.dev"))
@@ -63,6 +63,24 @@ def create_simple_user_and_authenticate_fixture(db: None):
         "email": "test123_email@mail.com",
         "is_simple_user": True,
         "is_activated": True,
+    }
+    test_user = CustomUser(**payload)
+    test_user.set_password("test_password")
+    test_user.save()
+    client = APIClient()
+    refresh = RefreshToken.for_user(test_user)
+    client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+    return client
+
+
+
+@pytest.fixture
+def create_admin_user_and_authenticate_fixture(db: None):
+    payload = {
+        "email": "test_admin_123@mail.com",
+        "is_superuser": True,
+        "is_activated": True,
+        "is_staff": True
     }
     test_user = CustomUser(**payload)
     test_user.set_password("test_password")
@@ -455,7 +473,12 @@ def generate_multiple_ads_with_non_moderated_accomodations_fixture(generate_mult
     second_ads = Ads(**second_ads_payload)
     second_ads.save()
 
-    client = APIClient()    
+    client = APIClient()
+
+    client.data = {}
+    client.data['new_objects_id'] = [first_ads, second_ads]
+
+        
     return client
 
 
@@ -598,4 +621,52 @@ def promotion_create_additional_phrase_fixture():
     PromoAdditionalPhrase.objects.create(text="Go Go Go!")
 
     client = APIClient()
+    return client
+
+
+# ---------------------------------------------------------------------------
+# -------------------------chesboard-----------------------------------------
+# ---------------------------------------------------------------------------
+
+@pytest.fixture()
+def chesboard_multiple_fixture(generate_multiple_moderated_ads_accomodations_fixture):
+    house = House.objects.get(description="description_test_1")
+    ads_list = Ads.objects.filter(accomodation__house=house)
+
+    first_ads = ads_list[0]
+    first_ads.ads_status = 'approved'
+    first_ads.accomodation.is_shown_in_chesboard = True
+    first_ads.accomodation.save()
+    first_ads.save()
+
+    second_ads = ads_list[1]
+    second_ads.ads_status = 'approved'
+    first_ads.accomodation.is_shown_in_chesboard = True
+    first_ads.accomodation.save()
+    second_ads.save()
+
+    client = APIClient()
+    client.data = {}
+    client.data['ads_quantity'] = ads_list.count()
+    return client
+
+
+# ---------------------------------------------------------------------------
+# -------------------------denied---causes-----------------------------------
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def denied_cause_create_multiple_with_admin_user(create_admin_user_and_authenticate_fixture):
+
+    denied_cause_1 = DeniedCause.objects.create(text="denied_cause_1")
+    denied_cause_2 = DeniedCause.objects.create(text="denied_cause_2")
+
+    admin = CustomUser.objects.get(email="test_admin_123@mail.com")
+    refresh = RefreshToken.for_user(admin)
+    client = APIClient()
+
+    client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+
+    
     return client

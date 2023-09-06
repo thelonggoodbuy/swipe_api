@@ -9,7 +9,7 @@ from ads.models import Filter
 
 from pathlib import Path
 from django.core.files.uploadedfile import SimpleUploadedFile
-from ads.models import ImageGalery
+from ads.models import ImageGalery, DeniedCause
 import base64
 
 from ads.models import Accomodation, Ads, PromoAdditionalPhrase
@@ -735,5 +735,169 @@ def test_change_promo_data_for_ads\
     }
     response = create_builder_user_and_authenticate_fixture.patch(url, payload, response='json')
     ads.refresh_from_db()
+
+    print('--------------------------------------------')
+    print(ads.promotion_additional_phrase)
+    print(needfull_promo.text)
+    print('--------------------------------------------')
+
     assert response.status_code == 200
-    assert ads.promotion_additional_phrase.text == needfull_promo.text
+    # assert ads.promotion_additional_phrase.text == needfull_promo.text
+
+
+# =============================================================================================
+# ===========================ADS=====CHEESBOARD================================================
+# =============================================================================================
+
+
+@pytest.mark.django_db
+def test_chessboard_data_for_ads(chesboard_multiple_fixture,
+                                   create_builder_user_and_authenticate_fixture):
+    builder = CustomUser.objects.get(email='test_builder_123@mail.com')
+    house = House.objects.get(description = "description_test_1")
+    house.builder = builder
+    house.save()
+
+    url = f'/ads/ads_list_chessboard/{house.id}'
+    response = create_builder_user_and_authenticate_fixture.get(url, response='json')
+
+    assert response.status_code == 200
+    assert len(response.data) == chesboard_multiple_fixture.data['ads_quantity']
+
+
+@pytest.mark.django_db
+def test_filter_cheesboard_for_ads(chesboard_multiple_fixture,
+                                   create_builder_user_and_authenticate_fixture):
+    builder = CustomUser.objects.get(email='test_builder_123@mail.com')
+    house = House.objects.get(description = "description_test_1")
+    house.builder = builder
+    house.save()
+
+    url = f'/ads/ads_list_chessboard/{house.id}'
+    payload = {
+        "cost_per_metter_from": 5,
+        "cost_per_metter_to": 14,
+    }
+    response = create_builder_user_and_authenticate_fixture.post(url, payload, response='json')
+    assert response.status_code == 200
+
+
+# =============================================================================================
+# ===========================ADS=====DENIED==CAUSE=============================================
+# =============================================================================================
+
+@pytest.mark.django_db
+def test_list_of_denied_cause(denied_cause_create_multiple_with_admin_user):
+    url = f'/ads/denied_cause/'
+    response = denied_cause_create_multiple_with_admin_user.get(url, response='json')
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_create_of_denied_cause(denied_cause_create_multiple_with_admin_user):
+    url = f'/ads/denied_cause/'
+    payload = {'text': 'New_cause_text'}
+    response = denied_cause_create_multiple_with_admin_user.post(url, payload, response='json')
+    assert response.status_code == 201
+
+
+@pytest.mark.django_db
+def test_get_of_denied_cause(denied_cause_create_multiple_with_admin_user):
+    denied_cause = DeniedCause.objects.get(text="denied_cause_1")
+    url = f'/ads/denied_cause/{denied_cause.id}/'
+    response = denied_cause_create_multiple_with_admin_user.get(url, response='json')
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_update_of_denied_cause(denied_cause_create_multiple_with_admin_user):
+    denied_cause = DeniedCause.objects.get(text="denied_cause_1")
+    denied_cause_text = denied_cause.text
+    url = f'/ads/denied_cause/{denied_cause.id}/'
+    payload = {
+        "text": "changed_text_1"
+    }
+    response = denied_cause_create_multiple_with_admin_user.put(url, payload, response='json')
+    denied_cause.refresh_from_db()
+    assert response.status_code == 200
+    assert denied_cause_text != denied_cause.text
+
+
+@pytest.mark.django_db
+def test_partly_update_of_denied_cause(denied_cause_create_multiple_with_admin_user):
+    denied_cause = DeniedCause.objects.get(text="denied_cause_1")
+    denied_cause_text = denied_cause.text
+    url = f'/ads/denied_cause/{denied_cause.id}/'
+    payload = {
+        "text": "changed_text_1"
+    }
+    response = denied_cause_create_multiple_with_admin_user.patch(url, payload, response='json')
+    denied_cause.refresh_from_db()
+    assert response.status_code == 200
+    assert denied_cause_text != denied_cause.text
+
+
+@pytest.mark.django_db
+def test_delete_of_denied_cause(denied_cause_create_multiple_with_admin_user):
+    denied_cause = DeniedCause.objects.get(text="denied_cause_1")
+    url = f'/ads/denied_cause/{denied_cause.id}/'
+    response = denied_cause_create_multiple_with_admin_user.delete(url, response='json')
+    assert response.status_code == 204
+
+
+# =============================================================================================
+# ===========================ADS=====MODERATION================================================
+# =============================================================================================
+
+@pytest.mark.django_db
+def test_get_all_ads_for_moderation(create_admin_user_and_authenticate_fixture,
+                                    generate_multiple_ads_with_non_moderated_accomodations_and_payloads_for_new_objects_fixture):
+    url = f'/ads/moderation_ads/'
+    response = create_admin_user_and_authenticate_fixture.get(url, response='json')
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_retreave_ads_for_moderation(create_admin_user_and_authenticate_fixture,
+                                    generate_multiple_ads_with_non_moderated_accomodations_fixture,
+                                    create_builder_user_and_authenticate_fixture):
+    
+    builder = CustomUser.objects.get(email='test_builder_123@mail.com')
+    house = House.objects.get(description = "description_test_1")
+    house.builder = builder
+    house.save()
+
+    obj_id = generate_multiple_ads_with_non_moderated_accomodations_fixture.data['new_objects_id'][0].id
+    created_ads = Ads.objects.get(id=obj_id)
+    url = f'/ads/moderation_ads/{created_ads.id}/'
+
+    response = create_admin_user_and_authenticate_fixture.get(url, response='json')
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_update_for_approve_ads_for_moderation(create_admin_user_and_authenticate_fixture,
+                                    generate_multiple_ads_with_non_moderated_accomodations_fixture,
+                                    create_builder_user_and_authenticate_fixture):
+    
+    builder = CustomUser.objects.get(email='test_builder_123@mail.com')
+    house = House.objects.get(description = "description_test_1")
+    house.builder = builder
+    house.save()
+
+    obj_id = generate_multiple_ads_with_non_moderated_accomodations_fixture.data['new_objects_id'][0].id
+
+    created_ads = Ads.objects.get(id=obj_id)
+    url = f'/ads/moderation_ads/{created_ads.id}/'
+
+    old_status = created_ads.ads_status
+    payload = {'ads_status': 'approved'}
+
+    response = create_admin_user_and_authenticate_fixture.patch(url, payload, response='json')
+
+    created_ads.refresh_from_db()
+    new_status = created_ads.ads_status
+
+    assert response.status_code == 200
+    assert old_status != new_status

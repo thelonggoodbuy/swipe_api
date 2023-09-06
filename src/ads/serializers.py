@@ -205,8 +205,7 @@ class AdsAccomodationDataListSerializer(AdsAccomodationRetreaveSerializer):
     class Meta:
         model = Accomodation
         fields = ['planing', 'area', 'floor_title', 'floor_quantity',\
-                'house_address', 'house_disctrict', 'image_field',\
-                'ads_status']
+                'house_address', 'house_disctrict', 'image_field']
         depth = 1    
 
 
@@ -250,7 +249,6 @@ class AdsupdateModerationSerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError("Причину відмови можно позначити, якщо оголошенню відмовіленно.")
             except KeyError:
                 pass
-
             return data
     
 
@@ -561,6 +559,9 @@ class AdsPromoUpdateSerializer(serializers.ModelSerializer):
         return Ads.objects.filter(id=instance.id).update(**validated_data)
 
 
+
+from decimal import Decimal
+
 class AdsListChessboardSerializer(serializers.ModelSerializer):
     LIVING_CONDITION_CORT = (
         ('need_repair', 'вимагає ремонту'),
@@ -615,19 +616,19 @@ class AdsListChessboardSerializer(serializers.ModelSerializer):
 
             for appartment in building_entrance[:]:
                 if appartment in building_entrance[:] and 'cost_from' in self.context['request'].data:
-                    if appartment['ads__cost'] == None or appartment['ads__cost'] < self.context['request'].data['cost_from']:
+                    if appartment['ads__cost'] == None or appartment['ads__cost'] < Decimal(self.context['request'].data['cost_from']):
                         building_entrance.remove(appartment)
 
                 if appartment in building_entrance[:] and 'cost_to' in self.context['request'].data:
-                    if appartment['ads__cost'] == None or appartment['ads__cost'] > self.context['request'].data['cost_to']:
+                    if appartment['ads__cost'] == None or appartment['ads__cost'] > Decimal(self.context['request'].data['cost_to']):
                         building_entrance.remove(appartment)
 
                 if appartment in building_entrance[:] and 'cost_per_metter_from' in self.context['request'].data:
-                    if appartment['ads__cost_per_metter'] == None or appartment['ads__cost_per_metter'] < self.context['request'].data['cost_per_metter_from']:
+                    if appartment['ads__cost_per_metter'] == None or appartment['ads__cost_per_metter'] < Decimal(self.context['request'].data['cost_per_metter_from']):
                         building_entrance.remove(appartment)
 
                 if appartment in building_entrance[:] and 'cost_per_metter_to' in self.context['request'].data:
-                    if appartment['ads__cost_per_metter'] == None or appartment['ads__cost_per_metter'] > self.context['request'].data['cost_per_metter_to']:
+                    if appartment['ads__cost_per_metter'] == None or appartment['ads__cost_per_metter'] > Decimal(self.context['request'].data['cost_per_metter_to']):
                         building_entrance.remove(appartment)
 
                 if appartment in building_entrance[:] and 'area_from' in self.context['request'].data:
