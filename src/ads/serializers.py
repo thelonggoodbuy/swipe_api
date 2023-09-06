@@ -27,13 +27,14 @@ class PhotoToAccomodationSerializer(serializers.ModelSerializer):
 
 
 class AccomodationSerializer(serializers.ModelSerializer):
-    house = serializers.PrimaryKeyRelatedField(required=True, queryset = House.objects.all())
+    house = serializers.PrimaryKeyRelatedField(required=False, queryset = House.objects.all())
     house_building = serializers.PrimaryKeyRelatedField(required=False, queryset = HouseBuilding.objects.all())
     house_entrance = serializers.PrimaryKeyRelatedField(required=False, queryset = HouseEntrance.objects.all())
     floor = serializers.PrimaryKeyRelatedField(required=False, queryset = Floor.objects.all())
     riser = serializers.PrimaryKeyRelatedField(required=False, queryset = Riser.objects.all())
     image_field = PhotoToAccomodationSerializer(many=True, required=False)
     booked_by = serializers.PrimaryKeyRelatedField(required=False, queryset = CustomUser.objects.all())
+    schema = Base64ImageField(max_length=None, required=False)
 
     class Meta:
         model = Accomodation
@@ -41,11 +42,13 @@ class AccomodationSerializer(serializers.ModelSerializer):
                 'house', 'house_building', 'house_entrance',\
                 'floor', 'riser', 'area', 'planing',\
                 'living_condition', 'area_kitchen', 'have_balcony',\
-                'heat_type', 'image_field', 'booked_by']
+                'heat_type', 'image_field', 'booked_by', 'schema']
         
     def create(self, validated_data):
         if 'image_field' in validated_data:
             photo_data = validated_data.pop('image_field')
+
+        validated_data['is_shown_in_chesboard'] = False
         accomodation_obj = Accomodation.objects.create(**validated_data)
         try:
             for photo_obj in photo_data:
@@ -68,48 +71,69 @@ class AccomodationSerializer(serializers.ModelSerializer):
             updated_list = []
             list_of_images_id = []
 
+
             list_of_dict_images_id = instance.image_field.all().values('id')
 
             for dict_of_image_id in list_of_dict_images_id: list_of_images_id.append(dict_of_image_id['id'])
 
             for image_obj in validated_data['image_field']:
                 
-                # delete if order None
-                if 'obj_order' not in image_obj:
+                # delete if order None but id exist
+                if 'obj_order' not in image_obj and 'id' in image_obj:
                     delete_obj = image_obj['id']
-                    # deleted_list.append(delete_obj)
                     image_obj = ImageGalery.objects.get(id=image_obj['id'])
                     instance.image_field.remove(image_obj)
                     del image_obj
-                # update image
-                elif 'id' in image_obj and image_obj['id'] in list_of_images_id:
-                    ImageGalery.objects.filter(id=image_obj['id']).update(**image_obj)
-                # create image
-                else:
+                    # del validated_data['image_field']
 
+                # update image if order and id exist
+                elif 'id' in image_obj and\
+                    image_obj['id'] in list_of_images_id and\
+                    'obj_order' in image_obj:
+                    ImageGalery.objects.filter(id=image_obj['id']).update(**image_obj)
+                    # del validated_data['image_field']
+
+                # create image if order EXIST and id DOESN`T exist
+                elif 'id' not in image_obj and\
+                    'id' not in list_of_images_id and\
+                    'obj_order' in image_obj:
                     new_image = ImageGalery.objects.create(**image_obj)
                     instance.image_field.add(new_image)
+                    # del validated_data['image_field']
+
+            if 'image_field' in validated_data: del validated_data['image_field']
+        for item in validated_data:
+            # if Accomodation._meta.get_field(item) and validated_data[item] not in ['', None, []]:
+            if Accomodation._meta.get_field(item):
+                setattr(instance, item, validated_data[item])
 
         instance.save()
-
         return instance
     
 
-    # def validate(self, data):
-    #     current_house = data['house']
-    #     if current_house.accomodation.filter(number=data['number']).exists() and\
-    #             current_house.accomodation.filter(number=data['number'])[0].id != self.instance.id:
-    #         raise serializers.ValidationError("Номер квартири має бути унікальним для цього будинку. Квартира з таким номером вже зареєстрована")
-    #     if data['house_building'] not in current_house.house_building.all():
-    #         raise serializers.ValidationError("Ви повинні обрати корпус, який знаходиться в цьому будинку.")
-    #     if data['house_entrance'] not in current_house.house_entrance.all():
-    #         raise serializers.ValidationError("Ви повинні обрати підїзд, який знаходиться в цьому будинку.")
-    #     if data['floor'] not in current_house.floor.all():
-    #         raise serializers.ValidationError("Ви повинні обрати поверх, який знаходиться в цьому будинку.")
-    #     if data['riser'] not in current_house.riser.all():
-    #         raise serializers.ValidationError("Ви повинні обрати стояк, який знаходиться в цьому будинку.")
+    def validate(self, data):
+        try:
+            current_house = data['house']
+        except KeyError:
+            current_house = self.instance.house
+        if 'number' in data and\
+                current_house.accomodation.filter(number=data['number']).exists() and\
+                current_house.accomodation.filter(number=data['number'])[0].id != self.instance.id:
+            raise serializers.ValidationError("Номер квартири має бути унікальним для цього будинку. Квартира з таким номером вже зареєстрована")
+        if 'house_building' in data and\
+            data['house_building'] not in current_house.house_building.all():
+            raise serializers.ValidationError("Ви повинні обрати корпус, який знаходиться в цьому будинку.")
+        if 'house_entrance' in data and\
+            data['house_entrance'] not in current_house.house_entrance.all():
+            raise serializers.ValidationError("Ви повинні обрати підїзд, який знаходиться в цьому будинку.")
+        if 'floor' in data and\
+            data['floor'] not in current_house.floor.all():
+            raise serializers.ValidationError("Ви повинні обрати поверх, який знаходиться в цьому будинку.")
+        if 'riser' in data and\
+            data['riser'] not in current_house.riser.all():
+            raise serializers.ValidationError("Ви повинні обрати стояк, який знаходиться в цьому будинку.")
 
-    #     return data
+        return data
     
 
 
@@ -532,6 +556,7 @@ class AdsPromoUpdateSerializer(serializers.ModelSerializer):
             promotion_phrase_id = validated_data.pop('promotion_additional_phrase')
             promo_text = PromoAdditionalPhrase.objects.get(id=promotion_phrase_id)
             instance.promotion_additional_phrase = promo_text
+            instance.save()
 
         return Ads.objects.filter(id=instance.id).update(**validated_data)
 
@@ -618,19 +643,10 @@ class AdsListChessboardSerializer(serializers.ModelSerializer):
                         building_entrance.remove(appartment)
 
 
-# class SimpleUser(serializers.ModelSerializer):
-
-#     class Meta:
-#         models = CustomUser
-#         field = ('id',)
 
 
 class BookedAccomodationSerializer(serializers.ModelSerializer):
-    EXISTING_SIMPLE_USERS = ([(user.id, f'{user.email}') for user in \
-                            CustomUser.objects.filter(is_simple_user=True,\
-                            is_activated=True, is_in_blacklist=False)])
-
-    booked_by = serializers.ChoiceField(required=False, choices=EXISTING_SIMPLE_USERS)
+    booked_by = serializers.PrimaryKeyRelatedField(required=False, queryset = CustomUser.objects.filter(is_activated=True))
 
     class Meta:
         model = Accomodation
@@ -639,8 +655,7 @@ class BookedAccomodationSerializer(serializers.ModelSerializer):
 
     def save(self, instance, validated_data):
         if validated_data.get('booked_by'):
-            user_email = validated_data.pop('booked_by')
-            booked_user = CustomUser.objects.get(id=user_email)
+            booked_user = validated_data.pop('booked_by')
             instance.booked_by = booked_user
             instance.save()
 

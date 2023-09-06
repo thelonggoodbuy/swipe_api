@@ -35,7 +35,6 @@ class HouseViewSet(ModelViewSet):
     # queryset = House.objects.select_related('image_field').filter()
 
     def get_queryset(self):
-        print('------------GET-----QUERYSET--------')
         queryset = House.objects.prefetch_related('image_field').select_related('builder')
         return queryset
     
@@ -48,8 +47,7 @@ class HouseViewSet(ModelViewSet):
         else:
             queryset =  House.objects.filter(builder=self.request.user)\
                 .prefetch_related('image_field')
-                # .select_related('builder')
-
+            
 
         page = self.paginate_queryset(queryset)
         if page is not None:

@@ -16,8 +16,8 @@ class Accomodation(models.Model):
         ("studio_appartment_with_barhroom_and_one bedroom", "студія з санвузлом і однією спальнею"),
         ("two_bedroom", "двокімнатна"),
         ("two_bedroom_and_roof", "двокімнатна зі своєю кришею"),
-        ("three_vedroom", "трьокімнатна"),
-        ("three_vedroom_and_roof", "трьокімнатна зі своєю кришею"),
+        ("three_bedroom", "трьокімнатна"),
+        ("three_bedroom_and_roof", "трьокімнатна зі своєю кришею"),
     )
     LIVING_CONDITION_CORT = (
         ('need_repair', 'вимагає ремонту'),

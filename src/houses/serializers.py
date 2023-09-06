@@ -33,6 +33,7 @@ class ModelListField(serializers.ListField):
         # return super().to_representation(list_data)
     
     def to_internal_value(self, data):
+
         if data == ['']: data = []
         for image in data[:]:
             if image == 'string': data.remove(image)
@@ -151,7 +152,7 @@ class HouseEntancesSerializer(serializers.ModelSerializer):
 
 class FloorSerializer(serializers.ModelSerializer):
     house = serializers.PrimaryKeyRelatedField(required=True, queryset = House.objects.all())
-    # floor_schema = Base64ImageField(required=False)
+    floor_schema = Base64ImageField(required=False)
 
     class Meta:
         model = Floor

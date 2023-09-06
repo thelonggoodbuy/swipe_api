@@ -34,8 +34,10 @@ from users.services import AdminOrBuildeOwnerPermission
 # =============================================================================================
 # ==================ACCOMODATION====LOGIC======================================================
 # =============================================================================================
+from rest_framework.parsers import JSONParser, MultiPartParser
 
 @extend_schema(tags=['Ads: Accomodation'])
+# @extend_schema_view(put=extend_schema(exclude=True))
 class AccomodationViewSet(ModelViewSet):
     '''
     Accomodation CRUD and logic for working with nested images.
@@ -44,8 +46,60 @@ class AccomodationViewSet(ModelViewSet):
     authentication_classes = [JWTAuthentication]
     serializer_class = AccomodationSerializer
     queryset = Accomodation.objects.all()
+    parser_classes = [JSONParser]
 
 
+    def get_queryset(self):
+        queryset = Accomodation.objects.prefetch_related('image_field').select_related('house__builder', 'booked_by')
+        return queryset
+    
+    @extend_schema(summary='(T)Get list (LIST) of all accomodation(in owning - for BUILDER and total - for ADMIN). Needfull permission - admin or builder')
+    def list(self, request, *args, **kwargs):
+
+        if self.request.user.is_superuser == True:
+            queryset = Accomodation.objects.all().\
+                prefetch_related('image_field')
+        else:
+            queryset =  Accomodation.objects.filter(house__builder=self.request.user)\
+                .prefetch_related('image_field')
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+
+    @extend_schema(summary='(T)Create accomodation (CREATE). Needfull permission - admin or builder')
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @extend_schema(summary='(T)Retreave accomodation (RETREAVE). Needfull permission - admin or builder.')
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @extend_schema(summary='(T)Update accomodation (PUT). Needfull permission - admin or builder(Partial change house, builded by user).')    
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+        return Response(serializer.data)
+
+
+    @extend_schema(summary='(T)Partial update accomodation (PATCH). Needfull permission - admin or builder(Partial change house, builded by user).')
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @extend_schema(summary='(T)Delete accomodation. Needfull permission - admin or builder.')
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
 # =============================================================================================
 # ===========================ADS====LOGIC======================================================
@@ -60,9 +114,11 @@ class AdsViewSet(ModelViewSet):
     '''
     permission_classes = [IsAuthenticated, AdminOrBuildeOwnerPermission]
     authentication_classes = [JWTAuthentication]
+    parser_classes = [JSONParser]
     serializer_class = AdsSerializer
     queryset = Ads.objects.all()
 
+    @extend_schema(summary='(T)Return LIST of ads. Needfull permission - admin or builder')
     def list(self, request, *args, **kwargs):
         if self.request.user.is_superuser == True:
             queryset = Ads.objects.all()
@@ -77,13 +133,35 @@ class AdsViewSet(ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
     
+    @extend_schema(summary='(T)RETREAVE ads object. Needfull permission - admin or builder')
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @extend_schema(summary='(T)CREATE ads object. Needfull permission - admin or builder')
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @extend_schema(summary='(T)UPDATE ads object. Needfull permission - admin or builder')
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @extend_schema(summary='(T)PARTIAL UPDATE ads object. Needfull permission - admin or builder')
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
+    @extend_schema(summary='(T)DELETE ads object. Needfull permission - admin or builder')
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+    
 
 
 @extend_schema(tags=['Ads: Ads'])
+@extend_schema_view(put=extend_schema(exclude=True))
 class AdsPromoView(generics.UpdateAPIView):
     model = Ads
     serializer_class = AdsPromoUpdateSerializer
     permission_classes = [IsAuthenticated, AdminOrBuildeOwnerPermission]
+    parser_classes = [MultiPartParser]
 
 
     def get_queryset(self):
@@ -94,7 +172,7 @@ class AdsPromoView(generics.UpdateAPIView):
         return queryset
 
 
-    @extend_schema(summary='Partly update promo fields for Ads. Needfull permission - admin or builder.')
+    @extend_schema(summary='(T)Partly update promo fields for Ads. Needfull permission - admin or builder.')
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -160,12 +238,13 @@ class AdsFeedListView(generics.ListAPIView):
             .filter(ads_status='approved')
         return queryset
 
-    @extend_schema(summary='Get list of approved ADS. Needfull permission - all authenticated users.')
+
+    @extend_schema(summary='(T)Get list of approved ADS. Needfull permission - all authenticated users.')
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
     
 
-    @extend_schema(summary='Get list of FILTERED approved ADS. Needfull permission - all authenticated users.')
+    @extend_schema(summary='(T)Get list of FILTERED approved ADS. Needfull permission - all authenticated users.')
     def post(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
@@ -180,6 +259,7 @@ class AdsFeedListView(generics.ListAPIView):
 
 
 @extend_schema(tags=['Ads: Ads'])
+@extend_schema_view(put=extend_schema(exclude=True))
 class AdsRetreaveUpdateFavouritesView(generics.RetrieveUpdateAPIView):
     model = Ads
     serializer_class = AdsRetreaveUpdateFavouritesSerializer
@@ -192,11 +272,11 @@ class AdsRetreaveUpdateFavouritesView(generics.RetrieveUpdateAPIView):
             .filter(ads_status='approved')
         return queryset
 
-    @extend_schema(summary='Retreave aproved ads. Needfull permission - all authenticated users.')
+    @extend_schema(summary='(T)Retreave LIST of aproved ads. Needfull permission - all authenticated users.')
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
     
-    @extend_schema(summary='Partly update for adding to favourite ads. Needfull permission - all authenticated users.')
+    @extend_schema(summary='(T)Partly update for adding to favourite ads. Needfull permission - all authenticated users.')
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -204,9 +284,9 @@ class AdsRetreaveUpdateFavouritesView(generics.RetrieveUpdateAPIView):
         
         if serializer.is_valid():
             serializer.save(instance, serializer.validated_data)
-            if serializer.validated_data['add_to_favourite'] == True:
+            if 'add_to_favourite' in serializer.validated_data and serializer.validated_data['add_to_favourite'] == True:
                 response_text = f'Ви додали оголошення №{instance.id} до переліку вибранного.'
-            elif serializer.validated_data['add_to_favourite'] == False:
+            elif 'add_to_favourite' in serializer.validated_data and serializer.validated_data['add_to_favourite'] == False:
                 response_text = f'Ви видалили оголошення №{instance.id} з переліку вибранного.'
             else:
                 response_text = f'Ви не здійснили жодних змін в переліку вибранного.'
@@ -231,7 +311,7 @@ class AdsListFavouritesView(generics.ListAPIView):
             .filter(*Q_list)
         return queryset
 
-    @extend_schema(summary='Get list of USER FAVOURITES ads. Needfull permission - all authenticated users.')
+    @extend_schema(summary='(T)Get list of USER FAVOURITES ads. Needfull permission - all authenticated users.')
     def get(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
     
@@ -270,9 +350,10 @@ class BookedAccomodationView(generics.UpdateAPIView):
     serializer_class = BookedAccomodationSerializer
     permission_classes = [AllowAny]
     queryset = Accomodation.objects.all()
+    parser_classes = [MultiPartParser]
 
 
-    @extend_schema(summary='Partly update BOOKING fields for ACCOMODATION. Needfull permission - admin or builder.')
+    @extend_schema(summary='(T)Partly update BOOKING fields for ACCOMODATION. Needfull permission - admin or builder.')
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -281,12 +362,6 @@ class BookedAccomodationView(generics.UpdateAPIView):
             serializer.save(instance, serializer.validated_data)
 
         return Response({"message": 'all work!'})
-    
-    # @swagger_auto_schema(auto_schema=None)
-    # def put(self, request, *args, **kwargs):
-    #     return
-
-
 
 # **********************************************************************
 # ==============END====WORK==AREA======================================
