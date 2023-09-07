@@ -24,8 +24,12 @@ def test_patch_string_data_and_create_images_accomodation(generate_multiple_acco
         'image_field': []
     }
 
-    p = Path(__file__).parent
-    fileaddress = p.joinpath('test_data', 'test_image_4.jpg')
+    p = Path(__file__).parents[3]
+    # p = Path(__file__)
+    print('----------------------------------')
+    print(p)
+    print('----------------------------------')
+    fileaddress = p.joinpath('seed/test_data/images', 'test_image_4.jpg')
     with open(fileaddress, 'rb') as image_file:
         third_image_base64_bytes = base64.b64encode(image_file.read())
         third_image_base64_string = third_image_base64_bytes.decode()
@@ -35,7 +39,7 @@ def test_patch_string_data_and_create_images_accomodation(generate_multiple_acco
         }
         payload['image_field'].append(third_image_dict)
 
-    fileaddress = p.joinpath('test_data', 'test_image_5.jpg')
+    fileaddress = p.joinpath('seed/test_data/images', 'test_image_5.jpg')
     with open(fileaddress, 'rb') as image_file:
         fourth_image_base64_bytes = base64.b64encode(image_file.read())
         fourth_image_base64_string = fourth_image_base64_bytes.decode()
@@ -141,8 +145,8 @@ def test_patch_string_data_and_change_images_accomodation(generate_multiple_acco
         'image_field': []
     }
 
-    p = Path(__file__).parent
-    fileaddress = p.joinpath('test_data', 'test_image_4.jpg')
+    p = Path(__file__).parents[3]
+    fileaddress = p.joinpath('seed/test_data/images', 'test_image_4.jpg')
     with open(fileaddress, 'rb') as image_file:
         updated_image_base64_bytes = base64.b64encode(image_file.read())
         updated_image_base64_string = updated_image_base64_bytes.decode()

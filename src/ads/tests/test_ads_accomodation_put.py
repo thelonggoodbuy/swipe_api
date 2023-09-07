@@ -31,8 +31,8 @@ def test_put_accomodation(generate_multiple_accomodations_fixture,\
         "image_field": []
     }
 
-    p = Path(__file__).parent
-    fileaddress = p.joinpath('test_data', 'test_image_2.jpg')
+    p = Path(__file__).parents[3]
+    fileaddress = p.joinpath('seed/test_data/images', 'test_image_2.jpg')
     with open(fileaddress, 'rb') as image_file:
         second_image_base64_bytes = base64.b64encode(image_file.read())
         second_image_base64_string = second_image_base64_bytes.decode()

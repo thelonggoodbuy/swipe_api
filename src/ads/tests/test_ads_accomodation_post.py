@@ -36,16 +36,16 @@ def test_create_accomodation(generate_house_fixture_with_subordinate_objects_fix
         'is_shown_in_chesboard': False
     }
     
-    p = Path(__file__).parent
+    p = Path(__file__).parents[3]
 
-    fileaddress = p.joinpath('test_data', 'test_image_1.jpg')
+    fileaddress = p.joinpath('seed/test_data/images', 'test_image_1.jpg')
     image_file = open(fileaddress, 'rb')
     with open(fileaddress, 'rb') as image_file:
         image_base64_bytes = base64.b64encode(image_file.read())
         image_base64_string = image_base64_bytes.decode()
         payload['schema'] = image_base64_string
 
-    fileaddress = p.joinpath('test_data', 'test_image_2.jpg')
+    fileaddress = p.joinpath('seed/test_data/images', 'test_image_2.jpg')
     with open(fileaddress, 'rb') as image_file:
         first_image_base64_bytes = base64.b64encode(image_file.read())
         first_image_base64_string = first_image_base64_bytes.decode()
@@ -55,7 +55,7 @@ def test_create_accomodation(generate_house_fixture_with_subordinate_objects_fix
         }
         payload['image_field'].append(first_image_dict)
 
-    fileaddress = p.joinpath('test_data', 'test_image_3.jpg')
+    fileaddress = p.joinpath('seed/test_data/images', 'test_image_3.jpg')
     with open(fileaddress, 'rb') as image_file:
         second_image_base64_bytes = base64.b64encode(image_file.read())
         second_image_base64_string = second_image_base64_bytes.decode()
