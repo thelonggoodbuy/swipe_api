@@ -294,7 +294,11 @@ class AdsFeedListSerializer(serializers.ModelSerializer):
         ('cottage', 'коттедж')
     )
 
-    EXISTING_FILTERS = ([saved_filter.id for  saved_filter in Filter.objects.all()])
+    # if len(Filter.objects.all()) != 0:
+    try:
+        EXISTING_FILTERS = ([saved_filter.id for saved_filter in Filter.objects.all()])
+    except:
+        EXISTING_FILTERS = ()
 
     accomodation_data = serializers.SerializerMethodField()
 
@@ -538,7 +542,10 @@ class AdsListFavouritesSerializer(serializers.ModelSerializer):
 
 class AdsPromoUpdateSerializer(serializers.ModelSerializer):
 
-    EXISTING_PROMO_PHRASES = ([(saved_filter.id, saved_filter.text) for saved_filter in PromoAdditionalPhrase.objects.all()])
+    try:
+        EXISTING_PROMO_PHRASES = ([(saved_filter.id, saved_filter.text) for saved_filter in PromoAdditionalPhrase.objects.all()])
+    except:
+        EXISTING_PROMO_PHRASES = ()
 
     promotion_additional_phrase = serializers.ChoiceField(required=False, choices=EXISTING_PROMO_PHRASES)
 

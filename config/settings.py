@@ -13,7 +13,7 @@ SECRET_KEY = env("SECRET_KEY")
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env("DJANGO_ALLOWED_HOSTS").split(' ')
 
 sys.path.insert(0, os.path.join(BASE_DIR, 'src'))
 
@@ -136,10 +136,18 @@ USE_TZ = True
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
+CSRF_TRUSTED_ORIGINS = ["http://localhost:1337"]
+
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = '/static/'
+# STATIC_URL = '/static/'
+
+
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
