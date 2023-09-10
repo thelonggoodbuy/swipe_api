@@ -115,7 +115,13 @@ jobs:
               cd /app
               source .env.prod
               docker login ghcr.io -u $NAMESPACE -p $PERSONAL_ACCESS_TOKEN
-              docker pull $WEB_IMAGE
-              docker pull $NGINX_IMAGE
+              # ----------------------------------------------------------------
+              # docker pull $WEB_IMAGE
+              docker pull ghcr.io/thelonggoodbuy/swipe_api/web:latest
+
+              # docker pull $NGINX_IMAGE
+              docker pull ghcr.io/thelonggoodbuy/swipe_api/nginx:latest
+              # ----------------------------------------------------------------
+
               docker-compose -f docker-compose.prod.yml up -d
             ENDSSH
