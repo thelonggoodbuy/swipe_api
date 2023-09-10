@@ -11,7 +11,7 @@ environ.Env.read_env(env_file=os.path.join(BASE_DIR, ".env.dev"))
 
 SECRET_KEY = env("SECRET_KEY")
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = env("DJANGO_ALLOWED_HOSTS").split(' ')
 
