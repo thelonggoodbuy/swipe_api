@@ -115,18 +115,19 @@ jobs:
               cp .env.prod.db /app
               cp .env /app
               cd /app
-
+              echo '==========================='
+              pwd
+              ls --all
+              echo '==========================='
               source .env.prod
               docker login ghcr.io -u $NAMESPACE -p $PERSONAL_ACCESS_TOKEN
 
               docker pull $WEB_IMAGE
               # docker pull ghcr.io/thelonggoodbuy/swipe_api/web:latest
-              echo ------11111-------------------------------------------
+              
               docker pull $NGINX_IMAGE
               # docker pull ghcr.io/thelonggoodbuy/swipe_api/nginx:latest
-              echo ------22222-------------------------------------------
-
-              # docker-compose -f docker-compose.prod.yml up -d
-              docker-compose -f docker-compose.prod.yml up
-              echo ------33333-------------------------------------------
+              
+              docker-compose -f docker-compose.prod.yml up -d
+              
             ENDSSH
