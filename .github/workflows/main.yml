@@ -126,6 +126,7 @@ jobs:
               # docker pull ghcr.io/thelonggoodbuy/swipe_api/nginx:latest
               echo ------22222-------------------------------------------
 
-              docker-compose -f docker-compose.prod.yml up -d
+              # docker-compose -f docker-compose.prod.yml up -d
+              docker-compose -f docker-compose.prod.yml up
               echo ------33333-------------------------------------------
             ENDSSH
