@@ -22,14 +22,14 @@ services:
       context: ./nginx
       cache_from:
         - "${NGINX_IMAGE}"
-      image: "${NGINX_IMAGE}"
-      volumes:
-        - static_volume:/home/app/web/staticfiles
-        - media_volume:/home/app/web/mediafiles
-      port:
-        - 80:80
-      depends_on:
-        - web
+    image: "${NGINX_IMAGE}"
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    port:
+      - 80:80
+    depends_on:
+      - web
 
 volumes:
   static_volume:
