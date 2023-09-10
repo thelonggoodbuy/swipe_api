@@ -65,7 +65,6 @@ jobs:
       runs-on: ubuntu-latest
       needs: build
       steps:
-        - uses: hmarr/debug-action@v2
         - name: Checkout master
           uses: actions/checkout@v1
         - name: Add environment variables to .env.prod and env.prod.db
@@ -112,7 +111,8 @@ jobs:
           run: |
             scp  -o StrictHostKeyChecking=no -r ./.env.prod ./docker-compose.prod.yml root@${{ secrets.DIGITAL_OCEAN_IP_ADDRESS }}:/app
             ssh -o StrictHostKeyChecking=no root@${{ secrets.DIGITAL_OCEAN_IP_ADDRESS }} << 'ENDSSH'
-              # print('==================================')
+              echo '=============111=================='
+              echo ls
               echo '=============111=================='
               cp .env.prod /app
               cd /app
