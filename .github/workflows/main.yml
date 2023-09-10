@@ -16,23 +16,23 @@ jobs:
               uses: actions/checkout@v1
             - name: add environment variables
               run: |
-                echo DJANGO_ALLOWED_HOSTS=${{ secrets.DJANGO_ALLOWED_HOSTS }} >> .env
-                echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
-                echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
-                echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
-                echo POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} >> .env
-                echo POSTGRES_PORT=${{ secrets.POSTGRES_PORT }} >> .env
-                echo DATABASE=${{ secrets.DATABASE }} >> .env
-                echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
-                echo DEFAULT_FROM_EMAIL=${{ secrets.DEFAULT_FROM_EMAIL }} >> .env
-                echo EMAIL_HOST=${{ secrets.EMAIL_HOST }} >> .env
-                echo EMAIL_PORT=${{ secrets.EMAIL_PORT }} >> .env
-                echo EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }} >> .env
-                echo EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }} >> .env
-                echo POSTGRES_TEST_DB=${{ secrets.POSTGRES_TEST_DB }} >> .env
-                echo POSTGRES_TEST_USER=${{ secrets.POSTGRES_TEST_USER }} >> .env
-                echo POSTGRES_TEST_PASSWORD=${{ secrets.POSTGRES_TEST_PASSWORD }} >> .env
-                echo DOCKER_DEFAULT_PLATFORM=${{ secrets.DOCKER_DEFAULT_PLATFORM }} >> .env
+                echo DJANGO_ALLOWED_HOSTS=${{ secrets.DJANGO_ALLOWED_HOSTS }} >> .env.prod
+                echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env.prod
+                echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env.prod
+                echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env.prod
+                echo POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} >> .env.prod
+                echo POSTGRES_PORT=${{ secrets.POSTGRES_PORT }} >> .env.prod
+                echo DATABASE=${{ secrets.DATABASE }} >> .env.prod
+                echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env.prod
+                echo DEFAULT_FROM_EMAIL=${{ secrets.DEFAULT_FROM_EMAIL }} >> .env.prod
+                echo EMAIL_HOST=${{ secrets.EMAIL_HOST }} >> .env.prod
+                echo EMAIL_PORT=${{ secrets.EMAIL_PORT }} >> .env.prod
+                echo EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }} >> .env.prod
+                echo EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }} >> .env.prod
+                echo POSTGRES_TEST_DB=${{ secrets.POSTGRES_TEST_DB }} >> .env.prod
+                echo POSTGRES_TEST_USER=${{ secrets.POSTGRES_TEST_USER }} >> .env.prod
+                echo POSTGRES_TEST_PASSWORD=${{ secrets.POSTGRES_TEST_PASSWORD }} >> .env.prod
+                echo DOCKER_DEFAULT_PLATFORM=${{ secrets.DOCKER_DEFAULT_PLATFORM }} >> .env.prod
 
                 echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env.prod.db
                 echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env.prod.db
@@ -69,28 +69,28 @@ jobs:
           uses: actions/checkout@v1
         - name: Add environment variables to .env.prod and .env.prod.db
           run: |
-            echo DJANGO_ALLOWED_HOSTS=${{ secrets.DJANGO_ALLOWED_HOSTS }} >> .env
-            echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
-            echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
-            echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
-            echo POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} >> .env
-            echo POSTGRES_PORT=${{ secrets.POSTGRES_PORT }} >> .env
-            echo DATABASE=${{ secrets.DATABASE }} >> .env
-            echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
-            echo DEFAULT_FROM_EMAIL=${{ secrets.DEFAULT_FROM_EMAIL }} >> .env
-            echo EMAIL_HOST=${{ secrets.EMAIL_HOST }} >> .env
-            echo EMAIL_PORT=${{ secrets.EMAIL_PORT }} >> .env
-            echo EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }} >> .env
-            echo EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }} >> .env
-            echo POSTGRES_TEST_DB=${{ secrets.POSTGRES_TEST_DB }} >> .env
-            echo POSTGRES_TEST_USER=${{ secrets.POSTGRES_TEST_USER }} >> .env
-            echo POSTGRES_TEST_PASSWORD=${{ secrets.POSTGRES_TEST_PASSWORD }} >> .env
-            echo DOCKER_DEFAULT_PLATFORM=${{ secrets.DOCKER_DEFAULT_PLATFORM }} >> .env
+            echo DJANGO_ALLOWED_HOSTS=${{ secrets.DJANGO_ALLOWED_HOSTS }} >> .env.prod
+            echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env.prod
+            echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env.prod
+            echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env.prod
+            echo POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} >> .env.prod
+            echo POSTGRES_PORT=${{ secrets.POSTGRES_PORT }} >> .env.prod
+            echo DATABASE=${{ secrets.DATABASE }} >> .env.prod
+            echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env.prod
+            echo DEFAULT_FROM_EMAIL=${{ secrets.DEFAULT_FROM_EMAIL }} >> .env.prod
+            echo EMAIL_HOST=${{ secrets.EMAIL_HOST }} >> .env.prod
+            echo EMAIL_PORT=${{ secrets.EMAIL_PORT }} >> .env.prod
+            echo EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }} >> .env.prod
+            echo EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }} >> .env.prod
+            echo POSTGRES_TEST_DB=${{ secrets.POSTGRES_TEST_DB }} >> .env.prod
+            echo POSTGRES_TEST_USER=${{ secrets.POSTGRES_TEST_USER }} >> .env.prod
+            echo POSTGRES_TEST_PASSWORD=${{ secrets.POSTGRES_TEST_PASSWORD }} >> .env.prod
+            echo DOCKER_DEFAULT_PLATFORM=${{ secrets.DOCKER_DEFAULT_PLATFORM }} >> .env.prod
 
-            echo WEB_IMAGE=${{ env.WEB_IMAGE }} >> .env
-            echo NGINX_IMAGE=${{ env.NGINX_IMAGE }} >> .env
-            echo NAMESPACE=${{ secrets.NAMESPACE }} >> .env
-            echo PERSONAL_ACCESS_TOKEN=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .env
+            echo WEB_IMAGE=${{ env.WEB_IMAGE }} >> .env.prod
+            echo NGINX_IMAGE=${{ env.NGINX_IMAGE }} >> .env.prod
+            echo NAMESPACE=${{ secrets.NAMESPACE }} >> .env.prod
+            echo PERSONAL_ACCESS_TOKEN=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .env.prod
 
             echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env.prod.db
             echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env.prod.db
@@ -109,11 +109,11 @@ jobs:
           env:
             SSH_AUTH_SOCK: /tmp/ssh_agent.sock
           run: |
-            scp  -o StrictHostKeyChecking=no -r ./.env ./docker-compose.prod.yml root@${{ secrets.DIGITAL_OCEAN_IP_ADDRESS }}:/app
+            scp  -o StrictHostKeyChecking=no -r ./.env.prod ./docker-compose.prod.yml root@${{ secrets.DIGITAL_OCEAN_IP_ADDRESS }}:/app
             ssh -o StrictHostKeyChecking=no root@${{ secrets.DIGITAL_OCEAN_IP_ADDRESS }} << 'ENDSSH'
-              # cp .env.prod /app
+              cp .env.prod /app
               cd /app
-              source .env
+              source .env.prod
               docker login ghcr.io -u $NAMESPACE -p $PERSONAL_ACCESS_TOKEN
 
               docker pull $WEB_IMAGE
@@ -121,6 +121,7 @@ jobs:
 
               docker pull $NGINX_IMAGE
               # docker pull ghcr.io/thelonggoodbuy/swipe_api/nginx:latest
+              # ----------------------------------------------------------------
 
               docker-compose -f docker-compose.prod.yml up -d
             ENDSSH
