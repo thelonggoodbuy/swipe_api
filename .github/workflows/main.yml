@@ -112,7 +112,10 @@ jobs:
             scp  -o StrictHostKeyChecking=no -r ./.env.prod ./docker-compose.prod.yml root@${{ secrets.DIGITAL_OCEAN_IP_ADDRESS }}:/app
             ssh -o StrictHostKeyChecking=no root@${{ secrets.DIGITAL_OCEAN_IP_ADDRESS }} << 'ENDSSH'
               cp .env.prod /app
+              cp .env.prod.db /app
+              cp .env /app
               cd /app
+              
               source .env.prod
               docker login ghcr.io -u $NAMESPACE -p $PERSONAL_ACCESS_TOKEN
 
@@ -122,8 +125,6 @@ jobs:
               docker pull $NGINX_IMAGE
               # docker pull ghcr.io/thelonggoodbuy/swipe_api/nginx:latest
               # ----------------------------------------------------------------
-
-                # ----------------------------------------------------------------
 
               docker-compose -f docker-compose.prod.yml up -d
             ENDSSH
