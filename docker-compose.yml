@@ -18,5 +18,35 @@ services:
     env_file:
       - ./.env.dev
 
+  redis:
+    image: redis:alpine
+    # restart: always
+    # ports:
+    #   - '6379:6379'
+
+  celery:
+    restart: always
+    build:
+      context: .
+    # command: celery -A api_swipe worker --loglevel=info
+    depends_on:
+      - db
+      - redis
+      - web
+
+
+  celery-beat:
+    restart: always
+    build:
+      context: .
+    command: celery -A config.celery worker --beat
+    env_file:
+      - ./.env.dev
+    depends_on:
+      - celery
+      - db
+      - redis
+      - web
+
 volumes:
   postgres_data:

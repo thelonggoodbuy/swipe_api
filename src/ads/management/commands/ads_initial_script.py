@@ -16,7 +16,6 @@ fake = Faker('uk_UA')
 class Command(BaseCommand):
     help = 'Ads and accomodation objects initialization'
     def handle(self, *args, **kwargs):
-        initial_builder = CustomUser.objects.get(email="initial_builder@gmail.com")
 
         try:
             initial_builder = CustomUser.objects.get(email="initial_builder@gmail.com")
