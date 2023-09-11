@@ -100,7 +100,7 @@ class House(models.Model):
     purpose = models.CharField(max_length=200, choices=PURPOSE_CORT, blank=True)
     summ_of_threaty = models.CharField(max_length=200, choices=SUMM_OF_THREADY_CORT, blank=True)
     main_image = models.ImageField(null=True, blank=True, upload_to="galery/houses_main_images/")
-    image_field = models.ManyToManyField('ads.ImageGalery', related_name='house', blank=True, null=True)
+    image_field = models.ManyToManyField('ads.ImageGalery', related_name='house', blank=True)
     location_x = models.DecimalField(max_digits=18, decimal_places=15, blank=True, null=True)
     location_y = models.DecimalField(max_digits=18, decimal_places=15, blank=True, null=True)
     builder = models.ForeignKey("users.CustomUser", on_delete=models.SET_NULL, blank=True, null=True, related_name='house')
