@@ -17,6 +17,7 @@ echo "************************************************************"
 python manage.py migrate
 python manage.py makemigrations
 python manage.py migrate
+python manage.py users_initial_script
 echo "============================================================"
 
 exec "$@"
