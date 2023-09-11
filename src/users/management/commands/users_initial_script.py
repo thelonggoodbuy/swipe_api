@@ -59,7 +59,7 @@ class Command(BaseCommand):
             print('----------SIMPLE--USER--INITIALISATION--------')
             for index in range(1, 4):
                 simple_user = CustomUser(
-                    email=f"simple_builder_{index}@gmail.com",
+                    email=f"simple_user_{index}@gmail.com",
                     is_simple_user=True,
                     is_activated=True,
                     first_name=fake.name(),

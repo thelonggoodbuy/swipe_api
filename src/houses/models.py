@@ -76,7 +76,7 @@ class House(models.Model):
     )
     description = models.TextField(blank=True)
     address = models.CharField(max_length=200, blank=True)
-    disctrict = models.CharField(max_length=200, null=True, blank=True)
+    district = models.CharField(max_length=200, null=True, blank=True)
     microdisctrict = models.CharField(max_length=200, null=True, blank=True)
     house_status = models.CharField(max_length=200, choices=HOUSE_STATUS_CORT, blank=True, null=True)
     house_type = models.CharField(max_length=200, choices=HOUSE_TYPE_CORT, blank=True)
