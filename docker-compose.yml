@@ -41,16 +41,16 @@ services:
     depends_on:
       - redis
 
-  # celery-beat:
-  #   build:
-  #     context: .
-  #   command: celery -A config beat -l info
-  #   volumes:
-  #   - ./:/usr/src/app/
-  #   env_file:
-  #     - ./.env.dev
-  #   depends_on:
-  #     - redis
+  celery-beat:
+    build:
+      context: .
+    command: celery -A config beat -l info
+    volumes:
+    - ./:/usr/src/app/
+    env_file:
+      - ./.env.dev
+    depends_on:
+      - redis
 
 volumes:
   postgres_data:
