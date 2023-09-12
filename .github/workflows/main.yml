@@ -148,9 +148,11 @@ jobs:
 
               echo '-------2222-----------'
 
-              source .env.prod
-
+              cat .env.prod
               echo '-------3333-----------'
+              source .env.prod
+              echo '-------4444----------'
+              
 
               docker login ghcr.io -u $NAMESPACE -p $PERSONAL_ACCESS_TOKEN
 
