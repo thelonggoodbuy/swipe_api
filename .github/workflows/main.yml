@@ -89,6 +89,7 @@ jobs:
 
             echo WEB_IMAGE=${{ env.WEB_IMAGE }} >> .env.prod
             echo NGINX_IMAGE=${{ env.NGINX_IMAGE }} >> .env.prod
+
             echo NAMESPACE=${{ secrets.NAMESPACE }} >> .env.prod
             echo PERSONAL_ACCESS_TOKEN=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .env.prod
 
@@ -118,32 +119,32 @@ jobs:
               ls --all
               echo '==========================='
 
-              echo DJANGO_ALLOWED_HOSTS=${{ secrets.DJANGO_ALLOWED_HOSTS }} >> .env.prod
-              echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env.prod
-              echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env.prod
-              echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env.prod
-              echo POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} >> .env.prod
-              echo POSTGRES_PORT=${{ secrets.POSTGRES_PORT }} >> .env.prod
-              echo DATABASE=${{ secrets.DATABASE }} >> .env.prod
-              echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env.prod
-              echo DEFAULT_FROM_EMAIL=${{ secrets.DEFAULT_FROM_EMAIL }} >> .env.prod
-              echo EMAIL_HOST=${{ secrets.EMAIL_HOST }} >> .env.prod
-              echo EMAIL_PORT=${{ secrets.EMAIL_PORT }} >> .env.prod
-              echo EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }} >> .env.prod
-              echo EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }} >> .env.prod
-              echo POSTGRES_TEST_DB=${{ secrets.POSTGRES_TEST_DB }} >> .env.prod
-              echo POSTGRES_TEST_USER=${{ secrets.POSTGRES_TEST_USER }} >> .env.prod
-              echo POSTGRES_TEST_PASSWORD=${{ secrets.POSTGRES_TEST_PASSWORD }} >> .env.prod
-              echo DOCKER_DEFAULT_PLATFORM=${{ secrets.DOCKER_DEFAULT_PLATFORM }} >> .env.prod
+              # echo DJANGO_ALLOWED_HOSTS=${{ secrets.DJANGO_ALLOWED_HOSTS }} >> .env.prod
+              # echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env.prod
+              # echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env.prod
+              # echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env.prod
+              # echo POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} >> .env.prod
+              # echo POSTGRES_PORT=${{ secrets.POSTGRES_PORT }} >> .env.prod
+              # echo DATABASE=${{ secrets.DATABASE }} >> .env.prod
+              # echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env.prod
+              # echo DEFAULT_FROM_EMAIL=${{ secrets.DEFAULT_FROM_EMAIL }} >> .env.prod
+              # echo EMAIL_HOST=${{ secrets.EMAIL_HOST }} >> .env.prod
+              # echo EMAIL_PORT=${{ secrets.EMAIL_PORT }} >> .env.prod
+              # echo EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }} >> .env.prod
+              # echo EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }} >> .env.prod
+              # echo POSTGRES_TEST_DB=${{ secrets.POSTGRES_TEST_DB }} >> .env.prod
+              # echo POSTGRES_TEST_USER=${{ secrets.POSTGRES_TEST_USER }} >> .env.prod
+              # echo POSTGRES_TEST_PASSWORD=${{ secrets.POSTGRES_TEST_PASSWORD }} >> .env.prod
+              # echo DOCKER_DEFAULT_PLATFORM=${{ secrets.DOCKER_DEFAULT_PLATFORM }} >> .env.prod
 
-              echo WEB_IMAGE=${{ env.WEB_IMAGE }} >> .env.prod
-              echo NGINX_IMAGE=${{ env.NGINX_IMAGE }} >> .env.prod
-              echo NAMESPACE=${{ secrets.NAMESPACE }} >> .env.prod
-              echo PERSONAL_ACCESS_TOKEN=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .env.prod
+              # echo WEB_IMAGE=${{ env.WEB_IMAGE }} >> .env.prod
+              # echo NGINX_IMAGE=${{ env.NGINX_IMAGE }} >> .env.prod
+              # echo NAMESPACE=${{ secrets.NAMESPACE }} >> .env.prod
+              # echo PERSONAL_ACCESS_TOKEN=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .env.prod
 
-              echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env.prod.db
-              echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env.prod.db
-              echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env.prod.db
+              # echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env.prod.db
+              # echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env.prod.db
+              # echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env.prod.db
               
 
               echo '-------2222-----------'
@@ -152,6 +153,10 @@ jobs:
               echo '-------3333-----------'
               source .env.prod
               echo '-------4444----------'
+              echo $WEB_IMAGE
+              echo '-------5555----------'
+              echo $NGINX_IMAGE
+              echo '-------666----------'
               
 
               docker login ghcr.io -u $NAMESPACE -p $PERSONAL_ACCESS_TOKEN
