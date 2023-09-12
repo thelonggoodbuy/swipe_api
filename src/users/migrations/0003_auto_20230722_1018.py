@@ -35,4 +35,9 @@ class Migration(migrations.Migration):
             name='is_superuser',
             field=models.BooleanField(default=False),
         ),
+            migrations.AlterField(
+            model_name='customuser',
+            name='is_activated',
+            field=models.BooleanField(default=False),
+        ),
     ]
