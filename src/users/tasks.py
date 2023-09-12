@@ -19,6 +19,9 @@ def check_subscriptions_task():
     print('-------------------checking!---------------------------')
     print('-------------------!!!!!!!!!---------------------------')
     
+    logger.info("=============================")
+    logger.info("The sample task just ran.")
+    logger.info("=============================")
     # from .models import Subscription
 
     # subscriptions = Subscription.objects.filter(\

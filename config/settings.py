@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'drf_spectacular',
-    "debug_toolbar",
+    # "debug_toolbar",
     "django_celery_results",
     # 'django_filters',
 
@@ -45,7 +45,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -146,7 +146,18 @@ CSRF_TRUSTED_ORIGINS = ["http://localhost:1337"]
 
 
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
+# STATIC_ROOT = BASE_DIR / "staticfiles"
+# STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+
+# STATIC_URL = "/staticfiles/"
+# STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, "staticfiles"),
+# ]
+
 
 
 # Default primary key field type
@@ -202,9 +213,9 @@ SPECTACULAR_SETTINGS = {
 }
 
 
-DEBUG_TOOLBAR_CONFIG = {
-    "SHOW_TOOLBAR_CALLBACK": lambda request: True,
-}
+# DEBUG_TOOLBAR_CONFIG = {
+#     "SHOW_TOOLBAR_CALLBACK": lambda request: True,
+# }
 
 
 
@@ -215,12 +226,12 @@ from src.users import tasks
 # Celery settings:
 # CELERY_BROKER_URL = "redis://redis:6379"
 
-CELERY_BROKER_URL = "redis://127.0.0.1:6379"
+# CELERY_BROKER_URL = "redis://127.0.0.1:6379"
 
-CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379"
+# CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379"
 
-# CELERY_BROKER_URL = "redis://redis:6379"
-# CELERY_RESULT_BACKEND = "redis://redis:6379"
+CELERY_BROKER_URL = "redis://redis:6379"
+CELERY_RESULT_BACKEND = "redis://redis:6379"
 
 
 CELERY_BEAT_SCHEDULE = {

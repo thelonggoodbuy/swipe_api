@@ -51,10 +51,10 @@ COPY ./requirements.txt /usr/src/app/requirements.txt
 RUN pip install -r /usr/src/app/requirements.txt
 
 # copy entrypoint-prod.sh
-COPY ./entrypoint.prod.sh /usr/src/app/entrypoint.prod.sh
+COPY ./entrypoint.sh /usr/src/app/entrypoint.sh
 
 # copy project
 COPY . /usr/src/app/
 
-# run entrypoint.prod.sh
+# run entrypoint.sh
 ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
