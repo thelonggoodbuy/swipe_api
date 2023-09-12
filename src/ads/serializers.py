@@ -329,7 +329,7 @@ class AdsFeedListSerializer(serializers.ModelSerializer):
                 'area': accomodation_data.area,
                 'floor': accomodation_data.floor.title,
                 'total_floors': accomodation_data.house.floor.all().count(),
-                'district': accomodation_data.house.disctrict,
+                'disctrict': accomodation_data.house.disctrict,
                 'address': accomodation_data.house.address,
                 'location_x': accomodation_data.house.location_x,
                 'location_y': accomodation_data.house.location_y,}
@@ -491,7 +491,7 @@ class AdsRetreaveUpdateFavouritesSerializer(serializers.ModelSerializer):
                 'area': accomodation_data.area,
                 'floor': accomodation_data.floor.title,
                 'total_floors': accomodation_data.house.floor.all().count(),
-                'district': accomodation_data.house.disctrict,
+                'disctrict': accomodation_data.house.disctrict,
                 'address': accomodation_data.house.address,
                 'location_x': accomodation_data.house.location_x,
                 'location_y': accomodation_data.house.location_y,}
@@ -529,7 +529,7 @@ class AdsListFavouritesSerializer(serializers.ModelSerializer):
                 'area': accomodation_data.area,
                 'floor': accomodation_data.floor.title,
                 'total_floors': accomodation_data.house.floor.all().count(),
-                'district': accomodation_data.house.disctrict,
+                'disctrict': accomodation_data.house.disctrict,
                 'address': accomodation_data.house.address,
                 'location_x': accomodation_data.house.location_x,
                 'location_y': accomodation_data.house.location_y,}

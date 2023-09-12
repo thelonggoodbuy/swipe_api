@@ -24,7 +24,7 @@ class Command(BaseCommand):
                 house = House(
                     description='initial_house',
                     address='initial_house_address',
-                    district='initial_house_district',
+                    disctrict='initial_house_district',
                     microdisctrict='initial_house_microdisctrict',
                     house_status='appartments',
                     house_type="flats",
