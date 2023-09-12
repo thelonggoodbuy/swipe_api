@@ -147,6 +147,9 @@ jobs:
               # echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env.prod.db
               
 
+              $WEB_IMAGE=ghcr.io/thelonggoodbuy/swipe_api/web:latest
+              $NGINX_IMAGE=ghcr.io/thelonggoodbuy/swipe_api/nginx:latest
+
               echo '-------2222-----------'
 
               cat .env.prod
