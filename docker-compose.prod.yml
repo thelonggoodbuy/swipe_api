@@ -30,9 +30,9 @@ services:
       - web
 
   celery:
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile.prod
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
     image: ghcr.io/thelonggoodbuy/swipe_api/web:latest
     command: celery -A config worker -l info
     volumes:
@@ -44,9 +44,9 @@ services:
 
 
   celery-beat:
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile.prod
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
     image: ghcr.io/thelonggoodbuy/swipe_api/web:latest
     command: celery -A config beat -l info
     volumes:
