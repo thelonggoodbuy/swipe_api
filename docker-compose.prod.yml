@@ -36,7 +36,7 @@ services:
     volumes:
     - ./:/usr/src/app/
     env_file:
-      - ./.env.dev
+      - ./.env.prod
     depends_on:
       - redis
 
@@ -48,7 +48,7 @@ services:
     volumes:
     - ./:/usr/src/app/
     env_file:
-      - ./.env.dev
+      - ./.env.prod
     depends_on:
       - celery
 
