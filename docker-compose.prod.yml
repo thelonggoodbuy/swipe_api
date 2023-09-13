@@ -32,6 +32,7 @@ services:
   celery:
     build:
       context: .
+      dockerfile: Dockerfile.prod
     command: celery -A config worker -l info
     volumes:
     - ./:/usr/src/app/
@@ -44,6 +45,7 @@ services:
   celery-beat:
     build:
       context: .
+      dockerfile: Dockerfile.prod
     command: celery -A config beat -l info
     volumes:
     - ./:/usr/src/app/

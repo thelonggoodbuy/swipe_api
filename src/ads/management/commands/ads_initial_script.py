@@ -104,6 +104,7 @@ class Command(BaseCommand):
                 print('================================================')
                 print('----You--have--created--initial-accomodation----')
                 print('--and-ads and-others--subbordinate--objects-----')
+                
                 print('================================================')
 
 
