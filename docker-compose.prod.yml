@@ -30,10 +30,10 @@ services:
       - web
 
   celery:
+    image: ghcr.io/thelonggoodbuy/swipe_api/web:latest
     build:
       context: .
       dockerfile: Dockerfile.prod
-    # image: ghcr.io/thelonggoodbuy/swipe_api/web:latest
     command: celery -A config worker -l info
     volumes:
     - ./:/usr/src/app/
@@ -44,10 +44,10 @@ services:
 
 
   celery-beat:
+    image: ghcr.io/thelonggoodbuy/swipe_api/web:latest
     build:
       context: .
       dockerfile: Dockerfile.prod
-    # image: ghcr.io/thelonggoodbuy/swipe_api/web:latest
     command: celery -A config beat -l info
     volumes:
     - ./:/usr/src/app/

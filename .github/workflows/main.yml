@@ -110,8 +110,6 @@ jobs:
             SSH_AUTH_SOCK: /tmp/ssh_agent.sock
           run: |
             scp  -o StrictHostKeyChecking=no -r ./.env.prod ./docker-compose.prod.yml root@${{ secrets.DIGITAL_OCEAN_IP_ADDRESS }}:/app
-            scp  -o StrictHostKeyChecking=no -r Dockerfile.prod root@${{ secrets.DIGITAL_OCEAN_IP_ADDRESS }}:/app
-            scp  -o StrictHostKeyChecking=no -r entrypoint.prod.sh root@${{ secrets.DIGITAL_OCEAN_IP_ADDRESS }}:/app
             ssh -o StrictHostKeyChecking=no root@${{ secrets.DIGITAL_OCEAN_IP_ADDRESS }} << 'ENDSSH'
               cp .env.prod /app
               cp .env.prod.db /app
@@ -119,7 +117,7 @@ jobs:
 
               cp Dockerfile.prod /app
               cp entrypoint.prod.sh /app
-
+              
               cd /app
               echo '==========================='
               pwd
