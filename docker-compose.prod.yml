@@ -33,10 +33,11 @@ services:
       - web
 
   celery:
+    restart: always
     # image: ghcr.io/thelonggoodbuy/swipe_api/web:latest
     build:
       context: .
-      dockerfile: Dockerfile.prod
+      # dockerfile: Dockerfile.prod
     command: celery -A config worker -l info
     volumes:
     - ./:/usr/src/app/
@@ -50,7 +51,7 @@ services:
     # image: ghcr.io/thelonggoodbuy/swipe_api/web:latest
     build:
       context: .
-      dockerfile: Dockerfile.prod
+      # dockerfile: Dockerfile.prod
     command: celery -A config beat -l info
     volumes:
     - ./:/usr/src/app/
