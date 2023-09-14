@@ -33,7 +33,7 @@ services:
       - web
 
   celery:
-    image: ghcr.io/thelonggoodbuy/swipe_api/web:latest
+    # image: ghcr.io/thelonggoodbuy/swipe_api/web:latest
     build:
       context: .
       dockerfile: Dockerfile.prod
@@ -47,7 +47,7 @@ services:
 
 
   celery-beat:
-    image: ghcr.io/thelonggoodbuy/swipe_api/web:latest
+    # image: ghcr.io/thelonggoodbuy/swipe_api/web:latest
     build:
       context: .
       dockerfile: Dockerfile.prod
