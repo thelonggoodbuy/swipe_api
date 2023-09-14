@@ -1,4 +1,4 @@
-name: Deploy buy runner
+name: Deploy by runner
 
 on:
     push:
@@ -7,7 +7,7 @@ on:
 jobs:
     deploy:
         name: Deploy to DigitalOcean
-        runs-on: self-hosted
+        runs-on: [self-hosted]
         # needs: prepare-environment
         steps:
 
