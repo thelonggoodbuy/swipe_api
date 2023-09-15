@@ -31,6 +31,17 @@ jobs:
                 # echo '-------------------'
                 # cd /app
 
+                chown -R maxim /.env.prod
+
+                ENV_PROD_FILE=/app/.env.prod
+                
+                if test-f "ENV_PROD_FILE";
+                then
+                  chown -R maxim /app/.env.prod
+                else
+                  touch /app/.env.prod
+                  chown -R maxim /app/.env.prod
+
                 echo DJANGO_ALLOWED_HOSTS=${{ secrets.DJANGO_ALLOWED_HOSTS }} >> /app/.env.prod
                 echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> /app/.env.prod
                 echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> /app/.env.prod
