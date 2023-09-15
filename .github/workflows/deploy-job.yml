@@ -12,8 +12,11 @@ jobs:
         steps:
 
             - name: Checkokut master
-              uses: actions/checkout@v1
-              
+              uses: actions/checkout@main
+            
+            - name: Check work make file
+              uses: make test-make-file-prod
+
             - name: Pull updates from repository
               run: |
                 echo '-------------------'

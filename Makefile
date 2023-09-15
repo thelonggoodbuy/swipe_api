@@ -12,3 +12,11 @@ makemigrations-migrate-dev:
 general-test-dev:
 	export DJANGO_SETTINGS_MODULE=config.settings
 	pytest -W ignore::DeprecationWarning --verbose
+
+
+test-make-file-prod:
+	echo '-------------------'
+	echo 'You use make file for deploy and prod'
+	whoami 
+	pwd
+	echo '-------------------'
