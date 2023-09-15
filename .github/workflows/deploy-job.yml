@@ -17,9 +17,8 @@ jobs:
             # - name: Install Make File
             #   run: 
             
-            # - name: Check work make file
-            #   run: |
-            #      make test-make-file-prod
+            - name: Check work make file
+              run: make test-make-file-prod
 
             # - name: Pull updates from repository
             #   run: |
