@@ -31,7 +31,7 @@ jobs:
                 # echo '-------------------'
                 # cd /app
 
-                chown -R maxim /.env.prod
+                # chown -R maxim /.env.prod
 
                 ENV_PROD_FILE=/app/.env.prod
 
