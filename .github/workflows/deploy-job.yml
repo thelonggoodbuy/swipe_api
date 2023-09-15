@@ -56,9 +56,10 @@ jobs:
                 echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env.prod.db
                 echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env.prod.db
 
-
-                sudo chown -R maxim .env.prod
-                sudo chown -R maxim .env.prod.db
+                echo '======================================='
+                chown -R maxim .env.prod
+                chown -R maxim .env.prod.db
+                echo '======================================='
 
 
 
