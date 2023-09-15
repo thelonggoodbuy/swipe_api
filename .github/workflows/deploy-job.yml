@@ -16,6 +16,9 @@ jobs:
               
             - name: Pull updates from repository
               run: |
+                echo '-------------------'
+                whoami 
+                echo '-------------------'
                 cd /app
                 git pull origin main
 
