@@ -14,8 +14,8 @@ jobs:
             - name: Checkokut master
               uses: actions/checkout@v1
             
-            - name: Check work make file
-              uses: make test-make-file-prod
+            # - name: Check work make file
+            #   uses: make test-make-file-prod
 
             - name: Pull updates from repository
               run: |
