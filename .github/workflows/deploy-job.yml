@@ -34,11 +34,13 @@ jobs:
                 chown -R maxim /.env.prod
 
                 ENV_PROD_FILE=/app/.env.prod
-                
+
                 if test-f "ENV_PROD_FILE";
                 then
+                  echo "option 1"
                   chown -R maxim /app/.env.prod
                 else
+                  echo "option 2"
                   touch /app/.env.prod
                   chown -R maxim /app/.env.prod
 
