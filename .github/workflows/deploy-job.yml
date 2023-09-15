@@ -38,11 +38,17 @@ jobs:
                 if test-f "ENV_PROD_FILE";
                 then
                   echo "option 1"
-                  chown -R maxim /app/
+                  # chattr -i 
+                  chattr -i chattr -i /app/.pre-commit-config.yaml
+                  chattr -i chattr -i /app/.gitignore
+
+                  chown -R maxim /app/*
                   chown -R maxim /app/.env.prod
                 else
                   echo "option 2"
-                  chown -R maxim /app/
+                  chattr -i chattr -i /app/.pre-commit-config.yaml
+                  chattr -i chattr -i /app/.gitignore
+                  chown -R maxim /app/*
                   touch /app/.env.prod
                   chown -R maxim /app/.env.prod
                 fi
