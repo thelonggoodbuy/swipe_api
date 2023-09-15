@@ -12,7 +12,7 @@ jobs:
         steps:
 
             - name: Checkokut master
-              uses: actions/checkout@main
+              uses: actions/checkout@v1
             
             - name: Check work make file
               uses: make test-make-file-prod
