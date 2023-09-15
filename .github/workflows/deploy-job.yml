@@ -43,6 +43,7 @@ jobs:
                   echo "option 2"
                   touch /app/.env.prod
                   chown -R maxim /app/.env.prod
+                fi
 
                 echo DJANGO_ALLOWED_HOSTS=${{ secrets.DJANGO_ALLOWED_HOSTS }} >> /app/.env.prod
                 echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> /app/.env.prod
