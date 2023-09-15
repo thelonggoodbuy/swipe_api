@@ -13,29 +13,26 @@ jobs:
 
             - name: Checkokut master
               uses: actions/checkout@v4
-            
-            - name: Check work make file
-              run: |
-                 make test-make-file-prod
 
-            - name: Pull updates from repository
-              run: |
-                echo '-------------------'
-                whoami 
-                pwd
-                echo '-------------------'
-                cd /app
-                git pull origin main
+            # - name: Install Make File
+            #   run: 
+            
+            # - name: Check work make file
+            #   run: |
+            #      make test-make-file-prod
+
+            # - name: Pull updates from repository
+            #   run: |
+            #     echo '-------------------'
+            #     whoami 
+            #     pwd
+            #     echo '-------------------'
+            #     cd /app
+            #     git pull origin main
 
             - name: Add environment variables to .env.prod and .env.prod.db
               run: |
-                # # echo '-------------------'
-                # # whoami 
-                # # pwd
-                # # echo '-------------------'
-                # # cd /app
 
-                # # chown -R maxim /.env.prod
 
                 ENV_PROD_FILE=/actions-runner/actions-runner/_work/swipe_api/swipe_api/.env.prod
                 ENV_PROD_DB_FILE=/actions-runner/actions-runner/_work/swipe_api/swipe_api/.env.prod.db
