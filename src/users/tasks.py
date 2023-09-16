@@ -15,23 +15,17 @@ logger = get_task_logger(__name__)
 
 @shared_task
 def check_subscriptions_task():
-    print('-------------------!!!!!!!!!---------------------------')
-    print('-------------------checking!---------------------------')
-    print('-------------------!!!!!!!!!---------------------------')
-    
-    logger.info("=============================")
-    logger.info("The sample task just ran.")
-    logger.info("=============================")
-    # from .models import Subscription
 
-    # subscriptions = Subscription.objects.filter(\
-    #                 subscription_last_date__lte = timezone.now().date(),\
-    #                 is_active = True)
-    # for subscription in subscriptions:
-    #     if subscription.is_auto_renewal == False:
-    #         subscription.is_active = False
-    #         subscription.save()
-    #     if subscription.is_auto_renewal == True:
-    #         subscription.subscription_last_date = timezone.now().date() + relativedelta(months=1)
-    #         subscription.save()
+    from .models import Subscription
+
+    subscriptions = Subscription.objects.filter(\
+                    subscription_last_date__lte = timezone.now().date(),\
+                    is_active = True)
+    for subscription in subscriptions:
+        if subscription.is_auto_renewal == False:
+            subscription.is_active = False
+            subscription.save()
+        if subscription.is_auto_renewal == True:
+            subscription.subscription_last_date = timezone.now().date() + relativedelta(months=1)
+            subscription.save()
 

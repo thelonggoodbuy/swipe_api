@@ -77,7 +77,7 @@ class UserRegistrationAPIView(GenericAPIView, UpdateModelMixin):
     permission_classes = (AllowAny,)
     serializer_class = UserRegistrationSerializer
     
-    @extend_schema(summary='(T)POST registration user. Needfull permission - All users.')
+    @extend_schema(summary='POST registration user. Needfull permission - All users.')
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -111,7 +111,7 @@ class ActivateUser(GenericAPIView):
     permission_classes = (AllowAny,)
     # serializer_class = None
 
-    @extend_schema(summary='(T)GET activate new user. Needfull permission - only User.')
+    @extend_schema(summary='GET activate new user. Needfull permission - only User.')
     def get(self, request, uidb64, token, *args, **kwargs):
         try:
             uid = force_text(urlsafe_base64_decode(uidb64))
@@ -148,15 +148,15 @@ class UserDetailAndUpdateAPIView(RetrieveUpdateAPIView):
         self.check_object_permissions(request=self.request, obj=request_user)
         return self.request.user
     
-    @extend_schema(summary='(T)GET user data for personal cabinet. Needfull permission - only OWNER of cabinet.')
+    @extend_schema(summary='GET user data for personal cabinet. Needfull permission - only OWNER of cabinet.')
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
     
-    @extend_schema(summary='(T)PUT user data for personal cabinet. Needfull permission - only OWNER of cabinet.')
+    @extend_schema(summary='PUT user data for personal cabinet. Needfull permission - only OWNER of cabinet.')
     def put(self, request, *args, **kwargs):
         return super().put(request, *args, **kwargs)
 
-    @extend_schema(summary='(T)PATCH user data for personal cabinet. Needfull permission - only OWNER of cabinet.')
+    @extend_schema(summary='PATCH user data for personal cabinet. Needfull permission - only OWNER of cabinet.')
     def patch(self, request, *args, **kwargs):
         return super().patch(request, *args, **kwargs)
 
@@ -169,7 +169,7 @@ class UserChangePasswordRequestView(GenericAPIView, UpdateModelMixin):
     permission_classes = (SimpleOnlyOwnerPermission,)
     serializer_class = UserChangePasswordRequestSerializer
 
-    @extend_schema(summary='(T)GET request for sending user data for marking. Needfull permission - only USER.')
+    @extend_schema(summary='GET request for sending user data for marking. Needfull permission - only USER.')
     def get(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -199,7 +199,7 @@ class SimpleUserChangePasswordView(GenericAPIView):
     permission_classes = (AllowAny,)
     serializer_class = SimpleUserChangePasswordSerializer
 
-    @extend_schema(summary='(T)POST for changing password. Needfull permission - only USER.')
+    @extend_schema(summary='POST for changing password. Needfull permission - only USER.')
     def post(self, request, uidb64, token, *args, **kwargs):
         try:
             uid = force_text(urlsafe_base64_decode(uidb64))
@@ -236,7 +236,7 @@ class SimpleUserUpdateSubscriptionView(UpdateModelMixin, GenericAPIView):
         queryset = CustomUser.objects.filter(is_activated=True)
         return queryset
 
-    @extend_schema(summary='(T)Partly update for SUBSCRIPTION. Needfull permission - all authenticated users.')
+    @extend_schema(summary='Partly update for SUBSCRIPTION. Needfull permission - all authenticated users.')
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -270,11 +270,11 @@ class MessageCreateAndListForSimpleUser(ListModelMixin, CreateModelMixin, Generi
         return Message.objects.filter(Q(from_user=user) | Q(to_user=user))
     
 
-    @extend_schema(summary='(T)GET dialog (LIST) with technical support by registred user')
+    @extend_schema(summary='GET dialog (LIST) with technical support by registred user')
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
-    @extend_schema(summary='(T)Send message (POST) to technical support.')
+    @extend_schema(summary='Send message (POST) to technical support.')
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
     
@@ -292,26 +292,26 @@ class NotaryModelViewSet(ModelViewSet):
     permission_classes = (SimpleUserOnlyListAndRetreiveAdminAllPermission,)
     queryset = Notary.objects.all()
 
-    @extend_schema(summary='(T)GET NOTARY. Needfull permission - SIMPLE user or ADMIN.')
+    @extend_schema(summary='GET NOTARY. Needfull permission - SIMPLE user or ADMIN.')
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
     
-    @extend_schema(summary='(T)POST data for creating NOTARY obj. Needfull permission - ADMIN.')
+    @extend_schema(summary='POST data for creating NOTARY obj. Needfull permission - ADMIN.')
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
     
-    @extend_schema(summary='(T)GET list of NOTARY. Needfull permission - SIMPLE user or ADMIN.')
+    @extend_schema(summary='GET list of NOTARY. Needfull permission - SIMPLE user or ADMIN.')
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
     
-    @extend_schema(summary='(T)PUT data for updating NOTARY obj. Needfull permission - ADMIN.')
+    @extend_schema(summary='PUT data for updating NOTARY obj. Needfull permission - ADMIN.')
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
-    @extend_schema(summary='(T)PATCH data for partly updating NOTARY obj. Needfull permission - ADMIN.')
+    @extend_schema(summary='PATCH data for partly updating NOTARY obj. Needfull permission - ADMIN.')
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
     
-    @extend_schema(summary='(T)DESTROY NOTARY obj. Needfull permission - ADMIN.')
+    @extend_schema(summary='DESTROY NOTARY obj. Needfull permission - ADMIN.')
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)

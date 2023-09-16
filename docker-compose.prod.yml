@@ -2,8 +2,6 @@ version: '3.8'
 
 services:
   web:
-    # image: "${WEB_IMAGE}"
-    # image: ghcr.io/thelonggoodbuy/swipe_api/web:latest
     build: 
       context: .
       dockerfile: Dockerfile.prod
@@ -11,8 +9,6 @@ services:
     volumes:
       - static_volume:/home/app/web/staticfiles
       - media_volume:/home/app/web/mediafiles
-    # expose:
-    #   - 8000
     ports:
       - 8000:8000
     env_file:
@@ -34,10 +30,8 @@ services:
 
   celery:
     restart: always
-    # image: ghcr.io/thelonggoodbuy/swipe_api/web:latest
     build:
       context: .
-      # dockerfile: Dockerfile.prod
     command: celery -A config worker -l info
     volumes:
     - ./:/usr/src/app/
@@ -48,10 +42,8 @@ services:
 
 
   celery-beat:
-    # image: ghcr.io/thelonggoodbuy/swipe_api/web:latest
     build:
       context: .
-      # dockerfile: Dockerfile.prod
     command: celery -A config beat -l info
     volumes:
     - ./:/usr/src/app/
@@ -62,15 +54,11 @@ services:
 
 
   nginx:
-    # image: "${NGINX_IMAGE}"
-    # image: ghcr.io/thelonggoodbuy/swipe_api/nginx:latest
     build: 
       context: ./nginx
     volumes:
       - static_volume:/home/app/web/staticfiles
       - media_volume:/home/app/web/mediafiles
-    # ports:
-    #   - 1337:80
     ports:
       - 80:80
     depends_on:

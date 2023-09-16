@@ -53,7 +53,7 @@ class AccomodationViewSet(ModelViewSet):
         queryset = Accomodation.objects.prefetch_related('image_field').select_related('house__builder', 'booked_by')
         return queryset
     
-    @extend_schema(summary='(T)Get list (LIST) of all accomodation(in owning - for BUILDER and total - for ADMIN). Needfull permission - admin or builder')
+    @extend_schema(summary='Get list (LIST) of all accomodation(in owning - for BUILDER and total - for ADMIN). Needfull permission - admin or builder')
     def list(self, request, *args, **kwargs):
 
         if self.request.user.is_superuser == True:
@@ -72,15 +72,15 @@ class AccomodationViewSet(ModelViewSet):
 
 
 
-    @extend_schema(summary='(T)Create accomodation (CREATE). Needfull permission - admin or builder')
+    @extend_schema(summary='Create accomodation (CREATE). Needfull permission - admin or builder')
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @extend_schema(summary='(T)Retreave accomodation (RETREAVE). Needfull permission - admin or builder.')
+    @extend_schema(summary='Retreave accomodation (RETREAVE). Needfull permission - admin or builder.')
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
     
-    @extend_schema(summary='(T)Update accomodation (PUT). Needfull permission - admin or builder(Partial change house, builded by user).')    
+    @extend_schema(summary='Update accomodation (PUT). Needfull permission - admin or builder(Partial change house, builded by user).')    
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -93,11 +93,11 @@ class AccomodationViewSet(ModelViewSet):
         return Response(serializer.data)
 
 
-    @extend_schema(summary='(T)Partial update accomodation (PATCH). Needfull permission - admin or builder(Partial change house, builded by user).')
+    @extend_schema(summary='Partial update accomodation (PATCH). Needfull permission - admin or builder(Partial change house, builded by user).')
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
 
-    @extend_schema(summary='(T)Delete accomodation. Needfull permission - admin or builder.')
+    @extend_schema(summary='Delete accomodation. Needfull permission - admin or builder.')
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 
@@ -118,7 +118,7 @@ class AdsViewSet(ModelViewSet):
     serializer_class = AdsSerializer
     queryset = Ads.objects.all()
 
-    @extend_schema(summary='(T)Return LIST of ads. Needfull permission - admin or builder')
+    @extend_schema(summary='Return LIST of ads. Needfull permission - admin or builder')
     def list(self, request, *args, **kwargs):
         if self.request.user.is_superuser == True:
             queryset = Ads.objects.all()
@@ -133,23 +133,23 @@ class AdsViewSet(ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
     
-    @extend_schema(summary='(T)RETREAVE ads object. Needfull permission - admin or builder')
+    @extend_schema(summary='RETREAVE ads object. Needfull permission - admin or builder')
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
-    @extend_schema(summary='(T)CREATE ads object. Needfull permission - admin or builder')
+    @extend_schema(summary='CREATE ads object. Needfull permission - admin or builder')
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
     
-    @extend_schema(summary='(T)UPDATE ads object. Needfull permission - admin or builder')
+    @extend_schema(summary='UPDATE ads object. Needfull permission - admin or builder')
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
     
-    @extend_schema(summary='(T)PARTIAL UPDATE ads object. Needfull permission - admin or builder')
+    @extend_schema(summary='PARTIAL UPDATE ads object. Needfull permission - admin or builder')
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
     
-    @extend_schema(summary='(T)DELETE ads object. Needfull permission - admin or builder')
+    @extend_schema(summary='DELETE ads object. Needfull permission - admin or builder')
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
     
@@ -172,7 +172,7 @@ class AdsPromoView(generics.UpdateAPIView):
         return queryset
 
 
-    @extend_schema(summary='(T)Partly update promo fields for Ads. Needfull permission - admin or builder.')
+    @extend_schema(summary='Partly update promo fields for Ads. Needfull permission - admin or builder.')
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -192,19 +192,19 @@ class ModerationAdsViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin, U
     queryset = Ads.objects.all()
     serializer_class = AdsupdateModerationSerializer
     
-    @extend_schema(summary='(T)List of all Ads - aproved and not approved. Needfull permission - admin.')
+    @extend_schema(summary='List of all Ads - aproved and not approved. Needfull permission - admin.')
     def list(self, *args, **kwargs):
         ads_list = Ads.objects.all().order_by("-id").order_by("-ads_status")
         serializer = AdsListModerationSerializer(ads_list, many=True)
         return Response(serializer.data)
     
-    @extend_schema(summary='(T)Retreve of single Ads. Needfull permission - admin.')
+    @extend_schema(summary='Retreve of single Ads. Needfull permission - admin.')
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = AdsRetreaveModerationSerializer(instance)
         return Response(serializer.data)
     
-    @extend_schema(summary='(T)Partial update and approve of single Ads. Needfull permission - admin.')
+    @extend_schema(summary='Partial update and approve of single Ads. Needfull permission - admin.')
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
 
@@ -220,27 +220,27 @@ class DeniedCauseViewSet(ModelViewSet):
     serializer_class = DeniedCauseSerializer
     queryset = DeniedCause.objects.all()
 
-    @extend_schema(summary='(T) List denied cause object. Needfull permission - admin')
+    @extend_schema(summary='List denied cause object. Needfull permission - admin')
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
     
-    @extend_schema(summary='(T) Create denied cause object. Needfull permission - admin')
+    @extend_schema(summary='Create denied cause object. Needfull permission - admin')
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @extend_schema(summary='(T) Retreave denied cause object. Needfull permission - admin')
+    @extend_schema(summary='Retreave denied cause object. Needfull permission - admin')
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
     
-    @extend_schema(summary='(T) Update denied cause object. Needfull permission - admin')
+    @extend_schema(summary='Update denied cause object. Needfull permission - admin')
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
     
-    @extend_schema(summary='(T) Partly Update denied cause object. Needfull permission - admin')
+    @extend_schema(summary='Partly Update denied cause object. Needfull permission - admin')
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
     
-    @extend_schema(summary='(T) Delete denied cause object. Needfull permission - admin')
+    @extend_schema(summary='Delete denied cause object. Needfull permission - admin')
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 
@@ -265,12 +265,12 @@ class AdsFeedListView(generics.ListAPIView):
         return queryset
 
 
-    @extend_schema(summary='(T)Get list of approved ADS. Needfull permission - all authenticated users.')
+    @extend_schema(summary='Get list of approved ADS. Needfull permission - all authenticated users.')
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
     
 
-    @extend_schema(summary='(T)Get list of FILTERED approved ADS. Needfull permission - all authenticated users.')
+    @extend_schema(summary='Get list of FILTERED approved ADS. Needfull permission - all authenticated users.')
     def post(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
@@ -298,11 +298,11 @@ class AdsRetreaveUpdateFavouritesView(generics.RetrieveUpdateAPIView):
             .filter(ads_status='approved')
         return queryset
 
-    @extend_schema(summary='(T)Retreave LIST of aproved ads. Needfull permission - all authenticated users.')
+    @extend_schema(summary='Retreave LIST of aproved ads. Needfull permission - all authenticated users.')
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
     
-    @extend_schema(summary='(T)Partly update for adding to favourite ads. Needfull permission - all authenticated users.')
+    @extend_schema(summary='Partly update for adding to favourite ads. Needfull permission - all authenticated users.')
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -337,7 +337,7 @@ class AdsListFavouritesView(generics.ListAPIView):
             .filter(*Q_list)
         return queryset
 
-    @extend_schema(summary='(T)Get list of USER FAVOURITES ads. Needfull permission - all authenticated users.')
+    @extend_schema(summary='Get list of USER FAVOURITES ads. Needfull permission - all authenticated users.')
     def get(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
     
@@ -354,11 +354,11 @@ class AdsListChessboardView(generics.RetrieveAPIView):
         queryset = House.objects.all()
         return queryset
 
-    @extend_schema(summary='(T)Get CHESSBOARD of ads. Needfull permission - all authenticated users.')
+    @extend_schema(summary='Get CHESSBOARD of ads. Needfull permission - all authenticated users.')
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 
-    @extend_schema(summary='(T)Get CHESSBOARD WITH FILTERS of ads. Needfull permission - all authenticated users.')
+    @extend_schema(summary='Get CHESSBOARD WITH FILTERS of ads. Needfull permission - all authenticated users.')
     def post(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
@@ -380,7 +380,7 @@ class BookedAccomodationView(generics.UpdateAPIView):
     parser_classes = [MultiPartParser]
 
 
-    @extend_schema(summary='(T)Partly update BOOKING fields for ACCOMODATION. Needfull permission - admin or builder.')
+    @extend_schema(summary='Partly update BOOKING fields for ACCOMODATION. Needfull permission - admin or builder.')
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
