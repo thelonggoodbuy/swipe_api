@@ -11,9 +11,9 @@ jobs:
 
         steps:
 
-          # - name: Stop Docker Compose
-          #   run: |
-          #     docker-compose -f docker-compose.prod.yml down
+          - name: Stop Docker Compose
+            run: |
+              docker-compose -f docker-compose.prod.yml down
 
 
           - name: Checkokut master
