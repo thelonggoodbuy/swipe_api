@@ -8,85 +8,72 @@ jobs:
     deploy:
         name: Deploy to DigitalOcean
         runs-on: [self-hosted]
-        # needs: prepare-environment
+
         steps:
 
-            - name: Checkokut master
-              uses: actions/checkout@v2
-
-            # - name: Install Make File
-            #   run: 
-            
-            - name: Check work make file
-              run: make test-make-file-prod
-
-            # - name: Pull updates from repository
-            #   run: |
-            #     echo '-------------------'
-            #     whoami 
-            #     pwd
-            #     echo '-------------------'
-            #     cd /app
-            #     git pull origin main
-
-            - name: Add environment variables to .env.prod and .env.prod.db
-              run: |
+          - name: Stop Docker Compose
+            run: |
+              docker-compose -f docker-compose.prod.yml up -d
 
 
-                ENV_PROD_FILE=/actions-runner/actions-runner/_work/swipe_api/swipe_api/.env.prod
-                ENV_PROD_DB_FILE=/actions-runner/actions-runner/_work/swipe_api/swipe_api/.env.prod.db
-
-                if test-f "ENV_PROD_FILE";
-                then
-                  echo "option 1"
-                  chown -R maxim /actions-runner/actions-runner/_work/swipe_api/swipe_api/.env.prod
-                else
-                  echo "option 2"
-                  touch /actions-runner/actions-runner/_work/swipe_api/swipe_api/.env.prod
-                  chown -R maxim /actions-runner/actions-runner/_work/swipe_api/swipe_api/.env.prod
-                fi
-
-                if test-f "ENV_PROD_DB_FILE";
-                then
-                  echo "option 1"
-                  chown -R maxim /actions-runner/actions-runner/_work/swipe_api/swipe_api/.env.prod.db
-                else
-                  echo "option 2"
-                  touch /actions-runner/actions-runner/_work/swipe_api/swipe_api/.env.prod.db
-                  chown -R maxim /actions-runner/actions-runner/_work/swipe_api/swipe_api/.env.prod.db
-                fi
-
-                echo DJANGO_ALLOWED_HOSTS=${{ secrets.DJANGO_ALLOWED_HOSTS }} >> .env.prod
-                echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env.prod
-                echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env.prod
-                echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env.prod
-                echo POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} >> .env.prod
-                echo POSTGRES_PORT=${{ secrets.POSTGRES_PORT }} >> .env.prod
-                echo DATABASE=${{ secrets.DATABASE }} >> .env.prod
-                echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env.prod
-                echo DEFAULT_FROM_EMAIL=${{ secrets.DEFAULT_FROM_EMAIL }} >> .env.prod
-                echo EMAIL_HOST=${{ secrets.EMAIL_HOST }} >> .env.prod
-                echo EMAIL_PORT=${{ secrets.EMAIL_PORT }} >> .env.prod
-                echo EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }} >> .env.prod
-                echo EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }} >> .env.prod
-                echo POSTGRES_TEST_DB=${{ secrets.POSTGRES_TEST_DB }} >> .env.prod
-                echo POSTGRES_TEST_USER=${{ secrets.POSTGRES_TEST_USER }} >> .env.prod
-                echo POSTGRES_TEST_PASSWORD=${{ secrets.POSTGRES_TEST_PASSWORD }} >> .env.prod
-                echo DOCKER_DEFAULT_PLATFORM=${{ secrets.DOCKER_DEFAULT_PLATFORM }} >> .env.prod
-
-                echo NAMESPACE=${{ secrets.NAMESPACE }} >> .env.prod
-                echo PERSONAL_ACCESS_TOKEN=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .env.prod
-
-                echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env.prod.db
-                echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env.prod.db
-                echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env.prod.db
-
-                # echo '======================================='
-                # chown -R maxim .env.prod
-                # chown -R maxim .env.prod.db
-                # echo '======================================='
+          - name: Checkokut master
+            uses: actions/checkout@v4
 
 
+          - name: Add environment variables to .env.prod and .env.prod.db
+            run: |
 
-            - name: App up
-              run: docker-compose -f docker-compose.prod.yml up -d
+              ENV_PROD_FILE=/actions-runner/actions-runner/_work/swipe_api/swipe_api/.env.prod
+              ENV_PROD_DB_FILE=/actions-runner/actions-runner/_work/swipe_api/swipe_api/.env.prod.db
+
+              if test-f "ENV_PROD_FILE";
+              then
+                echo "option 1"
+                chown -R maxim /actions-runner/actions-runner/_work/swipe_api/swipe_api/.env.prod
+              else
+                echo "option 2"
+                touch /actions-runner/actions-runner/_work/swipe_api/swipe_api/.env.prod
+                chown -R maxim /actions-runner/actions-runner/_work/swipe_api/swipe_api/.env.prod
+              fi
+
+              if test-f "ENV_PROD_DB_FILE";
+              then
+                echo "option 1"
+                chown -R maxim /actions-runner/actions-runner/_work/swipe_api/swipe_api/.env.prod.db
+              else
+                echo "option 2"
+                touch /actions-runner/actions-runner/_work/swipe_api/swipe_api/.env.prod.db
+                chown -R maxim /actions-runner/actions-runner/_work/swipe_api/swipe_api/.env.prod.db
+              fi
+
+              echo DJANGO_ALLOWED_HOSTS=${{ secrets.DJANGO_ALLOWED_HOSTS }} >> .env.prod
+              echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env.prod
+              echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env.prod
+              echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env.prod
+              echo POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} >> .env.prod
+              echo POSTGRES_PORT=${{ secrets.POSTGRES_PORT }} >> .env.prod
+              echo DATABASE=${{ secrets.DATABASE }} >> .env.prod
+              echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env.prod
+              echo DEFAULT_FROM_EMAIL=${{ secrets.DEFAULT_FROM_EMAIL }} >> .env.prod
+              echo EMAIL_HOST=${{ secrets.EMAIL_HOST }} >> .env.prod
+              echo EMAIL_PORT=${{ secrets.EMAIL_PORT }} >> .env.prod
+              echo EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }} >> .env.prod
+              echo EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }} >> .env.prod
+              echo POSTGRES_TEST_DB=${{ secrets.POSTGRES_TEST_DB }} >> .env.prod
+              echo POSTGRES_TEST_USER=${{ secrets.POSTGRES_TEST_USER }} >> .env.prod
+              echo POSTGRES_TEST_PASSWORD=${{ secrets.POSTGRES_TEST_PASSWORD }} >> .env.prod
+              echo DOCKER_DEFAULT_PLATFORM=${{ secrets.DOCKER_DEFAULT_PLATFORM }} >> .env.prod
+
+              echo NAMESPACE=${{ secrets.NAMESPACE }} >> .env.prod
+              echo PERSONAL_ACCESS_TOKEN=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .env.prod
+
+              echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env.prod.db
+              echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env.prod.db
+              echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env.prod.db
+
+
+          - name: Start Docker compose
+            run: docker-compose -f docker-compose.prod.yml up -d
+
+          - name: Clean up docker system
+            run: docker system prune -f
