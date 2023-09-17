@@ -83,7 +83,8 @@ class Command(BaseCommand):
                         agent_commission=0.1,
                         cost=random.choice(agent_comission_list),
                         cost_per_metter=random.choice(cost_list),
-                        version_of_calculation='credit'
+                        version_of_calculation='credit',
+                        ads_status='approved'
                     )
                     ads.save()
                     ads.accomodation = accomodation

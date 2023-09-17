@@ -73,7 +73,7 @@ jobs:
 
 
           - name: Start Docker compose
-            run: docker-compose -f docker-compose.prod.yml up -d
+            run: docker-compose -f docker-compose.prod.yml up -d --build
 
           - name: Clean up docker system
             run: docker system prune -f
