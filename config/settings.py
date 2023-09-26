@@ -237,8 +237,8 @@ CELERY_RESULT_BACKEND = "redis://redis:6379"
 CELERY_BEAT_SCHEDULE = {
     "sample_task": {
         "task": "users.tasks.check_subscriptions_task",
-        "schedule": crontab(minute="*/1"),
-        # "schedule": crontab(minute=0, hour=0),
+        # "schedule": crontab(minute="*/1"),
+        "schedule": crontab(minute=0, hour=0),
     }
 }
 
