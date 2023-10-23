@@ -17,7 +17,7 @@ jobs:
 
 
           - name: Checkokut master
-            uses: actions/checkout@v2
+            uses: actions/checkout@v4
 
 
           - name: Add environment variables to .env.prod and .env.prod.db
