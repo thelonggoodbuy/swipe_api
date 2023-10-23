@@ -82,7 +82,7 @@ RUN apk update
 
 RUN apk add --virtual build-deps gcc python3-dev musl-dev
 
-RUN apk add apk add postgresql-dev
+RUN apk add postgresql-dev
 
 RUN pip install psycopg2
 
