@@ -27,6 +27,8 @@ class PhotoToAccomodationSerializer(serializers.ModelSerializer):
 
 
 class AccomodationSerializer(serializers.ModelSerializer):
+    # house titile
+    house_address = serializers.SerializerMethodField()
     house = serializers.PrimaryKeyRelatedField(required=False, queryset = House.objects.all())
     house_building = serializers.PrimaryKeyRelatedField(required=False, queryset = HouseBuilding.objects.all())
     house_entrance = serializers.PrimaryKeyRelatedField(required=False, queryset = HouseEntrance.objects.all())
@@ -39,11 +41,16 @@ class AccomodationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Accomodation
         fields = ['id', 'type_status', 'number',\
-                'house', 'house_building', 'house_entrance',\
+                'house', 'house_address', 'house_building', 'house_entrance',\
                 'floor', 'riser', 'area', 'planing',\
                 'living_condition', 'area_kitchen', 'have_balcony',\
                 'heat_type', 'image_field', 'booked_by', 'schema']
+        read_only_fields = ('house_address', )
         
+    def get_house_address(self, obj):
+        return obj.house.address
+
+
     def create(self, validated_data):
         if 'image_field' in validated_data:
             photo_data = validated_data.pop('image_field')
@@ -138,10 +145,17 @@ class AccomodationSerializer(serializers.ModelSerializer):
 
 
 class AdsSerializer(serializers.ModelSerializer):
+
+    accomodation_data = serializers.SerializerMethodField()
+
     class Meta:
         model = Ads
-        fields = ['accomodation', 'agent_commission', 'cost',
-                  'cost_per_metter', 'version_of_calculation']
+        fields = ['accomodation',
+                    'accomodation_data',
+                    'agent_commission', 'cost',
+                    'cost_per_metter', 'version_of_calculation',
+                    'description']
+        read_only_fields = ('accomodation_data', )
         
     def validate(self, data):
         request = self.context.get("request")
@@ -149,6 +163,22 @@ class AdsSerializer(serializers.ModelSerializer):
             and request.user.is_superuser == False:
             raise serializers.ValidationError("Змінювати такий тип данних може тільки забудовник, або адмін.")
 
+        return data
+    
+    def get_accomodation_data(self, obj):
+        accomodation_data = obj.accomodation
+        data = {'planing': accomodation_data.planing,
+                'area': accomodation_data.area,
+                'floor': accomodation_data.floor.title,
+                'total_floors': accomodation_data.house.floor.all().count(),
+                'disctrict': accomodation_data.house.disctrict,
+                'address': accomodation_data.house.address,
+                'location_x': accomodation_data.house.location_x,
+                'location_y': accomodation_data.house.location_y,}
+        
+        if accomodation_data.image_field.all(): 
+            image = accomodation_data.image_field.all().first()
+            data['main_image'] = image.image.url
         return data
     
 
@@ -320,7 +350,7 @@ class AdsFeedListSerializer(serializers.ModelSerializer):
         fields = ['id', 'cost', 'accomodation_data', 'date_added', 'filter_from_cost', 'filter_to_cost',
                   'filter_type_status', 'filter_disctrict', 'filter_microdisctrict',
                   'filter_from_area', 'filter_to_area', 'filter_house_status', 'filter_living_condition',
-                  'filter_type', 'existing_filter', 'save_current_filter']
+                  'filter_type', 'existing_filter', 'save_current_filter', 'description']
 
 
     def get_accomodation_data(self, obj):

@@ -99,7 +99,7 @@ class HouseSerializer(serializers.ModelSerializer):
 
 
     def validate_builder(self, data):
-        if data == self.context.get("request").user or self.context.get("request").user.is_superuser == True:
+        if data == self.context.get("request").user.id or self.context.get("request").user.is_superuser == True:
             return data
         else:
             raise serializers.ValidationError("Тільки адміністратор має можливість змінювати данні про власнітьс об'єкта нерухомості.")

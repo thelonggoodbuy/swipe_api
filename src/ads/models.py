@@ -88,6 +88,7 @@ class Ads(models.Model):
     promotion_additional_phrase = models.ForeignKey('PromoAdditionalPhrase', on_delete=models.SET_NULL, null=True, blank=True)
     promotion_color_boost = models.CharField(max_length=200, choices=PROMOTION_COLOR_BOOST_CORT, default=PROMOTION_COLOR_BOOST_CORT[2][0], null=True, blank=True)
     favorites_for = models.ManyToManyField('users.CustomUser', related_name='favourites_adds')
+    description = models.TextField(null=True, blank=True)
 
 
 class DeniedCause(models.Model):

@@ -11,7 +11,7 @@ environ.Env.read_env(env_file=os.path.join(BASE_DIR, ".env.dev"))
 
 SECRET_KEY = env("SECRET_KEY")
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = env("DJANGO_ALLOWED_HOSTS").split(' ')
 
@@ -134,7 +134,8 @@ USE_TZ = True
 
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+# MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_ROOT = BASE_DIR / "media"
 
 CSRF_TRUSTED_ORIGINS = ["http://localhost:1337"]
 

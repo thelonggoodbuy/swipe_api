@@ -14,7 +14,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.viewsets import ModelViewSet
 from drf_spectacular.utils import extend_schema
         
-from .serializers import SimpleUserUpdateSubscriptionSerializer
+from .serializers import SimpleUserUpdateSubscriptionSerializer, UserBuilderRegistrationSerializer
 from drf_spectacular.utils import extend_schema, extend_schema_view
 
 
@@ -101,6 +101,41 @@ class UserRegistrationAPIView(GenericAPIView, UpdateModelMixin):
             data['comment'] = 'token and uid data is only for DEBUG regime.'
         return Response(data, status=status.HTTP_201_CREATED)
     
+
+
+@extend_schema(tags=['Users: Authentication and registration'])
+class UserBuilderRegistrationAPIView(GenericAPIView, UpdateModelMixin):
+    """
+    Endpoint for creating builder user
+    """
+    permission_classes = (AllowAny,)
+    serializer_class = UserBuilderRegistrationSerializer
+    
+    @extend_schema(summary='POST registration builder user. Needfull permission - All users.')
+    def post(self, request, *args, **kwargs):
+        print('----------post to views-------------')
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(serializer.validated_data['email'],
+                        serializer.validated_data['password'])
+        # data = serializer.data
+        # user = CustomUser.objects.get(email=serializer.data['email'])
+        # current_site = get_current_site(request)
+        # subject = 'Activate my site account'
+        # message = render_to_string('users/email_templates/user_activation_email.html', {
+        #     'user': user,
+        #     'domain': current_site.domain,
+        #     'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+        #     'token': user_activation_token.make_token(user),
+        # })
+        # user.email_user(subject, message)
+        # if settings.DEBUG == True:
+        #     data['token'] = user_activation_token.make_token(user)
+        #     data['uid'] = urlsafe_base64_encode(force_bytes(user.pk))
+        #     data['comment'] = 'token and uid data is only for DEBUG regime.'
+        # return Response(status=status.HTTP_201_CREATED)
+        return Response(serializer.data)
+
 
 
 @extend_schema(tags=['Users: Authentication and registration'])

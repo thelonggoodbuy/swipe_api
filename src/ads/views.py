@@ -37,7 +37,6 @@ from users.services import AdminOrBuildeOwnerPermission
 from rest_framework.parsers import JSONParser, MultiPartParser
 
 @extend_schema(tags=['Ads: Accomodation'])
-# @extend_schema_view(put=extend_schema(exclude=True))
 class AccomodationViewSet(ModelViewSet):
     '''
     Accomodation CRUD and logic for working with nested images.
@@ -70,8 +69,6 @@ class AccomodationViewSet(ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-
-
     @extend_schema(summary='Create accomodation (CREATE). Needfull permission - admin or builder')
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
@@ -100,6 +97,34 @@ class AccomodationViewSet(ModelViewSet):
     @extend_schema(summary='Delete accomodation. Needfull permission - admin or builder.')
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
+
+
+from rest_framework.generics import ListAPIView
+
+@extend_schema(tags=['Ads: Accomodation'])
+class AccomodationWithoutAdsView(ListAPIView):
+    permission_classes = [IsAuthenticated, AdminOrBuildeOwnerPermission]
+    authentication_classes = [JWTAuthentication]
+    serializer_class = AccomodationSerializer
+    queryset = Accomodation.objects.filter(ads=None)
+    parser_classes = [JSONParser]
+
+    @extend_schema(summary='Get list (LIST) of all accomodations without ads(in owning - for BUILDER and total - for ADMIN). Needfull permission - admin or builder')
+    def get(self, request, *args, **kwargs):
+
+        if self.request.user.is_superuser == True:
+            queryset = Accomodation.objects.filter(ads=None).\
+                prefetch_related('image_field')
+        else:
+            queryset =  Accomodation.objects.filter(house__builder=self.request.user, ads=None)\
+                .prefetch_related('image_field')
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 # =============================================================================================
 # ===========================ADS====LOGIC======================================================
@@ -261,7 +286,7 @@ class AdsFeedListView(generics.ListAPIView):
         queryset = Ads.objects\
             .select_related('accomodation', 'accomodation__floor')\
             .prefetch_related('accomodation__image_field', 'accomodation__house__floor')\
-            .filter(ads_status='approved')
+            .filter(ads_status='approved').order_by('date_added')
         return queryset
 
 

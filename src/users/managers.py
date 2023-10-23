@@ -21,12 +21,26 @@ class CustomUserManager(BaseUserManager):
         email = self.normalize_email(email)
         user = self.model(email=email, password=password, is_simple_user=is_simple_user)
         user.password = make_password(password)
-        # user.is_superuser =  False
-        # user.is_staff = False
-        # user.is_simple_user = True
         print('You use manager for simple user!!!')
         user.save()
         return user
+
+    def create_builder(self, email, password):
+        print('-------create-----builder-----managers-----')
+        if not email:
+            raise ValueError("The Email must be str")
+        email = self.normalize_email(email)
+
+        user = self.model(email=email,\
+                        password=password,\
+                        is_builder=True,\
+                        is_activated=True)
+
+        user.password = make_password(password)
+        print('You use manager for creating builder user!!!')
+        user.save()
+        return user
+
 
     def create_superuser(self, email, password, **extra_fields):
         if not email:

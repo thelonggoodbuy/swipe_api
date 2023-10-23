@@ -46,7 +46,9 @@ class Command(BaseCommand):
                     type_of_account="credit",
                     purpose="dwelling",
                     summ_of_threaty="full",
-                    builder=initial_builder
+                    builder=initial_builder,
+                    location_x=50.4442097549618,
+                    location_y=30.549555457035364
                 )
                 house.save()
                 print('=================================================')

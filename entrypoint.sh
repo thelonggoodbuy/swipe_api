@@ -18,13 +18,13 @@ python manage.py migrate
 python manage.py makemigrations
 python manage.py migrate
 
-echo "-----------STATIC------------------"
-echo yes | python manage.py collectstatic
-echo "-------END-STATIC------------------"
+# echo "-----------STATIC------------------"
+# echo yes | python manage.py collectstatic
+# echo "-------END-STATIC------------------"
 
-python manage.py users_initial_script
-python manage.py house_initial_script
-python manage.py ads_initial_script
+# python manage.py users_initial_script
+# python manage.py house_initial_script
+# python manage.py ads_initial_script
 echo "============================================================"
 
 exec "$@"

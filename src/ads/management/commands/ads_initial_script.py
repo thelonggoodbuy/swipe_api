@@ -13,6 +13,10 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 
 fake = Faker('uk_UA')
 
+print('==============FAKE===LOCALES================')
+print(fake.locales)
+print('============================================')
+
 class Command(BaseCommand):
     help = 'Ads and accomodation objects initialization'
     def handle(self, *args, **kwargs):
@@ -36,7 +40,7 @@ class Command(BaseCommand):
                 agent_comission_list = [0.09, 0.1, 0.15, 0.25]
                 cost_list = [450000, 500000, 550000, 600000, 650000]
 
-                for index in range(1, 13):
+                for index in range(1, 20):
                     accomodation = Accomodation(
                         type_status="new_building",
                         number=index,
@@ -79,16 +83,18 @@ class Command(BaseCommand):
                         accomodation.image_field.add(image)
                         accomodation.save()
 
-                    ads = Ads(
-                        agent_commission=0.1,
-                        cost=random.choice(agent_comission_list),
-                        cost_per_metter=random.choice(cost_list),
-                        version_of_calculation='credit',
-                        ads_status='approved'
-                    )
-                    ads.save()
-                    ads.accomodation = accomodation
-                    ads.save()
+                    if Accomodation.objects.all().count() < 11:
+                        ads = Ads(
+                            agent_commission=0.1,
+                            cost=random.choice(agent_comission_list),
+                            cost_per_metter=random.choice(cost_list),
+                            version_of_calculation='credit',
+                            ads_status='approved',
+                            description=fake['uk_UA'].text()
+                        )
+                        ads.save()
+                        ads.accomodation = accomodation
+                        ads.save()
 
                     if DeniedCause.objects.all().count() == 0:
                         denied_list = ["Некорректна ціна", "Некоректне фото",

@@ -1,4 +1,4 @@
-from .views import AccomodationViewSet, AdsViewSet, DeniedCauseViewSet,\
+from .views import AccomodationViewSet, AccomodationWithoutAdsView, AdsViewSet, DeniedCauseViewSet,\
                     ModerationAdsViewSet, AdsFeedListView, AdsRetreaveUpdateFavouritesView,\
                     AdsListFavouritesView, AdsPromoView, AdsListChessboardView, BookedAccomodationView
 
@@ -19,10 +19,12 @@ router.register(r'moderation_ads', ModerationAdsViewSet, basename='moderation_ad
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("accomodation_without_ads/", AccomodationWithoutAdsView.as_view(), name='accomodation_without_ads'),
     path("ads-feed/", AdsFeedListView.as_view(), name='ads_feed'),
     path("ads_retreave_or_add_to_favourite/<int:pk>/", AdsRetreaveUpdateFavouritesView.as_view(), name='ads_retreave_or_add_to_favourite'),
     path("ads_list_favourites/", AdsListFavouritesView.as_view(), name='ads_list_favourites'),    
     path("ads_promo_update/<int:pk>", AdsPromoView.as_view(), name='ads_promo_update'),
     path("ads_list_chessboard/<int:pk>", AdsListChessboardView.as_view(), name='ads_list_chessboard'),
     path("booked_accomodation/<int:pk>", BookedAccomodationView.as_view(), name='booked_accomodation'),
+
 ]

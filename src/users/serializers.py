@@ -39,7 +39,9 @@ class UserLoginSerializer(serializers.Serializer):
 
     email = serializers.CharField()
     password = serializers.CharField(write_only=True)
-
+    # ----------------
+    id = serializers.IntegerField(read_only=True)
+    # ----------------
     def validate(self, data):
         user = authenticate(**data)
         match user:
@@ -69,6 +71,24 @@ class UserRegistrationSerializer(serializers.Serializer):
             email,
             password,
             is_simple_user
+        )
+        return user
+
+
+class UserBuilderRegistrationSerializer(serializers.Serializer):
+    """
+    Serializer class for registration requests 
+    and create a new builder user
+    """
+    
+    email = serializers.CharField(validators=[UniqueEmailValidator(queryset=CustomUser.objects.all())])
+    password = serializers.CharField(write_only=True)
+
+    def save(self, email, password):
+        print('----------------serializer-------------')
+        user =  CustomUser.objects.create_builder(
+            email,
+            password
         )
         return user
 
