@@ -39,11 +39,24 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # install psycopg2
-RUN apk update \
-    && apk add --virtual build-deps gcc python3-dev musl-dev \
-    && apk add postgresql-dev \
-    && pip install psycopg2 \
-    && apk del build-deps
+# RUN apk update \
+    # && apk add --virtual build-deps gcc python3-dev musl-dev \
+    # && apk add postgresql-dev \
+    # && pip install psycopg2 \
+    # && apk del build-deps
+
+RUN apk update
+
+RUN apk add --virtual build-deps gcc python3-dev musl-dev
+
+RUN apk add apk add postgresql-dev
+
+RUN pip install psycopg2
+
+RUN apk del build-deps
+
+RUN apk add --no-cache make
+
 
 # install dependencies
 RUN pip install --upgrade pip
